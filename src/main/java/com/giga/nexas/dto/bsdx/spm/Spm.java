@@ -42,7 +42,7 @@ public class Spm extends Bsdx {
         private Long drawOption;
         private Long drawOptionValue;
         private Integer option;
-        // private byte unk5; // for SPM 2.02
+        private byte unk5; // for SPM 2.02
     }
 
     @Data
@@ -85,6 +85,11 @@ public class Spm extends Bsdx {
         private Integer animRotateDirection;
         private Integer animReverseDirection;
         private List<SPMPatData> patData; // size = numPat & 65535
+    }
+
+    @Data
+    public static class SPMTailData {
+
     }
 
 }

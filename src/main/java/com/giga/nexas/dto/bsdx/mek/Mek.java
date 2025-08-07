@@ -1,12 +1,10 @@
 package com.giga.nexas.dto.bsdx.mek;
 
 import com.giga.nexas.dto.bsdx.Bsdx;
+import com.giga.nexas.dto.bsdx.mek.mekcpu.CCpuEvent;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author 这位同学(Karaik)
@@ -22,10 +20,11 @@ import java.util.Map;
  * 2 机体基本信息块
  * 3 spm信息块
  * 4 武装信息块
- * 5 ai块1
- * 6 ai块2
+ * 5 ai块
+ * 6 疑似播放音频相关
  * 7 武装栏位块
  *
+ * 经深度逆向发现并由本人完善结构
  */
 @Data
 public class Mek extends Bsdx {
@@ -47,11 +46,11 @@ public class Mek extends Bsdx {
     // 武装信息块
     private Map<Integer, MekWeaponInfo> mekWeaponInfoMap;
 
-    // ai信息块1
-    private MekAi1Info mekAi1Info;
+    // ai信息块
+    private List<MekAiInfo> mekAiInfoList;
 
-    // ai信息块2
-    private MekAi2Info mekAi2Info;
+    // 声音信息块
+    private MekVoiceInfo mekVoiceInfo;
 
     // 未知信息块2
     private MekPluginBlock mekPluginBlock;
@@ -61,9 +60,9 @@ public class Mek extends Bsdx {
         this.mekBlocks = new MekBlocks();
         this.mekBasicInfo = new MekBasicInfo();
         this.mekUnknownBlock1 = new MekUnknownBlock1();
-        this.mekWeaponInfoMap = new HashMap<>();
-        this.mekAi1Info = new MekAi1Info();
-        this.mekAi2Info = new MekAi2Info();
+        this.mekWeaponInfoMap = new LinkedHashMap<>();
+        this.mekAiInfoList = new ArrayList<>();
+        this.mekVoiceInfo = new MekVoiceInfo();
         this.mekPluginBlock = new MekPluginBlock();
     }
 
@@ -82,10 +81,10 @@ public class Mek extends Bsdx {
         // 序列4：区块大小块 + 机体信息 + 未知信息1 + 武装信息总字节
         private Integer sequence4;
 
-        // 序列5：区块大小块 + 机体信息 + 未知信息1 + 武装信息 + AI信息1总字节
+        // 序列5：区块大小块 + 机体信息 + 未知信息1 + 武装信息 + AI信息总字节
         private Integer sequence5;
 
-        // 序列6：区块大小块 + 机体信息 + 未知信息1 + 武装信息 + AI信息1 + AI信息2总字节
+        // 序列6：区块大小块 + 机体信息 + 未知信息1 + 武装信息 + AI信息 + 声音信息总字节
         private Integer sequence6;
 
     }
@@ -102,11 +101,11 @@ public class Mek extends Bsdx {
         // 武装信息块大小
         private Integer weaponInfoBlockSize;
 
-        // AI信息块1的大小
-        private Integer aiInfo1BlockSize;
+        // AI信息块的大小
+        private Integer aiInfoBlockSize;
 
-        // AI信息块2的大小
-        private Integer aiInfo2BlockSize;
+        // 声音信息块的大小
+        private Integer voiceInfoBlockSize;
 
         // 用于计算每个区块的字节数
         public void calculateBlockSizes(MekHead mekHead) {
@@ -115,8 +114,8 @@ public class Mek extends Bsdx {
             this.bodyInfoBlockSize = mekHead.getSequence2() - mekHead.getSequence1();
             this.unknownInfo1BlockSize = mekHead.getSequence3() - mekHead.getSequence2();
             this.weaponInfoBlockSize = mekHead.getSequence4() - mekHead.getSequence3();
-            this.aiInfo1BlockSize = mekHead.getSequence5() - mekHead.getSequence4();
-            this.aiInfo2BlockSize = mekHead.getSequence6() - mekHead.getSequence5();
+            this.aiInfoBlockSize = mekHead.getSequence5() - mekHead.getSequence4();
+            this.voiceInfoBlockSize = mekHead.getSequence6() - mekHead.getSequence5();
         }
 
     }
@@ -129,27 +128,41 @@ public class Mek extends Bsdx {
      *
      * 总结与发现
      *
+     * 逆向完善by：我（Karaik）
+     *
      */
     @Data
     public static class MekBasicInfo {
 
-        private String mekNameKana;
+        // jpメカ名
+        private String mekName;
+
+        // jpメカのルビ
         private String mekNameEnglish;
+
+        // jpパイロット名
         private String pilotNameKanji;
+
+        // jpパイロットのルビ
         private String pilotNameRoma;
+
+        // jpメカ解説
         private String mekDescription;
 
         /**
+         * jpデフォルト技グルー
          * 1.对应哪个.waz
          */
         private Integer wazFileSequence;
 
         /**
+         * jpデフォルトスプライトグループ
          * 2.对应哪个.spm
          */
         private Integer spmFileSequence;
 
         /**
+         * jpフラグ
          * 3.机体图鉴中的机体类型（分类和擅长）
          *
          * -虽然理论上只有六种组合，但值有很多种，进一步研究具体规律可能得统一提取出，再和机体信息对比
@@ -163,16 +176,19 @@ public class Mek extends Bsdx {
         private Integer mekType;
 
         /**
+         * jp強さＬｖ
          * 4.作为敌机，在自机不使用FC/初始器下被击破时，自机回复的血量/3
          */
         private Integer healthRecovery;
 
         /**
+         * jpフォース数
          * 5.0级击破所得Force数
          */
         private Integer forceOnKill;
 
         /**
+         * jp耐久力
          * 6.基础血量/10
          *
          * 基础血量等于机体图鉴中的4级血量
@@ -180,11 +196,13 @@ public class Mek extends Bsdx {
         private Integer baseHealth;
 
         /**
+         * jpＦＣゲージLv1
          * 7.≥几级时，能量槽+1
          */
         private Integer energyIncreaseLevel1;
 
         /**
+         * jpＦＣゲージLv2
          * 8.≥几级时，能量槽+1
          *
          * 7和8
@@ -198,11 +216,13 @@ public class Mek extends Bsdx {
         private Integer energyIncreaseLevel2;
 
         /**
+         * jpブースターが１になるLv
          * 9.从几级开始有一个助推器
          */
         private Integer boosterLevel;
 
         /**
+         * jpブースター増分
          * 10.每增长几级多一个助推器
          *
          * 9和10
@@ -216,16 +236,25 @@ public class Mek extends Bsdx {
         private Integer boosterIncreaseLevel;
 
         /**
-         * 11.常驻甲/100设置为3就是300常驻甲
+         * jp常時装甲
+         * 11.常驻甲/100 设置为3就是300常驻甲
          */
         private Integer permanentArmor;
 
         /**
-         * 12.未知，目前最高的好像是村正，1000修改后无明显变化
+         * jpコンボ感想反映率
+         * 12.疑似技能影响因子
+         * 修改后表现为：在部分角色使用特定技能时，目标被击中的浮空高度变高。
+         * 可能影响浮空类技能的combo连击稳定性、浮空持续时间。
+         * 数值越高，浮空效果越明显
+         *
+         * 当前观察值范围：0～1000，部分机体（如村正）为 1000
+         * 通过逆向出的字符串，推测该系数大概率为技能物理动作效果的调节因子
          */
-        private Integer unknownProperty12;
+        private Integer comboImpactFactor;
 
         /**
+         * jp性能：格闘
          * 13.机体图鉴四维图的格斗
          *
          * 对应关系如下：
@@ -238,28 +267,35 @@ public class Mek extends Bsdx {
         private Integer fightingAbility;
 
         /**
+         * jp性能：射撃
          * 14.机体图鉴四维图的射击
          */
         private Integer shootingAbility;
 
         /**
+         * jp性能：耐久力
          * 15.机体图鉴四维图的耐久力
          */
         private Integer durability;
 
         /**
+         * jp性能：機動
          * 16.机体图鉴四维图的机动力
          */
         private Integer mobility;
 
         /**
-         * 17.未知，目前查看的机体都是0
+         * jp重量
+         * 17.重量
          *
          * 修改后无明显变化
+         * 经过逆向后根据字符串判断为物理上的重量
+         * 在bhe中有一关会增加角色受到的重力，虽然bsdx里好像没用
          */
-        private Integer unknownProperty17;
+        private Integer physicsWeight;
 
         /**
+         * jp速度：歩行
          * 18.“走路”速度
          *
          * “走路”是镇静剂的主要移动方式
@@ -269,21 +305,25 @@ public class Mek extends Bsdx {
         private Integer walkingSpeed;
 
         /**
+         * jp速度：ダッシュ
          * 19.ND速度（normal dash）
          */
         private Integer normalDashSpeed;
 
         /**
+         * jp速度：サーチダッシュ
          * 20.SD速度（search dash）
          */
         private Integer searchDashSpeed;
 
         /**
+         * jp速度：ブーストダッシュ
          * 21.BD速度（boost dash）
          */
         private Integer boostDashSpeed;
 
         /**
+         * jp浮遊高度
          * 22.无热量、不使用武装时，自动升空停止的高度
          * 
          * 大部分敌机都是0，眼球射线96
@@ -314,32 +354,47 @@ public class Mek extends Bsdx {
         // 仅用作记录
         public int offset;
 
+        /**
+         * jpヘッダ名
+         * header名，武器名字
+         */
         private String weaponName;
+        /**
+         * jpメカグループ番号
+         * .mek的序号
+         */
         private String weaponSequence;
+        /**
+         * jp解説
+         * 为什么逆向后，这个会在数组的最后一项呢？
+         */
         private String weaponDescription;
 
         /**
-         * 1.未知，大多为FF FF FF FF（-1）
-         * 为-1时疑似为不启用该数值
+         * 1.使用该武装时，会切换为对应编号的mek
          */
-        private Integer weaponUnknownProperty1;
+        private Integer switchToMekNo;
 
         /**
+         * jp技番号
          * 2.对应.waz中的哪一个武装
          */
         private Integer wazSequence;
 
         /**
-         * 3.使用时获得的FC（是叫force crash来着？）
+         * 3.使用时获得的FC
+         * 这个倒是没有逆向出字符串，为什么呢？
          */
         private Integer forceCrashAmount;
 
         /**
+         * jp蓄積熱量：初期値
          * 4.消耗的最大热量（一管热量是80）
          */
         private Integer heatMaxConsumption;
 
         /**
+         * jp蓄積熱量：最小値
          * 5.武装master后的热量
          *
          * 关于4和5，除主角机外这俩值都一样
@@ -347,11 +402,13 @@ public class Mek extends Bsdx {
         private Integer heatMinConsumption;
 
         /**
-         * 6.疑似和升级经验有关
+         * jp必要経験値
+         * 6.升级所需经验
          */
-        private Integer necessaryUpgradeExp;
+        private Integer upgradeExp;
 
         /**
+         * jpデモ時の距離
          * 7.武装演示时机体的起始坐标
          *
          * 负数则在右边
@@ -359,6 +416,7 @@ public class Mek extends Bsdx {
         private Integer startPointWhenDemonstrate;
 
         /**
+         * jpカテゴリ
          * 8.武装种类
          *
          * 其中
@@ -368,10 +426,12 @@ public class Mek extends Bsdx {
          *
          * 若普通武装设置为02，会直接附带初始器效果
          * 其中，初始器自身效果仅为进场演出特效不同
+         * ps：为什么逆向后，字符串不是按照实际排列顺序来的呢？
          */
         private Integer weaponCategory;
 
         /**
+         * jp攻撃タイプ
          * 9.武装类型
          *
          * 其中
@@ -384,46 +444,55 @@ public class Mek extends Bsdx {
 
         // 【以下武装标签能在究极生存的兵器情报里查看，值大于0就有标签，大于0的数值具体影响未知，武装标签对武装的影响未知】
         /**
+         * jpタイプ：格闘技
          * 10.格斗技
          */
         private Integer meleeSkillFlag;
 
         /**
+         * jpタイプ：武器
          * 11.兵器
          */
         private Integer coldWeaponSkillFlag;
 
         /**
+         * jpタイプ：ミサイル
          * 12.导弹
          */
         private Integer missileSkillFlag;
 
         /**
+         * jpタイプ：実弾
          * 13.实弹
          */
         private Integer bulletCategorySkillFlag;
 
         /**
+         * jpタイプ：光学兵器
          * 14.光学兵器
          */
         private Integer opticalWeaponSkillFlag;
 
         /**
+         * jpタイプ：ビット
          * 15.无人机
          */
         private Integer droneSkillFlag;
 
         /**
+         * jpタイプ：爆発物
          * 16.爆炸物
          */
         private Integer explosiveSkillFlag;
 
         /**
+         * jpタイプ：防御兵器
          * 17.防御兵器
          */
         private Integer defensiveWeaponSkillFlag;
 
         /**
+         * jpフラグ
          * 18.武装标识符
          *
          * 其中
@@ -436,7 +505,8 @@ public class Mek extends Bsdx {
         private Integer weaponIdentifier;
 
         /**
-         * 19.虽然只是推测，但是这里应该也是数据，而不是结尾符
+         * 19.
+         * ps:攻撃Ｌｖ是你吗？
          */
         private Integer weaponUnknownProperty19;
 
@@ -448,14 +518,17 @@ public class Mek extends Bsdx {
     }
 
     @Data
-    public static class MekAi1Info {
+    public static class MekAiInfo {
 
-        private byte[] info;
+        private String aiTypeJapanese;
+        private String aiTypeEnglish;
+
+        private List<CCpuEvent> cpuEventList = new ArrayList<>();
 
     }
 
     @Data
-    public static class MekAi2Info {
+    public static class MekVoiceInfo {
 
         private byte[] info;
 
@@ -465,14 +538,13 @@ public class Mek extends Bsdx {
      * 极大可能为武装选择列表（插槽块）
      * 其中，开头的几个为常规块，如走路、站立、ND、BD等，因机体的不同有包括数量在内的差异
      * 另，内容物作用尚未查明，故直接以byte数组存储
-     * 因此采用倒序匹配插槽所对应武装
      */
     @Data
     public static class MekPluginBlock {
 
         private byte[] info;
 
-        private  List<byte[]> regularPluginInfoList;
+        private List<byte[]> regularPluginInfoList;
 
         private List<byte[]> weaponPluginInfoList;
 

@@ -91,13 +91,13 @@ public class BinaryReader {
 
     private void checkAvailable(int length) {
         if (position + length > data.length) {
-            throw new IndexOutOfBoundsException("剩余字节不足：" + (data.length - position) + " < " + length);
+            throw new IndexOutOfBoundsException("not enough remaining bytes: " + (data.length - position) + " < " + length + ", offset = " + position);
         }
     }
 
     public void seek(int newPosition) {
         if (newPosition < 0 || newPosition > data.length) {
-            throw new IllegalArgumentException("无效偏移位置：" + newPosition);
+            throw new IllegalArgumentException("invalid seek position: " + newPosition);
         }
         this.position = newPosition;
     }

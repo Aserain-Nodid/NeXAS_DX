@@ -16,8 +16,6 @@ public class MainViewController {
     @FXML private TextField inputField;
     @FXML private TextField outputField;
     @FXML private TextArea logArea;
-    @FXML private ProgressBar progress;
-    @FXML private Label statusLabel;
     @FXML private Button actionButton;
     @FXML private CheckBox alwaysOnTop;
     @FXML private RadioButton modePackRadio;
@@ -27,6 +25,9 @@ public class MainViewController {
     public void initialize() {
         // 绑定解包封包 控制当前操作模式
         new ToggleModeController(this).bind();
+
+        // 设置左侧模式树形结构切换内容
+        new ModeTreeController(this).setup();
 
         // 设置“设置”菜单栏及其弹出设置窗口逻辑
         new SettingsMenuController(this).setup();
@@ -43,8 +44,6 @@ public class MainViewController {
         // 绑定“开始”按钮，执行解包 / 封包操作
         new ActionButtonController(this).bind();
 
-        // 设置左侧模式树形结构切换内容
-        new ModeTreeController(this).setup();
 
     }
 

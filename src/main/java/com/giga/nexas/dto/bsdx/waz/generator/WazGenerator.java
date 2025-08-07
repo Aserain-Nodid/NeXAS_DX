@@ -3,9 +3,9 @@ package com.giga.nexas.dto.bsdx.waz.generator;
 import cn.hutool.core.io.FileUtil;
 import com.giga.nexas.dto.bsdx.BsdxGenerator;
 import com.giga.nexas.dto.bsdx.waz.Waz;
-import com.giga.nexas.dto.bsdx.waz.wazfactor.wazinfoclass.SkillUnit;
-import com.giga.nexas.dto.bsdx.waz.wazfactor.wazinfoclass.obj.SkillInfoObject;
-import com.giga.nexas.dto.bsdx.waz.wazfactor.wazinfoclass.obj.SkillInfoUnknown;
+import com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.SkillUnit;
+import com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.obj.SkillInfoObject;
+import com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.obj.SkillInfoUnknown;
 import com.giga.nexas.io.BinaryWriter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,6 +78,7 @@ public class WazGenerator implements BsdxGenerator<Waz> {
         for (int i = 0; i < 72; i++) {
             SkillUnit matchedUnit = null;
             for (SkillUnit unit : skillUnitCollection) {
+                // todo bug
                 if (unit.getUnitQuantity() == i) {
                     matchedUnit = unit;
                     break;

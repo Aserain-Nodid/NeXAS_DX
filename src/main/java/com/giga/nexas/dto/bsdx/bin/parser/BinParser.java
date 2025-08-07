@@ -3,7 +3,9 @@ package com.giga.nexas.dto.bsdx.bin.parser;
 import com.giga.nexas.dto.bsdx.BsdxParser;
 import com.giga.nexas.dto.bsdx.bin.Bin;
 import com.giga.nexas.dto.bsdx.bin.consts.BinConst;
-import com.giga.nexas.exception.BusinessException;
+import com.giga.nexas.dto.bsdx.bin.consts.Opcode;
+import com.giga.nexas.exception.ExceptionMsgConst;
+import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.io.BinaryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +35,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (SKIP_BIN.equals(filename)) {
             log.info("skip === {} ", filename);
-            return null;
+            return new Bin();
         }
 
         BinaryReader reader = new BinaryReader(data, charset);
@@ -70,7 +72,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (count > 200000) {
             log.info("parseInstructions count ===  {} ", count);
-            throw new BusinessException(500, "数值巨大");
+            throw new OperationException(500, ExceptionMsgConst.OE_LARGE_COUNT);
         }
 
         // 指令列表
@@ -90,7 +92,7 @@ public class BinParser implements BsdxParser<Bin> {
             Bin.Instruction inst = new Bin.Instruction();
             inst.setOpcode(opcode);
 
-            if (BinConst.OPCODE_MNEMONIC_MAP.get(7).equals(opcode)) {
+            if (BinConst.OPCODE_MNEMONIC_MAP.get(Opcode.CALL.code).equals(opcode)) {
                 // CALL
                 int paramCount = operandNum >>> 16;
                 int nativeId   = operandNum & 0xFFFF;
@@ -100,12 +102,8 @@ public class BinParser implements BsdxParser<Bin> {
                 inst.setParamCount(paramCount);
                 inst.setNativeFunction(nativeFunc);
             } else {
-                // 非 CALL 指令，直接用 operandNum
-                String operand = BinConst.OPERAND_MNEMONIC_MAP.get(operandNum) == null ?
-                        "" + operandNum :
-                        BinConst.OPERAND_MNEMONIC_MAP.get(operandNum);
                 inst.setParamCount(0);
-                inst.setNativeFunction(operand);
+                inst.setNativeFunction(String.valueOf(operandNum));
             }
 
             instructions.add(inst);
@@ -132,7 +130,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (count > 10000) {
             log.info("parseStrings count ===  {} ", count);
-            throw new BusinessException(500, "数值巨大");
+            throw new OperationException(500, ExceptionMsgConst.OE_LARGE_COUNT);
         }
 
         // 结果列表
@@ -154,7 +152,6 @@ public class BinParser implements BsdxParser<Bin> {
             // 读取字符串
             String txt = new String(reader.readBytes(len), reader.getCharset())
                     .replace("\0", "");
-            // 按 C# 实现包双引号
             table.add("\"" + txt + "\"");
         }
 
@@ -169,7 +166,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (count > 10000) {
             log.info("parseProperties count ===  {} ", count);
-            throw new BusinessException(500, "数值巨大");
+            throw new OperationException(500, ExceptionMsgConst.OE_LARGE_COUNT);
         }
 
         // 结果列表
@@ -206,7 +203,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (count > 10000) {
             log.info("parseProperties2 count ===  {} ", count);
-            throw new BusinessException(500, "数值巨大");
+            throw new OperationException(500, ExceptionMsgConst.OE_LARGE_COUNT);
         }
 
         // 构造结果列表
@@ -246,7 +243,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (tableCount > 10000) {
             log.info("parseTablesAndConstants count ===  {} ", tableCount);
-            throw new BusinessException(500, "数值巨大");
+            throw new OperationException(500, ExceptionMsgConst.OE_LARGE_COUNT);
         }
 
         // 68 字节表集合
