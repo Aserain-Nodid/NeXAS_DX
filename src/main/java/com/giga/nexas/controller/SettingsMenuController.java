@@ -13,8 +13,8 @@ public class SettingsMenuController {
     public void setup() {
         view.getMenuBar().getMenus().clear();
 
-        Menu menu = new Menu("设置");
-        MenuItem item = new MenuItem("字符编码 / 游戏类型...");
+        Menu menu = new Menu("Settings");
+        MenuItem item = new MenuItem("encoding / mode");
         item.setOnAction(e -> showSettingsDialog());
 
         menu.getItems().add(item);
@@ -23,11 +23,11 @@ public class SettingsMenuController {
 
     private void showSettingsDialog() {
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("设置");
-        dialog.setHeaderText("配置字符编码与游戏类型");
+        dialog.setTitle("Settings");
+        dialog.setHeaderText("File encoding and mode");
 
         ComboBox<String> charsetBox = new ComboBox<>();
-        charsetBox.getItems().addAll("UTF-8", "Shift-JIS", "windows-31j");
+        charsetBox.getItems().addAll("UTF-8", "windows-31j(Japanese)");
         charsetBox.setValue("windows-31j");
 
         ComboBox<String> typeBox = new ComboBox<>();
@@ -38,9 +38,9 @@ public class SettingsMenuController {
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
-        grid.add(new Label("字符编码:"), 0, 0);
+        grid.add(new Label("encoding:"), 0, 0);
         grid.add(charsetBox, 1, 0);
-        grid.add(new Label("游戏类型:"), 0, 1);
+        grid.add(new Label("mode:"), 0, 1);
         grid.add(typeBox, 1, 1);
 
         dialog.getDialogPane().setContent(grid);

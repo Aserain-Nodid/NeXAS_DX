@@ -3,7 +3,7 @@ package com.giga.nexas.dto.bsdx.waz.wazfactory;
 
 import com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.*;
 import com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.obj.*;
-import com.giga.nexas.exception.BusinessException;
+import com.giga.nexas.exception.OperationException;
 
 /**
  * @Author 这位同学(Karaik)
@@ -127,7 +127,7 @@ public class SkillInfoFactory {
             case 0x22 -> new CEventChange(typeId); // 34
             case 0x23 -> new CEventStatus(typeId); // 35
             case 0xFFFFFFFF -> new CEventTerm(typeId); // ????
-            default -> throw new BusinessException(500, "未曾设想的类型："+typeId);
+            default -> throw new OperationException(500, "unexpected CEvent type: "+typeId);
         };
     }
 
@@ -138,7 +138,7 @@ public class SkillInfoFactory {
         }
 
         if (sequence < 0 || sequence >= SKILL_INFO_TYPE_ENTRIES_BSDX.length) {
-            throw new BusinessException(500, "该位置waz信息读取错误（请检查waz文件来源）： " + sequence);
+            throw new OperationException(500, "wrong waz type (please insure your waz file is original file or generated file): " + sequence);
         }
 
         int typeId = SKILL_INFO_TYPE_ENTRIES_BSDX[sequence].getType();

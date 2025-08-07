@@ -68,7 +68,7 @@ public class FilePickerController {
 
             if (isPack) {
                 DirectoryChooser chooser = new DirectoryChooser();
-                chooser.setTitle("选择输入文件夹");
+                chooser.setTitle("select a folder");
 
                 File current = new File(view.getInputField().getText());
                 if (current.exists() && current.isDirectory()) {
@@ -78,7 +78,7 @@ public class FilePickerController {
                 selected = chooser.showDialog(stage);
             } else {
                 FileChooser chooser = new FileChooser();
-                chooser.setTitle("选择输入文件");
+                chooser.setTitle("select a file");
 
                 File current = new File(view.getInputField().getText());
                 if (current.exists()) {
@@ -109,7 +109,7 @@ public class FilePickerController {
     private void bindOutputBrowse() {
         view.getOutputBrowse().setOnAction(e -> {
             DirectoryChooser chooser = new DirectoryChooser();
-            chooser.setTitle("选择输出目录");
+            chooser.setTitle("select output folder");
 
             File current = new File(view.getOutputField().getText());
             if (current.exists() && current.isDirectory()) {

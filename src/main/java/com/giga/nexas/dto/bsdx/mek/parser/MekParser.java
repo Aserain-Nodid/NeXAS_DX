@@ -6,7 +6,7 @@ import com.giga.nexas.dto.bsdx.mek.checker.MekChecker;
 import com.giga.nexas.dto.bsdx.mek.mekcpu.CCpuEvent;
 import com.giga.nexas.dto.bsdx.mek.mekcpu.CCpuEventAttack;
 import com.giga.nexas.dto.bsdx.mek.mekcpu.CCpuEventMove;
-import com.giga.nexas.exception.BusinessException;
+import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.io.BinaryReader;
 import com.giga.nexas.util.ParserUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class MekParser implements BsdxParser<Mek> {
             // 1.解析头
             parseMekHead(mek, bytes);
             if (MekChecker.checkMek(mek, bytes)) {
-                throw new BusinessException(500, "文件内部参数不正确，无法读取");
+                throw new OperationException(500, "invalid file header!");
             }
             mek.setFileName(filename);
 
@@ -249,7 +249,7 @@ public class MekParser implements BsdxParser<Mek> {
         } else if (Arrays.equals(Arrays.copyOfRange(bytes, offset, offset + 4), ParserUtil.WEAPON_PLUGINS_FLAG_DATA_3)) {
             startFlag = ParserUtil.WEAPON_PLUGINS_FLAG_DATA_3;
         } else {
-            throw new BusinessException(500, "未曾设想的起始符类型！");
+            throw new OperationException(500, "unexpected start flag in weapon plugin block!");
         }
 
         while (offset < bytes.length) {
@@ -258,7 +258,7 @@ public class MekParser implements BsdxParser<Mek> {
                 offset += 4;
                 start = offset;
             } else {
-                throw new BusinessException(500, "武装插槽块解析错误！");
+                throw new OperationException(500, "failed to parse weapon plugin block!");
             }
 
             // 内容物

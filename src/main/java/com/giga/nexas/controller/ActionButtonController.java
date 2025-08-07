@@ -10,7 +10,7 @@ import com.giga.nexas.dto.bsdx.grp.Grp;
 import com.giga.nexas.dto.bsdx.mek.Mek;
 import com.giga.nexas.dto.bsdx.spm.Spm;
 import com.giga.nexas.dto.bsdx.waz.Waz;
-import com.giga.nexas.exception.BusinessException;
+import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.service.BsdxBinService;
 import com.giga.nexas.service.PacService;
 import javafx.scene.control.TreeItem;
@@ -29,7 +29,7 @@ public class ActionButtonController {
         view.getActionButton().setOnAction(e -> {
             File file = new File(view.getInputField().getText());
             if (!file.exists()) {
-                view.getLogArea().appendText("⚠ 输入路径无效\n");
+                view.getLogArea().appendText("⚠ invalid path\n");
                 return;
             }
 
@@ -37,7 +37,7 @@ public class ActionButtonController {
                     .getSelectionModel()
                     .getSelectedItem();
             if (selected == null || selected.getParent() == null) {
-                view.getLogArea().appendText("⚠ 请选择子功能！\n");
+                view.getLogArea().appendText("⚠ please select an option！\n");
                 return;
             }
             String func = selected.getValue();
@@ -49,7 +49,7 @@ public class ActionButtonController {
                 case PARSE -> parse(file);
                 case GENERATE -> generate(file);
                 default     -> view.getLogArea()
-                        .appendText("⚠ 未知功能:\n " + func + "\n");
+                        .appendText("⚠ unknown option:\n " + func + "\n");
             }
         });
     }
@@ -61,10 +61,10 @@ public class ActionButtonController {
             String json = JSONUtil.toJsonStr(result);
             File outputFile = new File(view.getOutputField().getText(), FileUtil.getName(selectedFile) + ".json");
             FileUtil.writeUtf8String(json, outputFile);
-            view.getLogArea().appendText("✔ 解析成功: \n" + selectedFile.getName() + "\n");
-            view.getLogArea().appendText("✔ JSON 文件输出至:\n" + outputFile.getAbsolutePath() + "\n");
+            view.getLogArea().appendText("✔ parsing succeeded: \n" + selectedFile.getName() + "\n");
+            view.getLogArea().appendText("✔ JSON file written to:\n" + outputFile.getAbsolutePath() + "\n");
         } catch (Exception e) {
-            view.getLogArea().appendText("⚠ 解析失败: \n" + e.getMessage() + "\n");
+            view.getLogArea().appendText("⚠ parsing failed: \n" + e.getMessage() + "\n");
         }
     }
 
@@ -80,15 +80,15 @@ public class ActionButtonController {
                 case MEK_EXT -> objectMapper.readValue(jsonStr, Mek.class);
                 case SPM_EXT -> objectMapper.readValue(jsonStr, Spm.class);
                 case GRP_EXT -> objectMapper.readValue(jsonStr, Grp.class);
-                default -> throw new BusinessException(500, "不支持的扩展名: \n" + ext);
+                default -> throw new OperationException(500, "unsupported extension: \n" + ext);
             };
 
             File outputPath = new File(view.getOutputField().getText(), FileUtil.mainName(selectedFile));
             new BsdxBinService().generate(outputPath.getAbsolutePath(), obj, "windows-31j");
 
-            view.getLogArea().appendText("✔ 已生成游戏文件:\n" + outputPath.getAbsolutePath() + "\n");
+            view.getLogArea().appendText("✔ binary game file generated:\n" + outputPath.getAbsolutePath() + "\n");
         } catch (Exception ex) {
-            view.getLogArea().appendText("⚠ 生成失败: \n" + ex.getMessage() + "\n");
+            view.getLogArea().appendText("⚠ generation failed: \n" + ex.getMessage() + "\n");
             ex.printStackTrace();
         }
     }
@@ -96,9 +96,9 @@ public class ActionButtonController {
     private void unPac(File input) {
         try {
             ResponseDTO result = new PacService().unPac(input.getAbsolutePath());
-            view.getLogArea().appendText("✔ 解包详情:\n" + result.getMsg() + "\n");
+            view.getLogArea().appendText("✔ unpack log:\n" + result.getMsg() + "\n");
         } catch (Exception e) {
-            view.getLogArea().appendText("⚠ 解包失败: \n" + e + "\n");
+            view.getLogArea().appendText("⚠ unpacking failed: \n" + e + "\n");
             e.printStackTrace();
         }
     }
@@ -106,9 +106,9 @@ public class ActionButtonController {
     private void pac(File input) {
         try {
             ResponseDTO result = new PacService().pac(input.getAbsolutePath(), "4");
-            view.getLogArea().appendText("✔ 封包详情:\n" + result.getMsg() + "\n");
+            view.getLogArea().appendText("✔ pack log:\n" + result.getMsg() + "\n");
         } catch (Exception e) {
-            view.getLogArea().appendText("⚠ 封包失败: \n" + e + "\n");
+            view.getLogArea().appendText("⚠ packing failed: \n" + e + "\n");
             e.printStackTrace();
         }
     }

@@ -7,7 +7,7 @@ import com.giga.nexas.dto.bhe.BheGenerator;
 import com.giga.nexas.dto.bhe.BheParser;
 import com.giga.nexas.dto.bhe.mek.parser.MekParser;
 import com.giga.nexas.dto.bhe.waz.parser.WazParser;
-import com.giga.nexas.exception.BusinessException;
+import com.giga.nexas.exception.OperationException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,7 +55,7 @@ public class BheBinService {
         String ext = getFileExtension(path);
         BheParser<?> bheParser = parserMap.get(ext);
         if (bheParser == null) {
-            throw new BusinessException(500, "不支持的文件类型：" + ext);
+            throw new OperationException(500, "unsupported file type for parsing: " + ext);
         }
 
         byte[] data = Files.readAllBytes(Paths.get(path));
@@ -68,7 +68,7 @@ public class BheBinService {
         String ext = getJsonExtension(obj);
         BheGenerator<T> gen = (BheGenerator<T>) generatorMap.get(ext);
         if (gen == null) {
-            throw new BusinessException(500, "不支持的文件类型：" + ext);
+            throw new OperationException(500, "unsupported file type for generation: " + ext);
         }
         gen.generate(path, obj, charset);
         return new ResponseDTO<>(null, "ok");
@@ -77,7 +77,7 @@ public class BheBinService {
     private String getFileExtension(String path) {
         int lastDotIndex = path.lastIndexOf(".");
         if (lastDotIndex == -1) {
-            throw new BusinessException(500, "文件路径错误");
+            throw new OperationException(500, "not an invalid file path!");
         }
         return path.substring(lastDotIndex + 1).toLowerCase();
     }
@@ -85,7 +85,7 @@ public class BheBinService {
     private String getJsonExtension(Bhe obj) {
         String ext = obj.getExtensionName();
         if (StrUtil.isEmpty(ext)) {
-            throw new BusinessException(500, "对象未指定扩展名");
+            throw new OperationException(500, "can't find extension name from JSON file!");
         }
         return ext.toLowerCase();
     }

@@ -10,7 +10,7 @@ public class LogContextMenuController {
     private final MainViewController view;
 
     public void setup() {
-        MenuItem clear = new MenuItem("清空日志");
+        MenuItem clear = new MenuItem("Clear log");
         clear.setOnAction(e -> view.getLogArea().clear());
         view.getLogArea().setContextMenu(new ContextMenu(clear));
     }

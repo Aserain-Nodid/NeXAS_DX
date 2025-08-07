@@ -15,7 +15,7 @@ import com.giga.nexas.dto.bsdx.spm.generator.SpmGenerator;
 import com.giga.nexas.dto.bsdx.spm.parser.SpmParser;
 import com.giga.nexas.dto.bsdx.waz.generator.WazGenerator;
 import com.giga.nexas.dto.bsdx.waz.parser.WazParser;
-import com.giga.nexas.exception.BusinessException;
+import com.giga.nexas.exception.OperationException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -63,7 +63,7 @@ public class BsdxBinService {
         String ext = getFileExtension(path);
         BsdxParser<?> bsdxParser = parserMap.get(ext);
         if (bsdxParser == null) {
-            throw new BusinessException(500, "不支持的文件类型：" + ext);
+            throw new OperationException(500, "unsupported file type for parsing: " + ext);
         }
 
         byte[] data = Files.readAllBytes(Paths.get(path));
@@ -76,7 +76,7 @@ public class BsdxBinService {
         String ext = getJsonExtension(obj);
         BsdxGenerator<T> gen = (BsdxGenerator<T>) generatorMap.get(ext);
         if (gen == null) {
-            throw new BusinessException(500, "不支持的文件类型：" + ext);
+            throw new OperationException(500, "unsupported file type for generation: " + ext);
         }
         gen.generate(path, obj, charset);
         return new ResponseDTO<>(null, "ok");
@@ -85,7 +85,7 @@ public class BsdxBinService {
     private String getFileExtension(String path) {
         int lastDotIndex = path.lastIndexOf(".");
         if (lastDotIndex == -1) {
-            throw new BusinessException(500, "文件路径错误");
+            throw new OperationException(500, "not an invalid file path!");
         }
         return path.substring(lastDotIndex + 1).toLowerCase();
     }
@@ -93,7 +93,7 @@ public class BsdxBinService {
     private String getJsonExtension(Bsdx obj) {
         String ext = obj.getExtensionName();
         if (StrUtil.isEmpty(ext)) {
-            throw new BusinessException(500, "对象未指定扩展名");
+            throw new OperationException(500, "can't find extension name from JSON file!");
         }
         return ext.toLowerCase();
     }

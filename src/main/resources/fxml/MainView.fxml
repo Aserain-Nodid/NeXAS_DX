@@ -13,14 +13,14 @@
 
             <MenuBar fx:id="menuBar">
                 <menus>
-                    <Menu text="设置"/>
+                    <Menu text="Settings"/>
                 </menus>
             </MenuBar>
 
-            <RadioButton fx:id="modePackRadio" text="解包或封包"/>
-            <RadioButton fx:id="modeAnalyzeRadio" text="解析或生成" selected="true"/>
+            <RadioButton fx:id="modePackRadio" text="Pack or Unpack"/>
+            <RadioButton fx:id="modeAnalyzeRadio" text="Parse or Generate" selected="true"/>
             <Pane HBox.hgrow="ALWAYS"/>
-            <CheckBox fx:id="alwaysOnTop" text="总在最前"/>
+            <CheckBox fx:id="alwaysOnTop" text="Always on Top"/>
         </HBox>
     </top>
     <center>
@@ -40,27 +40,21 @@
                             <ColumnConstraints prefWidth="32.0"/>
                         </columnConstraints>
 
-                        <Label text="输入" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label text="Input" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                         <TextField fx:id="inputField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
                         <Button fx:id="inputBrowse" text="…" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
 
-                        <Label text="输出" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label text="Output" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <TextField fx:id="outputField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
                         <Button fx:id="outputBrowse" text="…" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
                     </GridPane>
 
-                    <TitledPane text="选项" expanded="true">
-                        <VBox>
-                            <Label text="空"/>
-                        </VBox>
-                    </TitledPane>
-
                     <HBox alignment="CENTER_RIGHT">
-                        <Button fx:id="actionButton" text="开始" minWidth="80"/>
+                        <Button fx:id="actionButton" text="Start" minWidth="80"/>
                     </HBox>
                 </VBox>
 
-                <Label text="日志"/>
+                <Label text="Log"/>
                 <TextArea fx:id="logArea" editable="false" prefRowCount="8"
                           VBox.vgrow="ALWAYS"
                           style="-fx-control-inner-background: black; -fx-text-fill: white;"/>
@@ -68,12 +62,4 @@
         </SplitPane>
     </center>
 
-<!--    <bottom>-->
-<!--        <HBox alignment="CENTER_LEFT" spacing="8.0">-->
-<!--            <padding>-->
-<!--                <Insets top="4.0" right="10.0" bottom="4.0" left="10.0"/>-->
-<!--            </padding>-->
-<!--            <Label fx:id="statusLabel" text="\@这位同学(Karaik)"/>-->
-<!--        </HBox>-->
-<!--    </bottom>-->
 </BorderPane>

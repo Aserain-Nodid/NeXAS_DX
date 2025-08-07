@@ -16,8 +16,6 @@ public class MainViewController {
     @FXML private TextField inputField;
     @FXML private TextField outputField;
     @FXML private TextArea logArea;
-    @FXML private ProgressBar progress;
-//    @FXML private Label statusLabel;
     @FXML private Button actionButton;
     @FXML private CheckBox alwaysOnTop;
     @FXML private RadioButton modePackRadio;

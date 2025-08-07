@@ -3,7 +3,7 @@ package com.giga.nexas.dto.bhe.mek.generator;
 import com.giga.nexas.dto.bhe.mek.Mek;
 import com.giga.nexas.dto.bhe.mek.mekcpu.CCpuEvent;
 import com.giga.nexas.dto.bhe.BheGenerator;
-import com.giga.nexas.exception.BusinessException;
+import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.io.BinaryWriter;
 
 import java.io.ByteArrayOutputStream;
@@ -173,7 +173,7 @@ public class MekGenerator implements BheGenerator<Mek> {
                     if (type == 1 || type == 2) {
                         cpuEvent.writeInfo(writer);
                     } else {
-                        throw new BusinessException(500, "未曾设想的ai类型：" + type);
+                        throw new OperationException(500, "unexpected AI type: " + type);
                     }
                 }
             }

@@ -11,7 +11,7 @@ public class MainApplication extends Application {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainView.fxml"));
         Scene scene = new Scene(loader.load(), 920, 720);
-        stage.setTitle("NeXAS DX Editor");
+        stage.setTitle("NeXAS DX Converter");
         stage.setScene(scene);
         stage.show();
     }

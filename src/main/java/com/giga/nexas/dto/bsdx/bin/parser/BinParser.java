@@ -4,7 +4,8 @@ import com.giga.nexas.dto.bsdx.BsdxParser;
 import com.giga.nexas.dto.bsdx.bin.Bin;
 import com.giga.nexas.dto.bsdx.bin.consts.BinConst;
 import com.giga.nexas.dto.bsdx.bin.consts.Opcode;
-import com.giga.nexas.exception.BusinessException;
+import com.giga.nexas.exception.ExceptionMsgConst;
+import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.io.BinaryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (count > 200000) {
             log.info("parseInstructions count ===  {} ", count);
-            throw new BusinessException(500, "数值巨大");
+            throw new OperationException(500, ExceptionMsgConst.OE_LARGE_COUNT);
         }
 
         // 指令列表
@@ -129,7 +130,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (count > 10000) {
             log.info("parseStrings count ===  {} ", count);
-            throw new BusinessException(500, "数值巨大");
+            throw new OperationException(500, ExceptionMsgConst.OE_LARGE_COUNT);
         }
 
         // 结果列表
@@ -165,7 +166,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (count > 10000) {
             log.info("parseProperties count ===  {} ", count);
-            throw new BusinessException(500, "数值巨大");
+            throw new OperationException(500, ExceptionMsgConst.OE_LARGE_COUNT);
         }
 
         // 结果列表
@@ -202,7 +203,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (count > 10000) {
             log.info("parseProperties2 count ===  {} ", count);
-            throw new BusinessException(500, "数值巨大");
+            throw new OperationException(500, ExceptionMsgConst.OE_LARGE_COUNT);
         }
 
         // 构造结果列表
@@ -242,7 +243,7 @@ public class BinParser implements BsdxParser<Bin> {
 
         if (tableCount > 10000) {
             log.info("parseTablesAndConstants count ===  {} ", tableCount);
-            throw new BusinessException(500, "数值巨大");
+            throw new OperationException(500, ExceptionMsgConst.OE_LARGE_COUNT);
         }
 
         // 68 字节表集合

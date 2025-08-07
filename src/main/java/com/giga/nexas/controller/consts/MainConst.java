@@ -7,10 +7,10 @@ package com.giga.nexas.controller.consts;
  */
 public class MainConst {
 
-    public static final String UNPAC ="解包";
-    public static final String PAC ="封包";
-    public static final String PARSE ="解析";
-    public static final String GENERATE ="生成";
+    public static final String UNPAC ="unpack";
+    public static final String PAC ="pack";
+    public static final String PARSE ="parse";
+    public static final String GENERATE ="generate";
 
     public static final String WAZ_EXT ="waz";
     public static final String MEK_EXT ="mek";

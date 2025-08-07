@@ -21,13 +21,13 @@ public class ModeTreeController {
         main.getTree().getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldItem, newItem) -> {
                     if (newItem != null && newItem.getParent() != null) {
-                        main.getLogArea().appendText("✔ 当前子功能：" + newItem.getValue() + '\n');
+                        main.getLogArea().appendText("✔ current option：" + newItem.getValue() + '\n');
                     }
                 });
     }
 
     private void refreshTree(String... items) {
-        TreeItem<String> root = new TreeItem<>("功能");
+        TreeItem<String> root = new TreeItem<>("Options");
         root.setExpanded(true);
         for (String item : items) {
             root.getChildren().add(new TreeItem<>(item));

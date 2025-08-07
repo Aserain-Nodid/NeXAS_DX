@@ -4,7 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import com.giga.nexas.dto.bsdx.BsdxGenerator;
 import com.giga.nexas.dto.bsdx.grp.Grp;
 import com.giga.nexas.dto.bsdx.grp.generator.impl.*;
-import com.giga.nexas.exception.BusinessException;
+import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.io.BinaryWriter;
 
 import java.io.BufferedOutputStream;
@@ -36,7 +36,7 @@ public class GrpGenerator implements BsdxGenerator<Grp> {
 
     private void registerGenerator(GrpFileGenerator<? extends Grp> Generator) {
         String key = getGeneratorKey(Generator);
-        generatorMap.put(key, Generator);
+        generatorMap.put(key.toLowerCase(), Generator);
     }
 
     private String getGeneratorKey(GrpFileGenerator<?> generator) {
@@ -50,9 +50,9 @@ public class GrpGenerator implements BsdxGenerator<Grp> {
 
     @Override
     public void generate(String path, Grp grp, String charset) throws IOException {
-        GrpFileGenerator<? extends Grp> matchedGenerator = generatorMap.get(grp.getFileName());
+        GrpFileGenerator<? extends Grp> matchedGenerator = generatorMap.get(grp.getFileName().toLowerCase());
         if (matchedGenerator == null) {
-            throw new BusinessException(500, "不支持的grp子文件(请注意文件大小写)：" + grp.getFileName());
+            throw new OperationException(500, "unsupported .grp file for generation: " + grp.getFileName());
         }
 
         FileUtil.mkdir(FileUtil.getParent(path, 1));

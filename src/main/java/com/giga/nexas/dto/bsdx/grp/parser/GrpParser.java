@@ -3,7 +3,7 @@ package com.giga.nexas.dto.bsdx.grp.parser;
 import com.giga.nexas.dto.bsdx.BsdxParser;
 import com.giga.nexas.dto.bsdx.grp.Grp;
 import com.giga.nexas.dto.bsdx.grp.parser.impl.*;
-import com.giga.nexas.exception.BusinessException;
+import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.io.BinaryReader;
 
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public class GrpParser implements BsdxParser<Grp> {
     public Grp parse(byte[] data, String filename, String charset) {
         GrpFileParser<? extends Grp> matchedParser = parserMap.get(filename);
         if (matchedParser == null) {
-            throw new BusinessException(500, "不支持的grp子文件(请注意文件大小写)：" + filename);
+            throw new OperationException(500, "unsupported .grp file for parsing: " + filename);
         }
 
         BinaryReader reader = new BinaryReader(data);
