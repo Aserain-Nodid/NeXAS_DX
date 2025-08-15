@@ -61,6 +61,9 @@ public class Bin extends Bsdx {
     public List<byte[]> properties2Raw;
     public List<Integer> properties2LenWithTerminator;
 
+    // 未解析的尾随原始字节
+    public byte[] tailRaw;
+
     @Data
     public static class Instruction {
 

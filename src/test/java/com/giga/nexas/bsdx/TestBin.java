@@ -239,7 +239,7 @@ public class TestBin {
             for (Path ori : oriStream) {
                 String oriName = ori.getFileName().toString();
 
-                // 跳过 __GLOBAL.bin（它有独立的 GLOBAL 生成链路与测试）
+                // 跳过 __GLOBAL.bin
                 if ("__GLOBAL.bin".equals(oriName)) {
                     log.info("Skip GLOBAL bin: {}", ori);
                     continue;

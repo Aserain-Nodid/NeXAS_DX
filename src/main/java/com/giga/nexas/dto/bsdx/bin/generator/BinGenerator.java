@@ -63,6 +63,11 @@ public class BinGenerator implements BsdxGenerator<Bin> {
             //    - 若原始表缺失但有 constants，则根据 constants 重建每张 68 字节表
             writeTables(writer, bin);
 
+            // 原样写回未解析的尾随原始字节
+            if (bin.tailRaw != null && bin.tailRaw.length > 0) {
+                writer.writeBytes(bin.tailRaw);
+            }
+
         } catch (Exception e) {
             log.info("path === {}", path);
             log.info("error === {}", e.getMessage(), e);
@@ -75,9 +80,7 @@ public class BinGenerator implements BsdxGenerator<Bin> {
         int effectivePreCount;
 
         if (pre == null || pre.length == 0) {
-            // 没有预指令
-            effectivePreCount = 0;
-            writer.writeInt(effectivePreCount);
+            writer.writeInt(0);
             return;
         }
 

@@ -63,7 +63,15 @@ public class BinParser implements BsdxParser<Bin> {
         // 解析常量表 & 68 字节表
         parseTablesAndConstants(reader, bin);
 
-        // 返回最终结果
+        // 将剩余未解析的尾随字节整体保留，便于无损写回
+        if (reader.hasRemaining()) {
+            int remain = reader.remaining();
+            bin.tailRaw = reader.readBytes(remain);
+            if (remain > 0) {
+                log.debug("Captured trailing raw bytes: {}", remain);
+            }
+        }
+
         return bin;
     }
 
@@ -122,7 +130,7 @@ public class BinParser implements BsdxParser<Bin> {
         }
 
         bin.setInstructions(instructions);
-        bin.entryPointIndices = entryPointIndices; // public 字段可直接赋值
+        bin.entryPointIndices = entryPointIndices;
 
         // 兼容旧方式：按助记符再次收集入口点对象
         List<Bin.Instruction> entryPoints = new ArrayList<>();
@@ -160,8 +168,8 @@ public class BinParser implements BsdxParser<Bin> {
         }
 
         bin.setStringTable(table);
-        bin.stringTableRaw = raws; // public
-        bin.stringTableLenWithTerminator = lens; // public
+        bin.stringTableRaw = raws;
+        bin.stringTableLenWithTerminator = lens;
     }
 
     private void parseProperties(BinaryReader reader, Bin bin) {
@@ -190,8 +198,8 @@ public class BinParser implements BsdxParser<Bin> {
         }
 
         bin.setProperties(properties);
-        bin.propertiesRaw = raws; // public
-        bin.propertiesLenWithTerminator = lens; // public
+        bin.propertiesRaw = raws;
+        bin.propertiesLenWithTerminator = lens;
     }
 
     private void parseProperties2(BinaryReader reader, Bin bin) {
@@ -220,8 +228,8 @@ public class BinParser implements BsdxParser<Bin> {
         }
 
         bin.setProperties2(props2);
-        bin.properties2Raw = raws; // public
-        bin.properties2LenWithTerminator = lens; // public
+        bin.properties2Raw = raws;
+        bin.properties2LenWithTerminator = lens;
     }
 
     private void parseTablesAndConstants(BinaryReader reader, Bin bin) {
