@@ -49,21 +49,21 @@ public class BinGenerator implements BsdxGenerator<Bin> {
             // 2) 指令块：count + for each {opcodeNum, operandNum}
             writeInstructions(writer, bin);
 
-            // 3) 字符串表：count + N 个 0 终止串（优先 raw，无则重编码）
-            writeNullTerminatedTable(writer, bin.getStringTable(), bin.stringTableRaw);
+            // 3) 字符串表：count + N 个 0 终止串（仅文本）
+            writeNullTerminatedTable(writer, bin.getStringTable(), effectiveCharset);
 
-            // 4) 属性表1：count + N 个 0 终止串（优先 raw）
-            writeNullTerminatedTable(writer, bin.getProperties(), bin.propertiesRaw);
+            // 4) 属性表1（仅文本）
+            writeNullTerminatedTable(writer, bin.getProperties(), effectiveCharset);
 
-            // 5) 属性表2：count + N 个 0 终止串（优先 raw）
-            writeNullTerminatedTable(writer, bin.getProperties2(), bin.properties2Raw);
+            // 5) 属性表2（仅文本）
+            writeNullTerminatedTable(writer, bin.getProperties2(), effectiveCharset);
 
             // 6) 68 字节表：tableCount + tableCount * 68 字节
             //    - 优先直接写回解析时保留的原始表
             //    - 若原始表缺失但有 constants，则根据 constants 重建每张 68 字节表
             writeTables(writer, bin);
 
-            // 原样写回未解析的尾随原始字节
+            // 7) 原样写回未解析的尾随原始字节（保持无损）
             if (bin.tailRaw != null && bin.tailRaw.length > 0) {
                 writer.writeBytes(bin.tailRaw);
             }
@@ -128,30 +128,17 @@ public class BinGenerator implements BsdxGenerator<Bin> {
         }
     }
 
-    /**
-     * 统一写入 0 终止的“字符串表”类结构：
-     * - 先写 count
-     * - 每项优先使用 parser 保存下来的 raw（含终止0），保证无损
-     * - 若 raw 缺失或为 null，则用 writer 的 charset 重编码写入，并补终止0
-     */
     private void writeNullTerminatedTable(BinaryWriter writer,
                                           List<String> textList,
-                                          List<byte[]> rawList) throws IOException {
-
-        int a = (textList == null) ? 0 : textList.size();
-        int b = (rawList == null) ? 0 : rawList.size();
-        int count = Math.max(a, b);
-
+                                          String charset) throws IOException {
+        int count = (textList == null) ? 0 : textList.size();
         writer.writeInt(count);
+        if (count == 0) {
+            return;
+        }
 
         for (int i = 0; i < count; i++) {
-            byte[] raw = (rawList != null && i < rawList.size()) ? rawList.get(i) : null;
-            if (raw != null) {
-                writer.writeBytes(raw);
-                continue;
-            }
-
-            String s = (textList != null && i < textList.size()) ? textList.get(i) : "";
+            String s = textList.get(i);
             writer.writeNullTerminatedString(s == null ? "" : s);
         }
     }

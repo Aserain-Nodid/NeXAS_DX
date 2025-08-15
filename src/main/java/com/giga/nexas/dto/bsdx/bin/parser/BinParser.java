@@ -10,10 +10,7 @@ import com.giga.nexas.io.BinaryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author 这位同学(Karaik)
@@ -48,7 +45,7 @@ public class BinParser implements BsdxParser<Bin> {
         bin.setPreCount(preCount);
         bin.setPreInstructions(preCount == 0 ? new byte[0] : reader.readBytes(preCount * 8));
 
-        // 解析指令块、Commands 与入口点
+        // 指令块
         parseInstructions(reader, bin);
 
         // 解析字符串表
@@ -63,7 +60,7 @@ public class BinParser implements BsdxParser<Bin> {
         // 解析常量表 & 68 字节表
         parseTablesAndConstants(reader, bin);
 
-        // 将剩余未解析的尾随字节整体保留，便于无损写回
+        // 尾随未解析字节
         if (reader.hasRemaining()) {
             int remain = reader.remaining();
             bin.tailRaw = reader.readBytes(remain);
@@ -151,9 +148,6 @@ public class BinParser implements BsdxParser<Bin> {
         }
 
         List<String> table = new ArrayList<>(count);
-        List<byte[]> raws = new ArrayList<>(count);
-        List<Integer> lens = new ArrayList<>(count);
-
         for (int i = 0; i < count; i++) {
             int start = reader.getPosition();
             while (reader.readByte() != 0) { }
@@ -163,13 +157,9 @@ public class BinParser implements BsdxParser<Bin> {
             byte[] raw = reader.readBytes(len);
             String txt = new String(raw, reader.getCharset()).replace("\0", "");
             table.add(txt);
-            raws.add(raw);
-            lens.add(len);
         }
 
         bin.setStringTable(table);
-        bin.stringTableRaw = raws;
-        bin.stringTableLenWithTerminator = lens;
     }
 
     private void parseProperties(BinaryReader reader, Bin bin) {
@@ -181,9 +171,6 @@ public class BinParser implements BsdxParser<Bin> {
         }
 
         List<String> properties = new ArrayList<>(count);
-        List<byte[]> raws = new ArrayList<>(count);
-        List<Integer> lens = new ArrayList<>(count);
-
         for (int i = 0; i < count; i++) {
             int start = reader.getPosition();
             while (reader.readByte() != 0) { }
@@ -193,13 +180,9 @@ public class BinParser implements BsdxParser<Bin> {
             byte[] raw = reader.readBytes(len);
             String prop = new String(raw, reader.getCharset()).replace("\0", "");
             properties.add(prop);
-            raws.add(raw);
-            lens.add(len);
         }
 
         bin.setProperties(properties);
-        bin.propertiesRaw = raws;
-        bin.propertiesLenWithTerminator = lens;
     }
 
     private void parseProperties2(BinaryReader reader, Bin bin) {
@@ -211,9 +194,6 @@ public class BinParser implements BsdxParser<Bin> {
         }
 
         List<String> props2 = new ArrayList<>(count);
-        List<byte[]> raws = new ArrayList<>(count);
-        List<Integer> lens = new ArrayList<>(count);
-
         for (int i = 0; i < count; i++) {
             int start = reader.getPosition();
             while (reader.readByte() != 0) { }
@@ -223,13 +203,9 @@ public class BinParser implements BsdxParser<Bin> {
             byte[] raw = reader.readBytes(len);
             String p2 = new String(raw, reader.getCharset()).replace("\0", "");
             props2.add(p2);
-            raws.add(raw);
-            lens.add(len);
         }
 
         bin.setProperties2(props2);
-        bin.properties2Raw = raws;
-        bin.properties2LenWithTerminator = lens;
     }
 
     private void parseTablesAndConstants(BinaryReader reader, Bin bin) {

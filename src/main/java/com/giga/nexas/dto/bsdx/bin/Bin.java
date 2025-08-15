@@ -49,19 +49,7 @@ public class Bin extends Bsdx {
     // 入口点索引列表（派生信息，用于还原，非元信息）
     public List<Integer> entryPointIndices;
 
-    // 字符串表的原始字节与长度（逐项对应，含终止0；非元信息载体，仅为无损回写提供依据）
-    public List<byte[]> stringTableRaw;
-    public List<Integer> stringTableLenWithTerminator;
-
-    // 属性表1的原始字节与长度（含终止0）
-    public List<byte[]> propertiesRaw;
-    public List<Integer> propertiesLenWithTerminator;
-
-    // 属性表2的原始字节与长度（含终止0）
-    public List<byte[]> properties2Raw;
-    public List<Integer> properties2LenWithTerminator;
-
-    // 未解析的尾随原始字节
+    // 未解析的尾随原始字节（无损写回兜底）
     public byte[] tailRaw;
 
     @Data
