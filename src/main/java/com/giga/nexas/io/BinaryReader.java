@@ -67,9 +67,9 @@ public class BinaryReader {
     public double readDouble() {
         checkAvailable(8);
         byte[] bytes = readBytes(8);
-        ByteBuffer buffer = ByteBuffer.wrap(bytes)
-                .order(ByteOrder.LITTLE_ENDIAN);
-        return buffer.getDouble();
+        ByteBuffer buf = ByteBuffer.wrap(bytes)
+                .order(littleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+        return buf.getDouble();
     }
 
     public String readNullTerminatedString() {

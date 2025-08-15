@@ -30,7 +30,7 @@ public class PacUtil {
                 try (InputStream in = classLoader.getResourceAsStream("exe/" + fileName);
                      OutputStream out = new FileOutputStream(target)) {
                     if (in == null) {
-                        throw new IOException("找不到资源: exe/" + fileName);
+                        throw new IOException("can't find resource: exe/" + fileName);
                     }
                     byte[] buf = new byte[1024];
                     int len;
