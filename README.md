@@ -6,7 +6,7 @@ Currently supports parsing
 to json file.
 
 Could generate the source file
-`.waz .mek .spm .grp`
+`.waz .mek .spm .grp .bin`
 by the generated json file.
 
 `.grp` parsing depends on the file name. Please make sure the file name is correct.

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giga.nexas.dto.ResponseDTO;
 import com.giga.nexas.dto.bsdx.Bsdx;
+import com.giga.nexas.dto.bsdx.bin.Bin;
 import com.giga.nexas.dto.bsdx.grp.Grp;
 import com.giga.nexas.dto.bsdx.mek.Mek;
 import com.giga.nexas.dto.bsdx.spm.Spm;
@@ -80,6 +81,7 @@ public class ActionButtonController {
                 case MEK_EXT -> objectMapper.readValue(jsonStr, Mek.class);
                 case SPM_EXT -> objectMapper.readValue(jsonStr, Spm.class);
                 case GRP_EXT -> objectMapper.readValue(jsonStr, Grp.class);
+                case BIN_EXT -> objectMapper.readValue(jsonStr, Bin.class);
                 default -> throw new OperationException(500, "unsupported extension: \n" + ext);
             };
 
