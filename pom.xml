@@ -5,8 +5,8 @@
 
     <groupId>com.nexas.dx</groupId>
     <artifactId>NeXAS_DX</artifactId>
-    <version>editor</version>
-    <name>NexasDxEditor</name>
+    <version>1.1.0</version>
+    <name>NeXASConverter</name>
 
     <properties>
         <java.version>17</java.version>
@@ -52,11 +52,13 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
+            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>21.0.1</version>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -75,11 +77,6 @@
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-poi</artifactId>
             <version>5.8.16</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.20.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -138,6 +135,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.4.1</version>
+                <configuration>
+                    <!-- todo 关闭了fat包的打包 -->
+                    <skip>true</skip>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -158,6 +159,65 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>io.github.fvarrui</groupId>
+                <artifactId>javapackager</artifactId>
+                <version>1.7.6</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.giga.nexas.MainApplication</mainClass>
+                            <bundleJre>true</bundleJre>
+                            <customizedJre>true</customizedJre>  <!-- 继续裁剪，但这次喂给 jdeps 正确的路径 -->
+                            <copyDependencies>true</copyDependencies>
+
+                            <!-- 让 jdeps 能看到所有三方依赖（POI、commons-*, xmlbeans、JavaFX 等） -->
+                            <additionalModulePaths>
+                                <additionalModulePath>${project.build.directory}/NeXASConverter/libs</additionalModulePath>
+                            </additionalModulePaths>
+
+                            <!-- 强制把这些模块保留到裁剪后的运行时（避免反射/服务导致的漏算） -->
+                            <additionalModules>
+                                <!-- JavaFX 基本模块 -->
+                                <additionalModule>javafx.base</additionalModule>
+                                <additionalModule>javafx.graphics</additionalModule>
+                                <additionalModule>javafx.controls</additionalModule>
+                                <additionalModule>javafx.fxml</additionalModule>
+
+                                <!-- 常用 JDK 模块（桌面/字符集/本地化/非标准 API） -->
+                                <additionalModule>java.desktop</additionalModule>
+                                <additionalModule>jdk.charsets</additionalModule>
+                                <additionalModule>jdk.localedata</additionalModule>
+                                <additionalModule>jdk.unsupported</additionalModule>
+                            </additionalModules>
+
+                            <!-- 可选：明确使用哪个 JDK 做 jlink（建议指向你装的 LibericaJDK-17-Full） -->
+                            <!-- 在命令行传：mvn -Dpackager.jdk=D:\LibericaJDK-17-Full clean package -->
+                            <jrePath>${packager.jdk}</jrePath>
+
+                            <!-- 其余保持不变 -->
+                            <generateInstaller>true</generateInstaller>
+                            <administratorRequired>false</administratorRequired>
+                            <platform>windows</platform>
+                            <displayName>NeXASConverter</displayName>
+                            <name>NeXASConverter</name>
+                            <version>1.1.0</version>
+                            <winConfig>
+                                <generateSetup>false</generateSetup>
+                                <generateMsi>false</generateMsi>
+                                <generateMsm>false</generateMsm>
+                            </winConfig>
+                        </configuration>
+
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>
