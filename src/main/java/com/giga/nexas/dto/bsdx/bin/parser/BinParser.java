@@ -121,7 +121,7 @@ public class BinParser implements BsdxParser<Bin> {
             instructions.add(inst);
 
             // 0x1B 作为入口点标记
-            if (opcodeNum == 0x1B) {
+            if (opcodeNum == Opcode.START.code) {
                 entryPointIndices.add(i);
             }
         }
@@ -132,7 +132,7 @@ public class BinParser implements BsdxParser<Bin> {
         // 兼容旧方式：按助记符再次收集入口点对象
         List<Bin.Instruction> entryPoints = new ArrayList<>();
         for (Bin.Instruction ins : instructions) {
-            if (BinConst.OPCODE_MNEMONIC_MAP.get(0x1B).equals(ins.getOpcode())) {
+            if (BinConst.OPCODE_MNEMONIC_MAP.get(Opcode.START.code).equals(ins.getOpcode())) {
                 entryPoints.add(ins);
             }
         }

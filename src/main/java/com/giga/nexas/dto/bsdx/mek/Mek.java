@@ -53,7 +53,7 @@ public class Mek extends Bsdx {
     private MekVoiceInfo mekVoiceInfo;
 
     // 未知信息块2
-    private MekPluginBlock mekPluginBlock;
+    private MekMaterialBlock mekMaterialBlock;
 
     public Mek() {
         this.mekHead = new MekHead();
@@ -63,7 +63,7 @@ public class Mek extends Bsdx {
         this.mekWeaponInfoMap = new LinkedHashMap<>();
         this.mekAiInfoList = new ArrayList<>();
         this.mekVoiceInfo = new MekVoiceInfo();
-        this.mekPluginBlock = new MekPluginBlock();
+        this.mekMaterialBlock = new MekMaterialBlock();
     }
 
     @Data
@@ -534,25 +534,36 @@ public class Mek extends Bsdx {
 
     }
 
-    /**
-     * 极大可能为武装选择列表（插槽块）
-     * 其中，开头的几个为常规块，如走路、站立、ND、BD等，因机体的不同有包括数量在内的差异
-     * 另，内容物作用尚未查明，故直接以byte数组存储
-     */
     @Data
-    public static class MekPluginBlock {
+    public static class MekMaterialBlock {
 
-        private byte[] info;
+        /** 直接二进制：额外常规条目数（来自 au_re_File::read_2） */
+        private Integer extraRegularCount;
 
-        private List<byte[]> regularPluginInfoList;
+        /** 非直接（派生）：常规条目总数 = 7 + extraRegularCount */
+        public Integer regularCount;
 
-        private List<byte[]> weaponPluginInfoList;
+        /** 直接二进制映射：所有条目（解析自二进制，每条对应一次 CMaterial::readArraysFromFile） */
+        private List<PluginEntry> entries = new ArrayList<>();
 
-        public MekPluginBlock() {
-            this.regularPluginInfoList = new ArrayList<>();
-            this.weaponPluginInfoList = new ArrayList<>();
+        /** 非直接（视图）：前 regularCount 个为常规条目 */
+        public List<PluginEntry> regularEntries = new ArrayList<>();
+
+        /** 非直接（视图）：regular 之后直到 EOF，通常用于武装/特殊状态挂接 */
+        public List<PluginEntry> trailingEntries = new ArrayList<>();
+
+        @Data
+        public static class PluginEntry {
+            /** 非直接（调试/回写辅助） */
+            public Integer offset;
+            public Integer length;
+
+            /** 直接二进制：三段“组列表”（每段是若干组，每组是若干个 u32 ID） */
+            private List<int[]> spriteGroups = new ArrayList<>(); // 段 A：Sprite/Anime 组
+            private List<int[]> seGroups     = new ArrayList<>(); // 段 B：SE 组
+            private List<int[]> voiceGroups  = new ArrayList<>(); // 段 C：Voice 组
         }
-
     }
+
 
 }

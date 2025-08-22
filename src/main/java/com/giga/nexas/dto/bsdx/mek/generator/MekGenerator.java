@@ -39,7 +39,8 @@ public class MekGenerator implements BsdxGenerator<Mek> {
         byte[] weaponInfoBlock   = serializeMekWeaponInfoMap(mek, charset);
         byte[] aiInfo1Block      = serializeMekAiInfoMap(mek, charset);
         byte[] aiInfo2Block      = mek.getMekVoiceInfo().getInfo();
-        byte[] mekPluginBlock    = mek.getMekPluginBlock().getInfo();
+        // todo
+//        byte[] mekMaterialBlock    = serializeMekMaterialBlock(mek, charset);
 
         // 计算6个序列偏移
         int sequence1 = 24;
@@ -65,7 +66,8 @@ public class MekGenerator implements BsdxGenerator<Mek> {
             writer.writeBytes(weaponInfoBlock);
             writer.writeBytes(aiInfo1Block);
             writer.writeBytes(aiInfo2Block);
-            writer.writeBytes(mekPluginBlock);
+            // todo
+//            writer.writeBytes(mekMaterialBlock);
         }
     }
 
@@ -184,5 +186,9 @@ public class MekGenerator implements BsdxGenerator<Mek> {
 
     // 6 跟声音绑定的各种信息
 
-    // 7 武装选择界面，该角色的武装插槽信息，剩余未知，推测跟spm相关，会播放动画
+    // 7 武装选择界面，该角色的武装会播放演示动画
+    private static byte[] serializeMekMaterialBlock(Mek mek, String charset) throws IOException {
+        // todo
+        return null;
+    }
 }

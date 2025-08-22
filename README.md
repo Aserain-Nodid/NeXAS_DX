@@ -1,34 +1,61 @@
 # NeXAS_DX
-Some tools to unpack and analyze for video game baldr_sky_divex.
 
-Currently supports parsing
-`.waz .mek .spm .grp .bin `
-to json file.
+A JavaFX GUI for converting **NeXAS engine** game data (GIGA/戯画) **to and from JSON files**.
 
-Could generate the source file
-`.waz .mek .spm .grp .bin`
-by the generated json file.
+---
 
-`.grp` parsing depends on the file name. Please make sure the file name is correct.
-```
-BatVoice.grp
-MekaGroup.grp
-SeGroup.grp
-SpriteGroup.grp
-Term.grp
-WazaGroup.grp
-```
+## Supported Formats
 
-`.mek` analyze is incomplete. 
+Only tested on **`baldr_sky_divex`**,  
+but `.spm` and `.bin` should work for most games of NeXAS engine since they use the same formats.
 
-## ToolSources
-unpack/pack: https://github.com/pkuislm/NexasPackEdit
+- **Parse to JSON**
+  ```
+  .waz  .mek  .spm  .grp  .bin
+  ```
+
+- **Generate from JSON**
+  ```
+  .waz  .mek  .spm  .grp  .bin
+  ```
+
+---
+
+## Notes
+
+- **`.grp` parsing** depends on the file name. Make sure the name is one of the following:
+  ```
+  BatVoice.grp
+  MekaGroup.grp
+  SeGroup.grp
+  SpriteGroup.grp
+  Term.grp
+  WazaGroup.grp
+  ```
+
+- **`.mek` analysis** is incomplete.
+
+---
+
+## Tool Sources
+
+- Unpack / pack: [NexasPackEdit](https://github.com/pkuislm/NexasPackEdit)
+
+---
 
 ## Environment
-java 17 full: https://download.bell-sw.com/java/17.0.15+10/bellsoft-jdk17.0.15+10-windows-amd64-full.msi
+
+- Java 17 (full):  
+  [BellSoft JDK 17.0.15+10 (Windows, x64, Full)](https://download.bell-sw.com/java/17.0.15+10/bellsoft-jdk17.0.15+10-windows-amd64-full.msi)
+
+---
 
 ## Purpose
-The final purpose is transplant the baldr_heart_exe characters into the baldr_sky_divex.
 
-## How to use
-(not yet)
+The final purpose is to **transplant the `baldr_heart_exe` characters into `baldr_sky_divex`**.
+
+---
+
+## How to Use
+
+*(not yet)*

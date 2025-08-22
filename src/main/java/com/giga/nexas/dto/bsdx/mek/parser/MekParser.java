@@ -8,10 +8,12 @@ import com.giga.nexas.dto.bsdx.mek.mekcpu.CCpuEventAttack;
 import com.giga.nexas.dto.bsdx.mek.mekcpu.CCpuEventMove;
 import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.io.BinaryReader;
-import com.giga.nexas.util.ParserUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author 这位同学(Karaik)
@@ -61,7 +63,7 @@ public class MekParser implements BsdxParser<Mek> {
             // 6.解析 ai 块2
             parseMekAiInfoBlock2(mek, aiInfoBlock2, charset);
             // 7.解析武装插槽块
-            parseMekPluginBlock(mek, mekPluginBlock);
+            parseMekMaterialBlock(mek, mekPluginBlock);
 
         } catch (Exception e) {
             log.info("error === {}", e.getMessage());
@@ -230,64 +232,122 @@ public class MekParser implements BsdxParser<Mek> {
         mek.getMekVoiceInfo().setInfo(bytes);
     }
 
-    /**
-     * 解析武装插槽块（保持原有逻辑）
-     */
-    private static void parseMekPluginBlock(Mek mek, byte[] bytes) {
-        Mek.MekPluginBlock mekPluginBlock = mek.getMekPluginBlock();
-        mekPluginBlock.setInfo(bytes); // 先原样保存
+    private static void parseMekMaterialBlock(Mek mek, byte[] blockBytes) {
+        Mek.MekMaterialBlock out = new Mek.MekMaterialBlock();
+        BinaryReader reader = new BinaryReader(blockBytes);
 
-        int offset = 0;
-        int start;
-        List<byte[]> infoList = new ArrayList<>();
+        // 收集所有条目（保持“文件顺序”）
+        List<Mek.MekMaterialBlock.PluginEntry> all = new ArrayList<>();
 
-        byte[] startFlag;
-        if (Arrays.equals(Arrays.copyOfRange(bytes, offset, offset + 4), ParserUtil.WEAPON_PLUGINS_FLAG_DATA)) {
-            startFlag = ParserUtil.WEAPON_PLUGINS_FLAG_DATA;
-        } else if (Arrays.equals(Arrays.copyOfRange(bytes, offset, offset + 4), ParserUtil.WEAPON_PLUGINS_FLAG_DATA_2)) {
-            startFlag = ParserUtil.WEAPON_PLUGINS_FLAG_DATA_2;
-        } else if (Arrays.equals(Arrays.copyOfRange(bytes, offset, offset + 4), ParserUtil.WEAPON_PLUGINS_FLAG_DATA_3)) {
-            startFlag = ParserUtil.WEAPON_PLUGINS_FLAG_DATA_3;
-        } else {
-            throw new OperationException(500, "unexpected start flag in weapon plugin block!");
+        // 1) 固定 7 条
+        for (int i = 0; i < 7; i++) {
+            all.add(readPluginEntry(reader));
         }
 
-        while (offset < bytes.length) {
-            // 起始符
-            if (Arrays.equals(Arrays.copyOfRange(bytes, offset, offset + 4), startFlag)) {
-                offset += 4;
-                start = offset;
-            } else {
-                throw new OperationException(500, "failed to parse weapon plugin block!");
-            }
+        // 2) extra（等价 au_re_File::read_2）
+        int extra = reader.readInt();
+        if (extra < 0) {
+            throw new OperationException(500, "invalid extraRegularCount: " + extra);
+        }
+        out.setExtraRegularCount(extra);
 
-            // 内容物
-            while (offset <= bytes.length) {
-                if (offset != bytes.length &&
-                        !Arrays.equals(Arrays.copyOfRange(bytes, offset, offset + 4), startFlag)) {
-                    offset += 4;
-                } else {
-                    byte[] chunk = Arrays.copyOfRange(bytes, start, offset);
-                    infoList.add(chunk);
-                    break;
-                }
+        // 3) 再读 extra 条
+        for (int i = 0; i < extra; i++) {
+            all.add(readPluginEntry(reader));
+        }
+
+        // 4) 直到 EOF；防御性：若读不到进度则中止，避免死循环
+        while (reader.getPosition() < blockBytes.length) {
+            int before = reader.getPosition();
+            all.add(readPluginEntry(reader));
+            if (reader.getPosition() <= before) {
+                break;
             }
         }
 
-        // 存储常规状态（武装）插槽
-        int regularPluginInfoSize = infoList.size() - mek.getMekWeaponInfoMap().size();
-        List<byte[]> regularPluginInfoList = mekPluginBlock.getRegularPluginInfoList();
-        for (int i = 0; i < regularPluginInfoSize; i++) {
-            regularPluginInfoList.add(infoList.get(i));
-        }
+        // 避免视图带来的并发修改问题
+        int regular = 7 + extra;
+        out.setRegularCount(regular);
 
-        // 存储武装插槽
-        List<byte[]> weaponPluginInfoList = mekPluginBlock.getWeaponPluginInfoList();
-        for (int i = 0; i < mek.getMekWeaponInfoMap().size(); i++) {
-            int index = regularPluginInfoSize + i;
-            byte[] weaponPluginInfo = infoList.get(index);
-            weaponPluginInfoList.add(weaponPluginInfo);
-            mek.getMekWeaponInfoMap().get(i).setWeaponPluginInfo(weaponPluginInfo);
-        }
+        int split = Math.min(regular, all.size());
+        List<Mek.MekMaterialBlock.PluginEntry> regularCopy  = new ArrayList<>(all.subList(0, split));
+        List<Mek.MekMaterialBlock.PluginEntry> trailingCopy = new ArrayList<>(all.subList(split, all.size()));
+
+        // entries为直接二进制映射，避免外部误改影响内部一致性
+        out.setEntries(new ArrayList<>(all));
+        out.setRegularEntries(regularCopy);
+        out.setTrailingEntries(trailingCopy);
+
+        mek.setMekMaterialBlock(out);
     }
+
+    /** 读取一条 Material 条目， CMaterial::readArraysFromFile 的按字节实现） */
+    private static Mek.MekMaterialBlock.PluginEntry readPluginEntry(BinaryReader reader) {
+        int start = reader.getPosition();
+
+        Mek.MekMaterialBlock.PluginEntry e = new Mek.MekMaterialBlock.PluginEntry();
+
+        // 段 A：spriteGroups
+        int n1 = reader.readInt();
+        if (n1 < 0) {
+            throw new OperationException(500, "negative group count A(spriteGroups) at " + start);
+        }
+        List<int[]> A = new ArrayList<>(n1);
+        for (int i = 0; i < n1; i++) {
+            int len = reader.readInt();
+            if (len < 0) {
+                throw new OperationException(500, "negative group len A(spriteGroups) at " + reader.getPosition());
+            }
+            int[] arr = new int[len];
+            for (int k = 0; k < len; k++) {
+                arr[k] = reader.readInt();
+            }
+            A.add(arr);
+        }
+
+        // 段 B：seGroups
+        int n2 = reader.readInt();
+        if (n2 < 0) {
+            throw new OperationException(500, "negative group count B(seGroups) at " + reader.getPosition());
+        }
+        List<int[]> B = new ArrayList<>(n2);
+        for (int i = 0; i < n2; i++) {
+            int len = reader.readInt();
+            if (len < 0) {
+                throw new OperationException(500, "negative group len BseGroups at " + reader.getPosition());
+            }
+            int[] arr = new int[len];
+            for (int k = 0; k < len; k++) {
+                arr[k] = reader.readInt();
+            }
+            B.add(arr);
+        }
+
+        // 段 C：voiceGroups
+        int n3 = reader.readInt();
+        if (n3 < 0) {
+            throw new OperationException(500, "negative group count C(voiceGroups) at " + reader.getPosition());
+        }
+        List<int[]> C = new ArrayList<>(n3);
+        for (int i = 0; i < n3; i++) {
+            int len = reader.readInt();
+            if (len < 0) {
+                throw new OperationException(500, "negative group len C(voiceGroups) at " + reader.getPosition());
+            }
+            int[] arr = new int[len];
+            for (int k = 0; k < len; k++) {
+                arr[k] = reader.readInt();
+            }
+            C.add(arr);
+        }
+
+        e.setSpriteGroups(A);
+        e.setSeGroups(B);
+        e.setVoiceGroups(C);
+
+        e.setOffset(start);
+        e.setLength(reader.getPosition() - start);
+        return e;
+    }
+
 }
