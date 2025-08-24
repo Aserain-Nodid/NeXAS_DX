@@ -1,7 +1,10 @@
 package com.giga.nexas.bsdx;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.json.JSONUtil;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giga.nexas.dto.ResponseDTO;
 import com.giga.nexas.dto.bsdx.mek.Mek;
 import com.giga.nexas.service.BsdxBinService;
@@ -11,9 +14,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TestMek {
 
@@ -23,6 +31,8 @@ public class TestMek {
 
     private static final Path MEK_DIR = Paths.get("src/main/resources/game/bsdx/mek");
     private static final Path JSON_OUTPUT = Paths.get("src/main/resources/mekJson");
+    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/mekJson");
+    private static final Path MEK_OUTPUT_DIR = Paths.get("src/main/resources/mekGenerated");
 
     @Test
     void testParseMek() throws IOException {
@@ -97,24 +107,63 @@ public class TestMek {
     }
 
     @Test
-    void testGenerateMek() throws IOException {
-        Path target = null;
+    void testGenerateMekFilesByJson() throws IOException {
+        Files.createDirectories(MEK_OUTPUT_DIR);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(MEK_DIR, "*.mek")) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(JSON_OUTPUT_DIR, "*.json")) {
             for (Path path : stream) {
-                target = path;
-                break;
+                String jsonStr = FileUtil.readUtf8String(path.toFile());
+                Mek mek = mapper.readValue(jsonStr, Mek.class);
+                String baseName = path.getFileName().toString().replace(".json", "");
+                Path output = MEK_OUTPUT_DIR.resolve(baseName);
+
+                bsdxBinService.generate(output.toString(), mek, "windows-31j");
+                log.info("✅ Generated: {}", output);
+            }
+        }
+    }
+
+    @Test
+    void testMekParseGenerateBinaryConsistency() throws IOException {
+        Map<String, Path> generatedMap = new HashMap<>();
+        try (DirectoryStream<Path> genStream = Files.newDirectoryStream(MEK_OUTPUT_DIR, "*.mek")) {
+            for (Path gen : genStream) {
+                generatedMap.put(gen.getFileName().toString(), gen);
             }
         }
 
-        if (target == null) {
-            log.error("❌ 未找到任何 .mek 文件");
-            return;
+        try (DirectoryStream<Path> oriStream = Files.newDirectoryStream(MEK_DIR, "*.mek")) {
+            for (Path ori : oriStream) {
+                String name = ori.getFileName().toString();
+                Path gen = generatedMap.get(name);
+                if (gen == null) {
+                    log.warn("⚠️ Not Found: {}", name);
+                    continue;
+                }
+
+                byte[] originalBytes = FileUtil.readBytes(ori.toFile());
+                byte[] generatedBytes = FileUtil.readBytes(gen.toFile());
+
+                if (!ArrayUtil.equals(originalBytes, generatedBytes)) {
+                    log.error("❌ Mismatch: {}", name);
+                    int minLen = Math.min(originalBytes.length, generatedBytes.length);
+                    for (int i = 0; i < minLen; i++) {
+                        if (originalBytes[i] != generatedBytes[i]) {
+                            log.error("Diff at 0x{}: orig=0x{} gen=0x{}",
+                                    Integer.toHexString(i),
+                                    Integer.toHexString(originalBytes[i] & 0xFF),
+                                    Integer.toHexString(generatedBytes[i] & 0xFF));
+                            break;
+                        }
+                    }
+                } else {
+                    log.info("✅ Match: {}", name);
+                }
+            }
         }
-
-        Mek mek = (Mek) bsdxBinService.parse(target.toString(), "windows-31j").getData();
-        bsdxBinService.generate(target.toString(), mek, "windows-31j");
-
-        log.info("✅ 再生成成功: {}", target);
     }
+
+
 }

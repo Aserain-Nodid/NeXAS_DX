@@ -39,8 +39,7 @@ public class MekGenerator implements BsdxGenerator<Mek> {
         byte[] weaponInfoBlock   = serializeMekWeaponInfoMap(mek, charset);
         byte[] aiInfo1Block      = serializeMekAiInfoMap(mek, charset);
         byte[] aiInfo2Block      = mek.getMekVoiceInfo().getInfo();
-        // todo
-//        byte[] mekMaterialBlock    = serializeMekMaterialBlock(mek, charset);
+        byte[] mekMaterialBlock    = serializeMekMaterialBlock(mek, charset);
 
         // 计算6个序列偏移
         int sequence1 = 24;
@@ -66,8 +65,7 @@ public class MekGenerator implements BsdxGenerator<Mek> {
             writer.writeBytes(weaponInfoBlock);
             writer.writeBytes(aiInfo1Block);
             writer.writeBytes(aiInfo2Block);
-            // todo
-//            writer.writeBytes(mekMaterialBlock);
+            writer.writeBytes(mekMaterialBlock);
         }
     }
 
@@ -120,7 +118,6 @@ public class MekGenerator implements BsdxGenerator<Mek> {
              BinaryWriter writer = new BinaryWriter(baos, charset)) {
 
             writer.writeInt(weaponInfoMap.size());
-            // todo edit
             for (Mek.MekWeaponInfo weaponInfo : weaponInfoMap.values()) {
                 writer.writeInt(0x01);
                 writer.writeNullTerminatedString(weaponInfo.getWeaponName());
@@ -186,9 +183,114 @@ public class MekGenerator implements BsdxGenerator<Mek> {
 
     // 6 跟声音绑定的各种信息
 
-    // 7 武装选择界面，该角色的武装会播放演示动画
+    // 7 武装选择界面的演示/素材表（MaterialBlock）
     private static byte[] serializeMekMaterialBlock(Mek mek, String charset) throws IOException {
-        // todo
-        return null;
+        Mek.MekMaterialBlock block = mek.getMekMaterialBlock();
+        if (block == null) {
+            // 没这块就写空
+            return new byte[0];
+        }
+
+        // 优先用 regularEntries 推导；否则用 regularCount；再否则用 extraRegularCount。
+        final List<Mek.MekMaterialBlock.PluginEntry> regularEntries = block.getRegularEntries();
+        final List<Mek.MekMaterialBlock.PluginEntry> trailingEntries = block.getTrailingEntries();
+        final List<Mek.MekMaterialBlock.PluginEntry> allEntries = block.getEntries();
+
+        final int regularCount;
+        final int extra;
+
+        if (regularEntries != null && !regularEntries.isEmpty()) {
+            regularCount = regularEntries.size();
+            if (regularCount < 7) {
+                throw new OperationException(500, "materialBlock.regularEntries size < 7");
+            }
+            extra = regularCount - 7;
+        } else if (block.getRegularCount() != null) {
+            regularCount = block.getRegularCount();
+            if (regularCount < 7) {
+                throw new OperationException(500, "materialBlock.regularCount < 7");
+            }
+            extra = regularCount - 7;
+        } else if (block.getExtraRegularCount() != null) {
+            extra = block.getExtraRegularCount();
+            if (extra < 0) {
+                throw new OperationException(500, "materialBlock.extraRegularCount negative");
+            }
+            regularCount = 7 + extra;
+        } else {
+            // 不盲猜，直接报错，避免做错格式
+            throw new OperationException(500, "materialBlock requires regularEntries/regularCount/extraRegularCount");
+        }
+
+        // 组装“写出顺序”：regular（7+extra）在前，trailing 在后
+        final List<Mek.MekMaterialBlock.PluginEntry> stream = new java.util.ArrayList<>();
+
+        if (regularEntries != null && !regularEntries.isEmpty()) {
+            stream.addAll(regularEntries);
+        } else {
+            if (allEntries == null || allEntries.size() < regularCount) {
+                throw new OperationException(500, "materialBlock.entries not enough for regularCount");
+            }
+            stream.addAll(allEntries.subList(0, regularCount));
+        }
+
+        if (trailingEntries != null && !trailingEntries.isEmpty()) {
+            stream.addAll(trailingEntries);
+        } else if (allEntries != null && allEntries.size() > regularCount) {
+            stream.addAll(allEntries.subList(regularCount, allEntries.size()));
+        }
+
+        if (stream.size() < regularCount) {
+            throw new OperationException(500, "materialBlock stream size < regularCount");
+        }
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             BinaryWriter writer = new BinaryWriter(baos, charset)) {
+
+            // 1) 固定 7 条目
+            for (int i = 0; i < 7; i++) {
+                writePluginEntry(writer, stream.get(i));
+            }
+
+            // 2) extra（等价 au_re_File::read_2）
+            writer.writeInt(extra);
+
+            // 3) 再写 extra 条
+            for (int i = 0; i < extra; i++) {
+                writePluginEntry(writer, stream.get(7 + i));
+            }
+
+            // 4) 其余到 EOF
+            for (int i = 7 + extra; i < stream.size(); i++) {
+                writePluginEntry(writer, stream.get(i));
+            }
+
+            writer.close();
+            return baos.toByteArray();
+        }
     }
+
+    private static void writePluginEntry(BinaryWriter writer, Mek.MekMaterialBlock.PluginEntry e) throws IOException {
+        // A：spriteGroups
+        writeGroupList(writer, e.getSpriteGroups());
+        // B：seGroups
+        writeGroupList(writer, e.getSeGroups());
+        // C：voiceGroups
+        writeGroupList(writer, e.getVoiceGroups());
+    }
+
+    private static void writeGroupList(BinaryWriter writer, List<int[]> groups) throws IOException {
+        int groupCount = (groups == null) ? 0 : groups.size();
+        writer.writeInt(groupCount);
+        if (groupCount > 0) {
+            for (int[] arr : groups) {
+                int len = (arr == null) ? 0 : arr.length;
+                writer.writeInt(len);
+                for (int i = 0; i < len; i++) {
+                    writer.writeInt(arr[i]);
+                }
+            }
+        }
+    }
+
 }
