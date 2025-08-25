@@ -34,7 +34,6 @@ public class CEventHeight extends SkillInfoObject {
             new CEventHeightType(0x3, "最大増分(1=0.01)"),
             new CEventHeightType(0x2, "標的高度補正"),
 
-            // todo ???
             new CEventHeightType(0xFFFFFFFF, "増分:%s"),
             new CEventHeightType(0xFFFFFFFF, "%s 補正:%s")
     };

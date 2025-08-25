@@ -67,7 +67,9 @@ public class TestGrp {
             for (Path path : stream) {
                 String jsonStr = FileUtil.readUtf8String(path.toFile());
                 Grp grp = mapper.readValue(jsonStr, Grp.class);
-                String baseName = path.getFileName().toString().replace(".json", "");
+                String fileName = path.getFileName().toString();
+                String baseName = fileName.replaceFirst("\\.grp\\.json$", "").replaceFirst("\\.json$", "");
+
                 Path output = GRP_OUTPUT_DIR.resolve(baseName + ".generated.grp");
 
                 bsdxBinService.generate(output.toString(), grp, "windows-31j");
@@ -117,6 +119,7 @@ public class TestGrp {
                     Files.move(gen, target, StandardCopyOption.REPLACE_EXISTING);
                     log.warn("Moved mismatch file to: {}", target);
                 }
+                log.info("✅ Match: {}", name);
             }
         }
     }

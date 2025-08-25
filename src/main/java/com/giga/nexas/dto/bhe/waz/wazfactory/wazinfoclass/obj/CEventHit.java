@@ -154,29 +154,21 @@ public class CEventHit extends SkillInfoObject {
 
         this.unitList.clear();
         for (int i = 0; i < 41; i++) {
-            try {
-                int buffer = reader.readInt();
-                if (buffer != 0 && buffer != 1) {
-                    throw new RuntimeException("buffer == "+buffer);
-                }
+            int buffer = reader.readInt();
 
-                CEventHitUnit unit = new CEventHitUnit();
-                unit.setUnitSlotNum(i);
-                unit.setBuffer(buffer);
-                unit.setDescription(CEVENT_HIT_ENTRIES[i].getDescription());
+            CEventHitUnit unit = new CEventHitUnit();
+            unit.setUnitSlotNum(i);
+            unit.setBuffer(buffer);
+            unit.setDescription(CEVENT_HIT_ENTRIES[i].getDescription());
 
-                if (buffer != 0) {
-                    int typeId = CEVENT_HIT_ENTRIES[i].getType();
-                    SkillInfoObject obj = SkillInfoFactory.createCEventObjectByTypeBhe(typeId);
-                    if (obj != null) {
-                        obj.readInfo(reader);
-                        unit.setData(obj);
-                        this.unitList.add(unit);
-                    }
+            if (buffer != 0) {
+                int typeId = CEVENT_HIT_ENTRIES[i].getType();
+                SkillInfoObject obj = SkillInfoFactory.createCEventObjectByTypeBhe(typeId);
+                if (obj != null) {
+                    obj.readInfo(reader);
+                    unit.setData(obj);
+                    this.unitList.add(unit);
                 }
-            } catch (Exception e) {
-                // todo bug
-                throw new RuntimeException(e);
             }
         }
     }

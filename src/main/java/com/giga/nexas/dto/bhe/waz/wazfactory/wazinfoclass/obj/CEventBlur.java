@@ -29,7 +29,6 @@ public class CEventBlur extends SkillInfoObject {
 
     public static final CEventBlurType[] CEVENT_BLUR_ENTRIES = {
 
-            // todo unsure
             new CEventBlurType(0xFFFFFFFF, "%3d(%3d,%3d)"),
             new CEventBlurType(0xFFFFFFFF, "%3d(%3d,%3d)"),
             new CEventBlurType(0xFFFFFFFF, "⇒ %3d(%3d,%3d)"),

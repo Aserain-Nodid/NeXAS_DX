@@ -30,7 +30,6 @@ public class CEventBlink extends SkillInfoObject {
             new CEventBlinkType(0xFFFFFFFF, "アニメ時間"),
             new CEventBlinkType(0xFFFFFFFF, "フラグ"),
 
-            // todo unsure
             new CEventBlinkType(0xFFFFFFFF, "加算属性"),
             new CEventBlinkType(0xFFFFFFFF, "ノーマル"),
             new CEventBlinkType(0xFFFFFFFF, "親オブジェクトの拡大率反映"),

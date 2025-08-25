@@ -21,9 +21,9 @@ public class GrpParser implements BsdxParser<Grp> {
     public GrpParser() {
         // 注册解析器
         registerParser(new BatVoiceGrpParser());
-//        registerParser(new MapGroupGrpParser());
+        registerParser(new MapGroupGrpParser());
         registerParser(new MekaGroupGrpParser());
-//        registerParser(new ProgramMaterialGrpParser());
+        registerParser(new ProgramMaterialGrpParser());
         registerParser(new SeGroupGrpParser());
         registerParser(new SpriteGroupGrpParser());
         registerParser(new TermGrpParser());
