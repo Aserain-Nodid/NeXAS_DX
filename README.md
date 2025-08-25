@@ -23,10 +23,12 @@ but `.spm` and `.bin` should work for most games of NeXAS engine since they use 
 
 ## Notes
 
-- **`.grp` parsing** depends on the file name. Make sure the name is one of the following:
+- **`.grp` parsing** depends on the file name. Make sure the name is one of the following (ignore upper or lower case):
   ```
   BatVoice.grp
+  MapGroup.grp
   MekaGroup.grp
+  ProgramMaterial.grp
   SeGroup.grp
   SpriteGroup.grp
   Term.grp
