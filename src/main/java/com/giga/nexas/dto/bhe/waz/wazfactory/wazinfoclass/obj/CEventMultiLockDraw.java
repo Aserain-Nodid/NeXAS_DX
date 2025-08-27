@@ -31,8 +31,8 @@ public class CEventMultiLockDraw extends SkillInfoObject {
             new CEventMultiLockDrawType(0x1D, "ロックＳＥ")
     };
 
-    private Short short1;
-    private Short short2;
+    private Byte byte1;
+    private Byte byte2;
 
     @Data
     public static class CEventMultiLockDrawUnit {
@@ -52,8 +52,8 @@ public class CEventMultiLockDraw extends SkillInfoObject {
     public void readInfo(BinaryReader reader) {
         super.readInfo(reader);
 
-        this.short1 = reader.readShort();
-        this.short2 = reader.readShort();
+        this.byte1 = reader.readByte();
+        this.byte2 = reader.readByte();
 
         this.unitList.clear();
 

@@ -157,7 +157,7 @@ public class CEventEffect extends SkillInfoObject {
         writer.writeInt(this.int10);
         writer.writeInt(this.int11);
 
-        for (int i = 0; i < 45; i++) {
+        for (int i = 0; i < 46; i++) {
             CEventEffectUnit target = null;
             for (CEventEffectUnit unit : this.ceventEffectUnitList) {
                 if (unit.getUnitSlotNum() != null && unit.getUnitSlotNum() == i) {
