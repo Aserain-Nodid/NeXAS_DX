@@ -21,7 +21,9 @@ public class TestSpm {
     private static final Logger log = LoggerFactory.getLogger(TestSpm.class);
     private final BsdxBinService bsdxBinService = new BsdxBinService();
 
-    private static final Path GAME_SPM_DIR = Paths.get("src/main/resources/game/bsdx/spm");
+    private static final String CHARSET = "windows-31j";
+
+    private static final Path GAME_SPM_DIR = Paths.get("src/main/resources");
     private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/spmJson");
     private static final Path SPM_OUTPUT_DIR = Paths.get("src/main/resources/spmGenerated");
 
@@ -32,6 +34,7 @@ public class TestSpm {
 
         Files.createDirectories(JSON_OUTPUT_DIR);
 
+        int counter = 0;
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(GAME_SPM_DIR, "*.spm")) {
             for (Path path : stream) {
                 String fileName = path.getFileName().toString();
@@ -39,11 +42,13 @@ public class TestSpm {
                 baseNames.add(baseName);
 
                 try {
-                    ResponseDTO dto = bsdxBinService.parse(path.toString(), "windows-31j");
+                    ResponseDTO dto = bsdxBinService.parse(path.toString(), CHARSET);
                     Spm spm = (Spm) dto.getData();
                     allSpmList.add(spm);
+                    log.info("✅ passed: {}", fileName);
                 } catch (Exception e) {
-                    log.warn("Failed to parse: {}", fileName, e);
+                    log.warn("❌ Failed to parse: {}", fileName, e);
+                    counter++;
                 }
             }
         }
@@ -54,6 +59,10 @@ public class TestSpm {
             Path jsonPath = JSON_OUTPUT_DIR.resolve(baseNames.get(i) + ".spm.json");
             FileUtil.writeUtf8String(jsonStr, jsonPath.toFile());
             log.info("Exported: {}", jsonPath);
+        }
+
+        if (counter==0) {
+            log.info("✅✅✅ All passed!!!");
         }
     }
 
@@ -67,11 +76,11 @@ public class TestSpm {
             for (Path path : stream) {
                 String jsonStr = FileUtil.readUtf8String(path.toFile());
                 Spm spm = mapper.readValue(jsonStr, Spm.class);
-                String baseName = path.getFileName().toString().replace(".json", "");
+                String baseName = path.getFileName().toString().replace(".spm.json", "");
                 Path output = SPM_OUTPUT_DIR.resolve(baseName + ".generated.spm");
 
-                bsdxBinService.generate(output.toString(), spm, "windows-31j");
-                log.info("Generated: {}", output);
+                bsdxBinService.generate(output.toString(), spm, CHARSET);
+                log.info("✅ Generated: {}", output);
             }
         }
     }
@@ -88,6 +97,7 @@ public class TestSpm {
         Path mismatchDir = SPM_OUTPUT_DIR.resolve("mismatch");
         Files.createDirectories(mismatchDir); // 确保 mismatch 文件夹存在
 
+        int counter=0;
         try (DirectoryStream<Path> oriStream = Files.newDirectoryStream(GAME_SPM_DIR, "*.spm")) {
             for (Path ori : oriStream) {
                 String name = ori.getFileName().toString().replace(".spm", ".generated.spm");
@@ -101,7 +111,8 @@ public class TestSpm {
                 byte[] generatedBytes = FileUtil.readBytes(gen.toFile());
 
                 if (!ArrayUtil.equals(originalBytes, generatedBytes)) {
-                    log.error("Mismatch: {}", name);
+                    counter++;
+                    log.error("❌Mismatch: {}", name);
                     int minLen = Math.min(originalBytes.length, generatedBytes.length);
                     for (int i = 0; i < minLen; i++) {
                         if (originalBytes[i] != generatedBytes[i]) {
@@ -114,16 +125,21 @@ public class TestSpm {
                     }
 
                     // 移动 mismatch 文件
-                    String newName = gen.getFileName().toString().replace(".generated", "");
+                    String newName = gen.getFileName().toString();
                     Path target = mismatchDir.resolve(newName);
                     Files.move(gen, target, StandardCopyOption.REPLACE_EXISTING);
                     log.warn("Moved mismatch file to: {}", target);
 
                 } else {
-//                log.info("Match: {}", name);
+                    log.info("✅ Match: {}", name);
                 }
             }
         }
+
+        if (counter==0) {
+            log.info("✅✅✅ All Matched!!!");
+        }
+
     }
 
 }

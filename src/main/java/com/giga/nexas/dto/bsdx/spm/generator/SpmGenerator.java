@@ -64,6 +64,11 @@ public class SpmGenerator implements BsdxGenerator<Spm> {
         writer.writeInt(page.getRotateCenterY());
         writer.writeInt(page.getHitFlag().intValue());
 
+        // SPM2.02
+        if (SPM_VERSION_202.equals(currentVersion)) {
+            writer.writeByte(page.getUnk3());
+        }
+
         for (Spm.SPMHitArea hitArea : page.getHitRects()) {
             writeHitArea(writer, hitArea);
         }
@@ -94,13 +99,14 @@ public class SpmGenerator implements BsdxGenerator<Spm> {
         writer.writeInt(chip.getChipHeight());
         writeRect(writer, chip.getSrcRect());
         writer.writeInt(chip.getDrawOption().intValue());
-        writer.writeInt(chip.getDrawOptionValue().intValue());
-        writer.writeInt(chip.getOption());
 
-        // SPM 2.02
+        // SPM2.02
         if (SPM_VERSION_202.equals(currentVersion)) {
             writer.writeByte(chip.getUnk5());
         }
+
+        writer.writeInt(chip.getDrawOptionValue().intValue());
+        writer.writeInt(chip.getOption());
     }
 
     private void writeAnimData(BinaryWriter writer, Spm.SPMAnimData anim, int patPageNum) throws IOException {

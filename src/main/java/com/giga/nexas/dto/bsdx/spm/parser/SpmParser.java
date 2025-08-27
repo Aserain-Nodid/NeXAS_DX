@@ -69,9 +69,14 @@ public class SpmParser implements BsdxParser<Spm> {
         page.setRotateCenterY(reader.readInt());
         page.setHitFlag(reader.readInt() & 0xFFFFFFFFL);
 
+        // SPM2.02
+        if (SPM_VERSION_202.equals(currentVersion)) {
+            page.setUnk3(reader.readByte());
+        }
+
         List<Spm.SPMHitArea> hitRects = new ArrayList<>();
         for (int i = 0; i < 32; i++) {
-            if (((1 << (i & 31)) & page.getHitFlag()) != 0) {
+            if (((1L << (i & 31)) & page.getHitFlag()) != 0L) {
                 hitRects.add(parseHitArea(reader));
             }
         }
@@ -112,11 +117,14 @@ public class SpmParser implements BsdxParser<Spm> {
         chipData.setChipHeight(reader.readInt());
         chipData.setSrcRect(parseRect(reader));
         chipData.setDrawOption(reader.readInt() & 0xFFFFFFFFL);
-        chipData.setDrawOptionValue(reader.readInt() & 0xFFFFFFFFL);
-        chipData.setOption(reader.readInt());
+
+        // SPM2.02
         if (SPM_VERSION_202.equals(currentVersion)) {
             chipData.setUnk5(reader.readByte());
         }
+
+        chipData.setDrawOptionValue(reader.readInt() & 0xFFFFFFFFL);
+        chipData.setOption(reader.readInt());
         return chipData;
     }
 
