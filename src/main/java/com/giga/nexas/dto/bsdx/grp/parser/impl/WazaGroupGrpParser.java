@@ -14,7 +14,7 @@ public class WazaGroupGrpParser implements GrpFileParser<Grp> {
 
     @Override
     public String getParserKey() {
-        return "WazaGroup";
+        return "wazagroup";
     }
 
     @Override

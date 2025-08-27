@@ -8,12 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * @Description
- * CEventSpriteAttr__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventSpriteAttr extends SkillInfoObject {

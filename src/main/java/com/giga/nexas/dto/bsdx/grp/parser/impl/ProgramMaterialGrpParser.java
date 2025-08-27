@@ -17,7 +17,7 @@ public class ProgramMaterialGrpParser implements GrpFileParser<Grp> {
 
     @Override
     public String getParserKey() {
-        return "ProgramMaterial";
+        return "programmaterial";
     }
 
     @Override

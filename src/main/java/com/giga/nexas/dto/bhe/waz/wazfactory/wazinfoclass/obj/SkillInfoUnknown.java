@@ -7,11 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * @Description WazInfoUnknown
- */
 @Data
 @NoArgsConstructor
 public class SkillInfoUnknown extends SkillInfoObject {

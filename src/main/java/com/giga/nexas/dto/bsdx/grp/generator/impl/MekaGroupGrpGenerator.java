@@ -16,7 +16,7 @@ public class MekaGroupGrpGenerator implements GrpFileGenerator<Grp> {
 
     @Override
     public String getGeneratorKey() {
-        return "MekaGroup";
+        return "mekagroup";
     }
 
     @Override

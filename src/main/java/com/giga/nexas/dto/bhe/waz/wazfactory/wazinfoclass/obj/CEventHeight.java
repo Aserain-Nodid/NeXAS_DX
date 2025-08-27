@@ -12,12 +12,6 @@ import java.util.List;
 
 import static com.giga.nexas.dto.bhe.waz.wazfactory.SkillInfoFactory.createCEventObjectByTypeBhe;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * @Description CEventHeight
- * CEventHeight__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventHeight extends SkillInfoObject {

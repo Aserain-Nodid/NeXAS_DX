@@ -16,7 +16,7 @@ public class ProgramMaterialGrpGenerator implements GrpFileGenerator<Grp> {
 
     @Override
     public String getGeneratorKey() {
-        return "ProgramMaterial";
+        return "programmaterial";
     }
 
     @Override

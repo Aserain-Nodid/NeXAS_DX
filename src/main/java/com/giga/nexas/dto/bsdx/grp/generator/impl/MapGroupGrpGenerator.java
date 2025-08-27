@@ -16,7 +16,7 @@ public class MapGroupGrpGenerator implements GrpFileGenerator<Grp> {
 
     @Override
     public String getGeneratorKey() {
-        return "MapGroup";
+        return "mapgroup";
     }
 
     @Override

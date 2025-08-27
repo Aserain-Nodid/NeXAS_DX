@@ -10,12 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * @Description 逆向时该虚函数调用下的字符串信息，一并记录
- * CEventTerm__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventTerm extends SkillInfoObject {

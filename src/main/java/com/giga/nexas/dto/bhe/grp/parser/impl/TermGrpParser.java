@@ -1,0 +1,41 @@
+package com.giga.nexas.dto.bhe.grp.parser.impl;
+
+import com.giga.nexas.dto.bhe.grp.Grp;
+import com.giga.nexas.dto.bhe.grp.groupmap.TermGrp;
+import com.giga.nexas.dto.bhe.grp.parser.GrpFileParser;
+import com.giga.nexas.io.BinaryReader;
+
+public class TermGrpParser implements GrpFileParser<Grp> {
+
+    @Override
+    public String getParserKey() {
+        return "term";
+    }
+
+    @Override
+    public Grp parse(BinaryReader reader) {
+        TermGrp termGrp = new TermGrp();
+
+        int groupCount = reader.readInt();
+        for (int i = 0; i < groupCount; i++) {
+            TermGrp.TermGroup group = new TermGrp.TermGroup();
+            group.setTermGroupName(reader.readNullTerminatedString());
+            group.setTermGroupCodeName(reader.readNullTerminatedString());
+
+            int itemCount = reader.readInt();
+            for (int j = 0; j < itemCount; j++) {
+                TermGrp.TermItem item = new TermGrp.TermItem();
+                item.setTermItemName(reader.readNullTerminatedString());
+                item.setTermItemCodeName(reader.readNullTerminatedString());
+                item.setTermItemDescription(reader.readNullTerminatedString());
+                item.setParam1(reader.readInt());
+                item.setParam2(reader.readInt());
+                group.getTermItemList().add(item);
+            }
+
+            termGrp.getTermList().add(group);
+        }
+
+        return termGrp;
+    }
+}

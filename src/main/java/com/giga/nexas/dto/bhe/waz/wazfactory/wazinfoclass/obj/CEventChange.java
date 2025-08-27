@@ -11,11 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * CEventChange__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventChange extends SkillInfoObject {

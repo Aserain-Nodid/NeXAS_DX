@@ -2,11 +2,6 @@ package com.giga.nexas.dto.bhe.mek.checker;
 
 import com.giga.nexas.dto.bhe.mek.Mek;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/1/19
- * @Description MekChecker
- */
 public class MekChecker {
 
     public static boolean checkMek(Mek mek, byte[] bytes) {

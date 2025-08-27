@@ -14,7 +14,7 @@ public class TermGrpParser implements GrpFileParser<Grp> {
 
     @Override
     public String getParserKey() {
-        return "Term";
+        return "term";
     }
 
     @Override

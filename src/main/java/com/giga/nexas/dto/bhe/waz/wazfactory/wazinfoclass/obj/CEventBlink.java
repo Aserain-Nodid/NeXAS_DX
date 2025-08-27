@@ -5,11 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * CEventBlink__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventBlink extends SkillInfoObject {

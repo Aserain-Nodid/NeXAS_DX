@@ -101,7 +101,7 @@ public class BsdxBinService {
     }
 
     public static String getFileName(String path) {
-        String fileName = Paths.get(path).getFileName().toString();
+        String fileName = Paths.get(path).getFileName().toString().toLowerCase();
         int extensionIndex = fileName.lastIndexOf(".");
         return extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
     }

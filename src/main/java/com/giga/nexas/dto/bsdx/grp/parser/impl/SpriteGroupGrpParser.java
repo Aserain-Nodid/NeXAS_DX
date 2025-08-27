@@ -14,7 +14,7 @@ public class SpriteGroupGrpParser implements GrpFileParser<Grp> {
 
     @Override
     public String getParserKey() {
-        return "SpriteGroup";
+        return "spritegroup";
     }
 
     @Override

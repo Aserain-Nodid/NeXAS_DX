@@ -16,7 +16,7 @@ public class SeGroupGrpGenerator implements GrpFileGenerator<Grp> {
 
     @Override
     public String getGeneratorKey() {
-        return "SeGroup";
+        return "segroup";
     }
 
     @Override

@@ -14,7 +14,7 @@ public class MekaGroupGrpParser implements GrpFileParser<Grp> {
 
     @Override
     public String getParserKey() {
-        return "MekaGroup";
+        return "mekagroup";
     }
 
     @Override

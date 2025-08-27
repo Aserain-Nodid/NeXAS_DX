@@ -14,7 +14,7 @@ public class SeGroupGrpParser implements GrpFileParser<Grp> {
 
     @Override
     public String getParserKey() {
-        return "SeGroup";
+        return "segroup";
     }
 
     @Override

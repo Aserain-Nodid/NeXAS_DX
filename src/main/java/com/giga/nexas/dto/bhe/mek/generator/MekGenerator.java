@@ -13,11 +13,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/1/19
- * @Description MekGenerator
- */
 public class MekGenerator implements BheGenerator<Mek> {
 
     @Override

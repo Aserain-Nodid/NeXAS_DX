@@ -19,11 +19,6 @@ import java.util.List;
         @JsonSubTypes.Type(value = CCpuEventMove.class, name = "1"),
         @JsonSubTypes.Type(value = CCpuEventAttack.class, name = "2")
 })
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/10
- * @Description CCpuEvent
- */
 @Data
 public class CCpuEvent {
 

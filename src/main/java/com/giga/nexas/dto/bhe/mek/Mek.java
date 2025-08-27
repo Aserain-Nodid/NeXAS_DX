@@ -107,17 +107,6 @@ public class Mek extends Bhe {
 
     }
 
-    /**
-     *
-     * 该大块数据信息由
-     * @；）
-     * （b站主页：https://space.bilibili.com/3546627702786420）
-     *
-     * 总结与发现
-     *
-     * 逆向完善by：我（Karaik）
-     *
-     */
     @Data
     public static class MekBasicInfo {
 
@@ -326,15 +315,6 @@ public class Mek extends Bhe {
 
     }
 
-    /**
-     * 该大块数据信息感谢以下
-     * @柚木式子
-     * （b站主页：https://space.bilibili.com/1420258295）
-     * @；）
-     * （b站主页：https://space.bilibili.com/3546627702786420）
-     * 群友的部分总结与发现
-     *
-     */
     @Data
     public static class MekWeaponInfo {
 
@@ -587,11 +567,8 @@ public class Mek extends Bhe {
 
     }
 
-    /**
-     * 极大可能为武装选择列表（插槽块）
-     * 其中，开头的几个为常规块，如走路、站立、ND、BD等，因机体的不同有包括数量在内的差异
-     * 另，内容物作用尚未查明，故直接以byte数组存储
-     */
+
+    // todo
     @Data
     public static class MekPluginBlock {
 

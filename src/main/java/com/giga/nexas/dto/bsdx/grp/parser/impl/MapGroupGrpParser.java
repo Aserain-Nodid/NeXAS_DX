@@ -17,7 +17,7 @@ public class MapGroupGrpParser implements GrpFileParser<Grp> {
 
     @Override
     public String getParserKey() {
-        return "MapGroup";
+        return "mapgroup";
     }
 
     @Override

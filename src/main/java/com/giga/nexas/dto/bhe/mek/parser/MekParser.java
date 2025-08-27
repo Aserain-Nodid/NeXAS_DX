@@ -16,15 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @Author 这位同学(Karaik)
- *
- * 另外感谢（排名不分先后）
- * @；）
- * @蓝色幻想
- * @柚木式子
- * 对逆向做出的贡献
- */
 @Slf4j
 public class MekParser implements BheParser<Mek> {
 

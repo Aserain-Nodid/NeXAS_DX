@@ -16,7 +16,7 @@ public class TermGrpGenerator implements GrpFileGenerator<Grp> {
 
     @Override
     public String getGeneratorKey() {
-        return "Term";
+        return "term";
     }
 
     @Override
