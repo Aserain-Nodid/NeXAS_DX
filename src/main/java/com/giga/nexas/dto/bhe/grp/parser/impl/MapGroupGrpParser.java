@@ -51,7 +51,7 @@ public class MapGroupGrpParser implements GrpFileParser<Grp> {
                 group.setItems(items);
 
                 // 读取三段
-                group.setArray1(readPairArraySegment(reader));
+                group.setPairArray1(readPairArraySegment(reader));
                 group.setArray2(readIntArraySegment(reader));
                 group.setArray3(readIntArraySegment(reader));
             }

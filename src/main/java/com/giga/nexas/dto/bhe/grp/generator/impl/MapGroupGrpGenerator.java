@@ -37,7 +37,7 @@ public class MapGroupGrpGenerator implements GrpFileGenerator<Grp> {
                         writer.writeInt(item.getInt5());
                     }
 
-                    writePairArraySegment(writer, group.getArray1());
+                    writePairArraySegment(writer, group.getPairArray1());
                     writeIntArraySegment(writer, group.getArray2());
                     writeIntArraySegment(writer, group.getArray3());
                 }

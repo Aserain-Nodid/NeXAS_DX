@@ -26,7 +26,7 @@ public class MapGroupGrp extends Grp {
         // 每项5个int
         private List<Item> items = new ArrayList<>();
 
-        private List<PairArray> array1 = new ArrayList<>(); // diff
+        private List<PairArray> pairArray1 = new ArrayList<>(); // diff
         private List<IntArray> array2 = new ArrayList<>();
         private List<IntArray> array3 = new ArrayList<>();
     }

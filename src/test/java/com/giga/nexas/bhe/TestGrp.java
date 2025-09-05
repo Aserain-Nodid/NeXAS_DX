@@ -119,6 +119,8 @@ public class TestGrp {
                     Path target = mismatchDir.resolve(newName);
                     Files.move(gen, target, StandardCopyOption.REPLACE_EXISTING);
                     log.warn("Moved mismatch file to: {}", target);
+                } else {
+                    log.info("✅ same: {}", name);
                 }
             }
         }
