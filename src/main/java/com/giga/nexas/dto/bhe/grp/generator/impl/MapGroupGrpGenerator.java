@@ -6,6 +6,7 @@ import com.giga.nexas.dto.bhe.grp.groupmap.MapGroupGrp;
 import com.giga.nexas.io.BinaryWriter;
 
 import java.io.IOException;
+import java.util.List;
 
 public class MapGroupGrpGenerator implements GrpFileGenerator<Grp> {
 
@@ -33,15 +34,40 @@ public class MapGroupGrpGenerator implements GrpFileGenerator<Grp> {
                         writer.writeInt(item.getInt2());
                         writer.writeInt(item.getInt3());
                         writer.writeInt(item.getInt4());
+                        writer.writeInt(item.getInt5());
                     }
 
-                    writeIntArraySegment(writer, group.getArray1());
+                    writePairArraySegment(writer, group.getArray1());
                     writeIntArraySegment(writer, group.getArray2());
                     writeIntArraySegment(writer, group.getArray3());
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to generate MapGroup.grp", e);
+        }
+    }
+
+    private void writePairArraySegment(BinaryWriter writer, List<MapGroupGrp.PairArray> pair) throws IOException {
+        if (pair == null) {
+            writer.writeInt(0);
+            return;
+        }
+        writer.writeInt(pair.size());
+        for (MapGroupGrp.PairArray arr : pair) {
+            List<MapGroupGrp.Pair> values = (arr != null) ? arr.getValues() : null;
+            int len = (values != null) ? values.size() : 0;
+            writer.writeInt(len);
+            if (len > 0) {
+                for (MapGroupGrp.Pair p : values) {
+                    if (p == null) {
+                        writer.writeInt(0);
+                        writer.writeInt(0);
+                    } else {
+                        writer.writeInt(p.getInt1());
+                        writer.writeInt(p.getInt2());
+                    }
+                }
+            }
         }
     }
 

@@ -45,12 +45,13 @@ public class MapGroupGrpParser implements GrpFileParser<Grp> {
                     item.setInt2(reader.readInt());
                     item.setInt3(reader.readInt());
                     item.setInt4(reader.readInt());
+                    item.setInt5(reader.readInt());
                     items.add(item);
                 }
                 group.setItems(items);
 
                 // 读取三段
-                group.setArray1(readIntArraySegment(reader));
+                group.setArray1(readPairArraySegment(reader));
                 group.setArray2(readIntArraySegment(reader));
                 group.setArray3(readIntArraySegment(reader));
             }
@@ -60,6 +61,24 @@ public class MapGroupGrpParser implements GrpFileParser<Grp> {
         }
 
         return result;
+    }
+
+    private List<MapGroupGrp.PairArray> readPairArraySegment(BinaryReader reader) {
+        int segCount = reader.readInt();
+        List<MapGroupGrp.PairArray> list = new ArrayList<>(Math.max(segCount, 0));
+        for (int i = 0; i < segCount; i++) {
+            int len = reader.readInt();
+            MapGroupGrp.PairArray arr = new MapGroupGrp.PairArray();
+            List<MapGroupGrp.Pair> values = arr.getValues();
+            for (int k = 0; k < len; k++) {
+                MapGroupGrp.Pair p = new MapGroupGrp.Pair();
+                p.setInt1(reader.readInt());
+                p.setInt2(reader.readInt());
+                values.add(p);
+            }
+            list.add(arr);
+        }
+        return list;
     }
 
     private List<MapGroupGrp.IntArray> readIntArraySegment(BinaryReader reader) {
