@@ -71,7 +71,7 @@ public class TestGrp {
                 String jsonStr = FileUtil.readUtf8String(path.toFile());
                 Grp grp = mapper.readValue(jsonStr, Grp.class);
                 String baseName = path.getFileName().toString().replace(".json", "");
-                Path output = GRP_OUTPUT_DIR.resolve(baseName + ".generated.grp");
+                Path output = GRP_OUTPUT_DIR.resolve(baseName.replace(".grp", ".generated.grp"));
 
                 bheBinService.generate(output.toString(), grp, "windows-31j");
                 log.info("Generated: {}", output);

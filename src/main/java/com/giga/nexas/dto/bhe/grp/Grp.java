@@ -13,14 +13,14 @@ import lombok.Data;
         visible = true
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = BatVoiceGrp.class, name = "BatVoice"),
-        @JsonSubTypes.Type(value = MapGroupGrp.class, name = "MapGroup"),
-        @JsonSubTypes.Type(value = MekaGroupGrp.class, name = "MekaGroup"),
-        @JsonSubTypes.Type(value = ProgramMaterialGrp.class, name = "ProgramMaterial"),
-        @JsonSubTypes.Type(value = SeGroupGrp.class, name = "SeGroup"),
-        @JsonSubTypes.Type(value = SpriteGroupGrp.class, name = "SpriteGroup"),
-        @JsonSubTypes.Type(value = TermGrp.class, name = "Term"),
-        @JsonSubTypes.Type(value = WazaGroupGrp.class, name = "WazaGroup")
+        @JsonSubTypes.Type(value = BatVoiceGrp.class, name = "batvoice"),
+        @JsonSubTypes.Type(value = MapGroupGrp.class, name = "mapgroup"),
+        @JsonSubTypes.Type(value = MekaGroupGrp.class, name = "mekagroup"),
+        @JsonSubTypes.Type(value = ProgramMaterialGrp.class, name = "programmaterial"),
+        @JsonSubTypes.Type(value = SeGroupGrp.class, name = "segroup"),
+        @JsonSubTypes.Type(value = SpriteGroupGrp.class, name = "spritegroup"),
+        @JsonSubTypes.Type(value = TermGrp.class, name = "term"),
+        @JsonSubTypes.Type(value = WazaGroupGrp.class, name = "wazagroup")
 })
 @Data
 public class Grp extends Bhe {
