@@ -15,7 +15,7 @@ public class BatVoiceGrpParser implements GrpFileParser<Grp> {
     @Override
     public Grp parse(BinaryReader reader) {
         BatVoiceGrp batVoiceGrp = new BatVoiceGrp();
-        
+
         int groupNameCount = reader.readInt();
         for (int i = 0; i < groupNameCount; i++) {
             BatVoiceGrp.BatVoiceTypeGroup type = new BatVoiceGrp.BatVoiceTypeGroup();
@@ -32,6 +32,9 @@ public class BatVoiceGrpParser implements GrpFileParser<Grp> {
             if (existFlag != 0) {
                 group.setCharacterName(reader.readNullTerminatedString());
                 group.setCharacterCodeName(reader.readNullTerminatedString());
+
+                int unk0 = reader.readInt();
+                group.setUnk0(unk0);
 
                 int voiceCount = reader.readInt();
                 for (int j = 0; j < voiceCount; j++) {

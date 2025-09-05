@@ -5,6 +5,8 @@ import com.giga.nexas.dto.ResponseDTO;
 import com.giga.nexas.dto.bhe.Bhe;
 import com.giga.nexas.dto.bhe.BheGenerator;
 import com.giga.nexas.dto.bhe.BheParser;
+import com.giga.nexas.dto.bhe.grp.generator.GrpGenerator;
+import com.giga.nexas.dto.bhe.grp.parser.GrpParser;
 import com.giga.nexas.dto.bhe.mek.parser.MekParser;
 import com.giga.nexas.dto.bhe.waz.parser.WazParser;
 import com.giga.nexas.exception.OperationException;
@@ -28,13 +30,13 @@ public class BheBinService {
         registerParser(new WazParser());
 //        registerParser(new DatParser());
 //        registerParser(new BinParser());
-//        registerParser(new GrpParser());
+        registerParser(new GrpParser());
 
         // 注册generator
 //        registerGenerator(new SpmGenerator());
 //        registerGenerator(new MekGenerator());
 //        registerGenerator(new WazGenerator());
-//        registerGenerator(new GrpGenerator());
+        registerGenerator(new GrpGenerator());
     }
 
     public BheBinService(List<BheParser<?>> bheParsers) {

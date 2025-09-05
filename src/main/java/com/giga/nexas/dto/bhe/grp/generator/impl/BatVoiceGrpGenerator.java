@@ -30,6 +30,8 @@ public class BatVoiceGrpGenerator implements GrpFileGenerator<Grp> {
                 writer.writeNullTerminatedString(group.getCharacterName());
                 writer.writeNullTerminatedString(group.getCharacterCodeName());
 
+                writer.writeInt(group.getUnk0());
+
                 writer.writeInt(group.getVoices().size());
                 for (BatVoiceGrp.BatVoice voice : group.getVoices()) {
                     writer.writeInt(voice.getExistFlag());

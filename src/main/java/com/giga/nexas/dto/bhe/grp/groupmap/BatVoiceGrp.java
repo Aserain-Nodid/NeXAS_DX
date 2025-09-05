@@ -23,6 +23,7 @@ public class BatVoiceGrp extends Grp {
     public static class BatVoiceGroup {
         public Integer existFlag; // 仅记录用
         private String characterName;
+        private Integer unk0; // diff
         private String characterCodeName;
         private List<BatVoice> voices = new ArrayList<>();
     }
