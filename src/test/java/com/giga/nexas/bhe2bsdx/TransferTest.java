@@ -39,7 +39,7 @@ public class TransferTest {
         Map<String, com.giga.nexas.dto.bhe.waz.Waz> bheWaz = registerBheWaz();
         // spm
         Map<String, com.giga.nexas.dto.bsdx.spm.Spm> bsdxSpm = registerBsdxSpm();
-        Map<String, com.giga.nexas.dto.bsdx.spm.Spm> bheSpm = registerBheSpm();
+        Map<String, com.giga.nexas.dto.bhe.spm.Spm> bheSpm = registerBheSpm();
         // dat
 
 
@@ -180,7 +180,6 @@ public class TransferTest {
 
     // spm
     // spm在多个版本中无差异，但已经确定2.0.0在bhe中多了一块关于hitbox的块
-    // 但目前尚未解析，故全部调用bsdx内的spm解析
     private static final Path BSDX_SPM_DIR = Paths.get("src/main/resources/game/bsdx/spm");
     private static final Path BHE_SPM_DIR = Paths.get("src/main/resources/game/bhe/spm");
     private Map<String, com.giga.nexas.dto.bsdx.spm.Spm> registerBsdxSpm() throws IOException {
@@ -203,8 +202,8 @@ public class TransferTest {
 
         return spmMap;
     }
-    private Map<String, com.giga.nexas.dto.bsdx.spm.Spm> registerBheSpm() throws IOException {
-        Map<String, com.giga.nexas.dto.bsdx.spm.Spm> spmMap = new HashMap<>();
+    private Map<String, com.giga.nexas.dto.bhe.spm.Spm> registerBheSpm() throws IOException {
+        Map<String, com.giga.nexas.dto.bhe.spm.Spm> spmMap = new HashMap<>();
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(BHE_SPM_DIR, "*.spm")) {
             for (Path path : stream) {
@@ -212,8 +211,8 @@ public class TransferTest {
                 String baseName = fileName.substring(0, fileName.lastIndexOf('.')).toLowerCase();
 
                 try {
-                    ResponseDTO<?> dto = bsdxBinService.parse(path.toString(), "windows-31j");
-                    com.giga.nexas.dto.bsdx.spm.Spm spm = (com.giga.nexas.dto.bsdx.spm.Spm) dto.getData();
+                    ResponseDTO<?> dto = bheBinService.parse(path.toString(), "windows-31j");
+                    com.giga.nexas.dto.bhe.spm.Spm spm = (com.giga.nexas.dto.bhe.spm.Spm) dto.getData();
                     spmMap.put(baseName, spm);
                 } catch (Exception e) {
                     log.warn("❌ Failed to parse bheSpm: {}", fileName);

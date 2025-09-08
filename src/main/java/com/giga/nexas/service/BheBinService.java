@@ -8,6 +8,8 @@ import com.giga.nexas.dto.bhe.BheParser;
 import com.giga.nexas.dto.bhe.grp.generator.GrpGenerator;
 import com.giga.nexas.dto.bhe.grp.parser.GrpParser;
 import com.giga.nexas.dto.bhe.mek.parser.MekParser;
+import com.giga.nexas.dto.bhe.spm.generator.SpmGenerator;
+import com.giga.nexas.dto.bhe.spm.parser.SpmParser;
 import com.giga.nexas.dto.bhe.waz.parser.WazParser;
 import com.giga.nexas.exception.OperationException;
 
@@ -25,7 +27,7 @@ public class BheBinService {
 
     public BheBinService() {
         // 注册parser
-//        registerParser(new SpmParser());
+        registerParser(new SpmParser());
         registerParser(new MekParser());
         registerParser(new WazParser());
 //        registerParser(new DatParser());
@@ -33,7 +35,7 @@ public class BheBinService {
         registerParser(new GrpParser());
 
         // 注册generator
-//        registerGenerator(new SpmGenerator());
+        registerGenerator(new SpmGenerator());
 //        registerGenerator(new MekGenerator());
 //        registerGenerator(new WazGenerator());
         registerGenerator(new GrpGenerator());
