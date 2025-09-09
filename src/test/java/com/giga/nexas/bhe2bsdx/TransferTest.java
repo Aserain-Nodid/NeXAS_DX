@@ -1,6 +1,11 @@
 package com.giga.nexas.bhe2bsdx;
 
+import com.giga.nexas.bhe2bsdx.steps.TransMeka;
 import com.giga.nexas.dto.ResponseDTO;
+import com.giga.nexas.dto.bhe.grp.groupmap.BatVoiceGrp;
+import com.giga.nexas.dto.bhe.mek.Mek;
+import com.giga.nexas.dto.bhe.spm.Spm;
+import com.giga.nexas.dto.bhe.waz.Waz;
 import com.giga.nexas.service.BheBinService;
 import com.giga.nexas.service.BsdxBinService;
 import org.junit.jupiter.api.Test;
@@ -42,6 +47,22 @@ public class TransferTest {
         Map<String, com.giga.nexas.dto.bhe.spm.Spm> bheSpm = registerBheSpm();
         // dat
 
+        // 2.抽出移植目标
+        // 月读
+        // batVoice
+        com.giga.nexas.dto.bhe.grp.groupmap.BatVoiceGrp batvoice =
+                (com.giga.nexas.dto.bhe.grp.groupmap.BatVoiceGrp) bheGrp.get("batvoice");
+        BatVoiceGrp.BatVoiceGroup tsukuyomiBatvoice = batvoice.getVoiceList().get(1);
+        // mek
+        Mek tsukuyomiMek = bheMek.get("tsukuyomi");
+        // waz
+        Waz tsukuyomiWaz = bheWaz.get("tsukuyomi");
+        // spm
+        Spm tsukuyomiSpm = bheSpm.get("tsukuyomi");
+        //
+        TransMeka.process(tsukuyomiMek,
+                tsukuyomiWaz,
+                tsukuyomiSpm);
 
         log.info("");
     }
@@ -179,7 +200,7 @@ public class TransferTest {
     }
 
     // spm
-    // spm在多个版本中无差异，但已经确定2.0.0在bhe中多了一块关于hitbox的块
+    // spm在多个版本中无差异，但已经确定2.0.0在bhe中多了关于hitbox的信息，变得更复杂了
     private static final Path BSDX_SPM_DIR = Paths.get("src/main/resources/game/bsdx/spm");
     private static final Path BHE_SPM_DIR = Paths.get("src/main/resources/game/bhe/spm");
     private Map<String, com.giga.nexas.dto.bsdx.spm.Spm> registerBsdxSpm() throws IOException {

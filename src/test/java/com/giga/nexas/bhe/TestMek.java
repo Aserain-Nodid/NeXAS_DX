@@ -36,6 +36,7 @@ public class TestMek {
                     ResponseDTO dto = bheBinService.parse(path.toString(), "windows-31j");
                     allMek.add((Mek) dto.getData());
                 } catch (Exception ignored) {
+                    log.info("error: {}", path);
                     continue;
                 }
             }

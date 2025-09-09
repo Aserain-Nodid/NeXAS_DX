@@ -35,19 +35,19 @@ public class MekGenerator implements BsdxGenerator<Mek> {
 
         // 区块序列化为byte[]
         byte[] bodyInfoBlock     = serializeMekBasicInfo(mek, charset);
-        byte[] unknownInfo1Block = mek.getMekUnknownBlock1().getInfo();
+        byte[] pairBlock         = serializeMekPairBlock(mek, charset);
         byte[] weaponInfoBlock   = serializeMekWeaponInfoMap(mek, charset);
-        byte[] aiInfo1Block      = serializeMekAiInfoMap(mek, charset);
-        byte[] aiInfo2Block      = mek.getMekVoiceInfo().getInfo();
-        byte[] mekMaterialBlock    = serializeMekMaterialBlock(mek, charset);
+        byte[] aiInfoBlock       = serializeMekAiInfoMap(mek, charset);
+        byte[] voiceInfoBlock    = serializeMekVoiceInfo(mek, charset);
+        byte[] mekMaterialBlock  = serializeMekMaterialBlock(mek, charset);
 
         // 计算6个序列偏移
         int sequence1 = 24;
         int sequence2 = sequence1 + bodyInfoBlock.length;
-        int sequence3 = sequence2 + unknownInfo1Block.length;
+        int sequence3 = sequence2 + pairBlock.length;
         int sequence4 = sequence3 + weaponInfoBlock.length;
-        int sequence5 = sequence4 + aiInfo1Block.length;
-        int sequence6 = sequence5 + aiInfo2Block.length;
+        int sequence5 = sequence4 + aiInfoBlock.length;
+        int sequence6 = sequence5 + voiceInfoBlock.length;
 
         try (FileOutputStream fos = new FileOutputStream(newFile);
              BinaryWriter writer  = new BinaryWriter(fos, charset)) {
@@ -61,10 +61,10 @@ public class MekGenerator implements BsdxGenerator<Mek> {
             writer.writeInt(sequence6);
 
             writer.writeBytes(bodyInfoBlock);
-            writer.writeBytes(unknownInfo1Block);
+            writer.writeBytes(pairBlock);
             writer.writeBytes(weaponInfoBlock);
-            writer.writeBytes(aiInfo1Block);
-            writer.writeBytes(aiInfo2Block);
+            writer.writeBytes(aiInfoBlock);
+            writer.writeBytes(voiceInfoBlock);
             writer.writeBytes(mekMaterialBlock);
         }
     }
@@ -110,6 +110,19 @@ public class MekGenerator implements BsdxGenerator<Mek> {
     }
 
     // 3 spm相关信息？
+    private static byte[] serializeMekPairBlock(Mek mek, String charset) throws IOException {
+        Mek.MekPairBlock mekPairBlock = mek.getMekPairBlock();
+        List<Mek.MekPairBlock.Pair> unkPair = mekPairBlock.getUnkPair();
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        BinaryWriter writer = new BinaryWriter(baos, charset)) {
+            for (int i = 0; i < 14; i++) {
+                writer.writeInt(unkPair.get(i).getInt1());
+                writer.writeInt(unkPair.get(i).getInt2());
+            }
+            writer.close();
+            return baos.toByteArray();
+        }
+    }
 
     // 4 武装基本信息
     private static byte[] serializeMekWeaponInfoMap(Mek mek, String charset) throws IOException {
@@ -182,6 +195,53 @@ public class MekGenerator implements BsdxGenerator<Mek> {
     }
 
     // 6 跟声音绑定的各种信息
+    private static byte[] serializeMekVoiceInfo(Mek mek, String charset) throws IOException {
+        Mek.MekVoiceInfo mekVoiceInfo = mek.getMekVoiceInfo();
+
+        List<Mek.MekVoiceInfo.Emotion> emotions = mekVoiceInfo.getEmotions();
+        List<Mek.MekVoiceInfo.VoiceSlot> voiceSlots = mekVoiceInfo.getVoiceSlots();
+        List<List<List<Mek.MekVoiceInfo.Entry>>> table = mekVoiceInfo.getTable();
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             BinaryWriter writer = new BinaryWriter(baos, charset)) {
+
+            // header
+            writer.writeInt(mekVoiceInfo.getVersion());
+
+            // emotions
+            writer.writeInt(emotions.size());
+            for (Mek.MekVoiceInfo.Emotion emotion : emotions) {
+                writer.writeNullTerminatedString(emotion.getName());
+                writer.writeNullTerminatedString(emotion.getToken());
+            }
+
+            // voiceSlots
+            writer.writeInt(voiceSlots.size());
+            for (Mek.MekVoiceInfo.VoiceSlot voiceSlot : voiceSlots) {
+                writer.writeNullTerminatedString(voiceSlot.getName());
+                writer.writeNullTerminatedString(voiceSlot.getToken());
+            }
+
+            // table：按行写出；每行固定写 voiceSlots.size() 个单元
+            final int slotCount = voiceSlots.size();
+            for (List<List<Mek.MekVoiceInfo.Entry>> row : table) {
+                // 若该行列数不足，按 0 个三元组补齐；多出的列忽略
+                for (int c = 0; c < slotCount; c++) {
+                    List<Mek.MekVoiceInfo.Entry> cell = row.get(c);
+
+                    writer.writeInt(cell.size());
+                    for (Mek.MekVoiceInfo.Entry entry : cell) {
+                        writer.writeInt(entry.getVoiceType() == null ? 0 : entry.getVoiceType());
+                        writer.writeInt(entry.getGroupId() == null ? 0 : entry.getGroupId());
+                        writer.writeInt(entry.getWeight() == null ? 0 : entry.getWeight());
+                    }
+                }
+            }
+
+            writer.close();
+            return baos.toByteArray();
+        }
+    }
 
     // 7 武装选择界面的演示/素材表（MaterialBlock）
     private static byte[] serializeMekMaterialBlock(Mek mek, String charset) throws IOException {

@@ -54,14 +54,14 @@ public class MekParser implements BsdxParser<Mek> {
 
             // 2.解析机体
             parseMekInfo(mek, bodyInfoBlock, charset);
-            // 3.解析未知块1
-            parseMekUnknownBlock1(mek, unknownInfoBlock1);
+            // 3.解析未知块
+            parseMekPairBlock(mek, unknownInfoBlock1, charset);
             // 4.解析武装块
             parseMekWeaponInfo(mek, weaponInfoBlock, charset);
-            // 5.解析 ai 块1
+            // 5.解析ai块
             parseMekAiInfoBlock(mek, aiInfoBlock1, charset);
-            // 6.解析 ai 块2
-            parseMekAiInfoBlock2(mek, aiInfoBlock2, charset);
+            // 6.解析voice块
+            parseVoiceInfo(mek, aiInfoBlock2, charset);
             // 7.解析武装插槽块
             parseMekMaterialBlock(mek, mekPluginBlock);
 
@@ -136,11 +136,19 @@ public class MekParser implements BsdxParser<Mek> {
     }
 
     /**
-     * 解析未知块 1（暂存原始字节）
+     * 14*8
      */
-    private static void parseMekUnknownBlock1(Mek mek, byte[] bytes) {
-        // 前面的蛆，以后再探索吧
-        mek.getMekUnknownBlock1().setInfo(bytes);
+    private static void parseMekPairBlock(Mek mek, byte[] bytes, String charset) {
+        Mek.MekPairBlock mekPairBlock = mek.getMekPairBlock();
+        BinaryReader reader = new BinaryReader(bytes, charset);
+
+        List<Mek.MekPairBlock.Pair> unkPair = mekPairBlock.getUnkPair();
+        for (int i = 0; i < 14; i++) {
+            Mek.MekPairBlock.Pair pair = new Mek.MekPairBlock.Pair();
+            pair.setInt1(reader.readInt());
+            pair.setInt2(reader.readInt());
+            unkPair.add(pair);
+        }
     }
 
     /**
@@ -227,9 +235,52 @@ public class MekParser implements BsdxParser<Mek> {
         }
     }
 
-    private static void parseMekAiInfoBlock2(Mek mek, byte[] bytes, String charset) {
-        // 前面的蛆，以后再探索吧
-        mek.getMekVoiceInfo().setInfo(bytes);
+    private static void parseVoiceInfo(Mek mek, byte[] bytes, String charset) {
+        Mek.MekVoiceInfo mekVoiceInfo = mek.getMekVoiceInfo();
+        BinaryReader reader = new BinaryReader(bytes, charset);
+
+        mekVoiceInfo.setVersion(reader.readInt());
+
+        int emotionCount = reader.readInt();
+        for (int i = 0; i < emotionCount; i++) {
+            Mek.MekVoiceInfo.Emotion emotion = new Mek.MekVoiceInfo.Emotion();
+            emotion.setName(reader.readNullTerminatedString());
+            emotion.setToken(reader.readNullTerminatedString());
+            mekVoiceInfo.getEmotions().add(emotion);
+        }
+
+        int voiceSlotCount = reader.readInt();
+        for (int i = 0; i < voiceSlotCount; i++) {
+            Mek.MekVoiceInfo.VoiceSlot voiceSlot = new Mek.MekVoiceInfo.VoiceSlot();
+            voiceSlot.setName(reader.readNullTerminatedString());
+            voiceSlot.setToken(reader.readNullTerminatedString());
+            mekVoiceInfo.getVoiceSlots().add(voiceSlot);
+        }
+
+        // 按列数 voiceSlotCount 连续读到区块结束
+        // 每个单元：int32 n，然后 (int1,int2,int3) * n
+        final List<List<List<Mek.MekVoiceInfo.Entry>>> table = mekVoiceInfo.getTable();
+        int rows = 0;
+        while (reader.getPosition() < bytes.length) {
+            List<List<Mek.MekVoiceInfo.Entry>> row = new ArrayList<>(voiceSlotCount);
+            for (int c = 0; c < voiceSlotCount; c++) {
+                int n = reader.readInt();
+                List<Mek.MekVoiceInfo.Entry> cell = new ArrayList<>(n);
+                for (int k = 0; k < n; k++) {
+                    Mek.MekVoiceInfo.Entry entry = new Mek.MekVoiceInfo.Entry();
+                    entry.setVoiceType(reader.readInt());
+                    entry.setGroupId(reader.readInt());
+                    entry.setWeight(reader.readInt());
+                    cell.add(entry);
+                }
+                row.add(cell);
+            }
+            table.add(row);
+            rows++;
+        }
+
+        // 推导内建情绪行数（文件未显式存储）
+        mekVoiceInfo.builtinEmotionCount = rows - emotionCount;
     }
 
     private static void parseMekMaterialBlock(Mek mek, byte[] blockBytes) {
@@ -244,7 +295,7 @@ public class MekParser implements BsdxParser<Mek> {
             all.add(readPluginEntry(reader));
         }
 
-        // 2) extra（等价 au_re_File::read_2）
+        // 2) extra
         int extra = reader.readInt();
         if (extra < 0) {
             throw new OperationException(500, "invalid extraRegularCount: " + extra);
@@ -256,7 +307,7 @@ public class MekParser implements BsdxParser<Mek> {
             all.add(readPluginEntry(reader));
         }
 
-        // 4) 直到 EOF；防御性：若读不到进度则中止，避免死循环
+        // 4) 直到 EOF
         while (reader.getPosition() < blockBytes.length) {
             int before = reader.getPosition();
             all.add(readPluginEntry(reader));
@@ -285,15 +336,15 @@ public class MekParser implements BsdxParser<Mek> {
     private static Mek.MekMaterialBlock.PluginEntry readPluginEntry(BinaryReader reader) {
         int start = reader.getPosition();
 
-        Mek.MekMaterialBlock.PluginEntry e = new Mek.MekMaterialBlock.PluginEntry();
+        Mek.MekMaterialBlock.PluginEntry pluginEntry = new Mek.MekMaterialBlock.PluginEntry();
 
-        // 段 A：spriteGroups
-        int n1 = reader.readInt();
-        if (n1 < 0) {
+        // 段 1：spriteGroups
+        int countSpriteGroups = reader.readInt();
+        if (countSpriteGroups < 0) {
             throw new OperationException(500, "negative group count A(spriteGroups) at " + start);
         }
-        List<int[]> A = new ArrayList<>(n1);
-        for (int i = 0; i < n1; i++) {
+        List<int[]> spriteGroups = new ArrayList<>(countSpriteGroups);
+        for (int i = 0; i < countSpriteGroups; i++) {
             int len = reader.readInt();
             if (len < 0) {
                 throw new OperationException(500, "negative group len A(spriteGroups) at " + reader.getPosition());
@@ -302,34 +353,34 @@ public class MekParser implements BsdxParser<Mek> {
             for (int k = 0; k < len; k++) {
                 arr[k] = reader.readInt();
             }
-            A.add(arr);
+            spriteGroups.add(arr);
         }
 
         // 段 B：seGroups
-        int n2 = reader.readInt();
-        if (n2 < 0) {
+        int countSeGroups = reader.readInt();
+        if (countSeGroups < 0) {
             throw new OperationException(500, "negative group count B(seGroups) at " + reader.getPosition());
         }
-        List<int[]> B = new ArrayList<>(n2);
-        for (int i = 0; i < n2; i++) {
+        List<int[]> seGroups = new ArrayList<>(countSeGroups);
+        for (int i = 0; i < countSeGroups; i++) {
             int len = reader.readInt();
             if (len < 0) {
-                throw new OperationException(500, "negative group len BseGroups at " + reader.getPosition());
+                throw new OperationException(500, "negative group len B(seGroups) at " + reader.getPosition());
             }
             int[] arr = new int[len];
             for (int k = 0; k < len; k++) {
                 arr[k] = reader.readInt();
             }
-            B.add(arr);
+            seGroups.add(arr);
         }
 
         // 段 C：voiceGroups
-        int n3 = reader.readInt();
-        if (n3 < 0) {
+        int countVoiceGroups = reader.readInt();
+        if (countVoiceGroups < 0) {
             throw new OperationException(500, "negative group count C(voiceGroups) at " + reader.getPosition());
         }
-        List<int[]> C = new ArrayList<>(n3);
-        for (int i = 0; i < n3; i++) {
+        List<int[]> voiceGroups = new ArrayList<>(countVoiceGroups);
+        for (int i = 0; i < countVoiceGroups; i++) {
             int len = reader.readInt();
             if (len < 0) {
                 throw new OperationException(500, "negative group len C(voiceGroups) at " + reader.getPosition());
@@ -338,16 +389,16 @@ public class MekParser implements BsdxParser<Mek> {
             for (int k = 0; k < len; k++) {
                 arr[k] = reader.readInt();
             }
-            C.add(arr);
+            voiceGroups.add(arr);
         }
 
-        e.setSpriteGroups(A);
-        e.setSeGroups(B);
-        e.setVoiceGroups(C);
+        pluginEntry.setSpriteGroups(spriteGroups);
+        pluginEntry.setSeGroups(seGroups);
+        pluginEntry.setVoiceGroups(voiceGroups);
 
-        e.setOffset(start);
-        e.setLength(reader.getPosition() - start);
-        return e;
+        pluginEntry.setOffset(start);
+        pluginEntry.setLength(reader.getPosition() - start);
+        return pluginEntry;
     }
 
 }

@@ -1,6 +1,10 @@
 package com.giga.nexas.dto.bhe.spm;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.giga.nexas.dto.bhe.Bhe;
+import com.giga.nexas.dto.bhe.spm.hitbox.*;
 import com.giga.nexas.io.BinaryReader;
 import lombok.Data;
 
@@ -55,6 +59,18 @@ public class Spm extends Bhe {
         private List<SPMChipData> chipData;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "shapeType", visible = true)
+    @JsonSubTypes(value = {
+            @JsonSubTypes.Type(value = DefaultHitArea.class, name = "0"),
+            @JsonSubTypes.Type(value = CRotatableRect.class, name = "1"),
+            @JsonSubTypes.Type(value = CCircle.class, name = "2"),
+            @JsonSubTypes.Type(value = C2DLineSegment.class, name = "7"),
+            @JsonSubTypes.Type(value = C2DDot.class, name = "8"),
+            @JsonSubTypes.Type(value = CBox.class, name = "9"),
+            @JsonSubTypes.Type(value = CRotatableBox.class, name = "10"),
+            @JsonSubTypes.Type(value = CSphere.class, name = "11")
+    })
     @Data
     public static class SPMHitArea {
         private Short id;         // u16

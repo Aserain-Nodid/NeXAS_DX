@@ -31,35 +31,20 @@ public class Mek extends Bsdx {
 
     private String fileName;
 
-    // 存储各个数据块的字节大小
     private MekBlocks mekBlocks;
-
-    // 区块大小块
     private MekHead mekHead;
-
-    // 机甲信息块
     private MekBasicInfo mekBasicInfo;
-
-    // 未知信息块1
-    private MekUnknownBlock1 mekUnknownBlock1;
-
-    // 武装信息块
+    private MekPairBlock mekPairBlock;
     private Map<Integer, MekWeaponInfo> mekWeaponInfoMap;
-
-    // ai信息块
     private List<MekAiInfo> mekAiInfoList;
-
-    // 声音信息块
     private MekVoiceInfo mekVoiceInfo;
-
-    // 未知信息块2
     private MekMaterialBlock mekMaterialBlock;
 
     public Mek() {
         this.mekHead = new MekHead();
         this.mekBlocks = new MekBlocks();
         this.mekBasicInfo = new MekBasicInfo();
-        this.mekUnknownBlock1 = new MekUnknownBlock1();
+        this.mekPairBlock = new MekPairBlock();
         this.mekWeaponInfoMap = new LinkedHashMap<>();
         this.mekAiInfoList = new ArrayList<>();
         this.mekVoiceInfo = new MekVoiceInfo();
@@ -332,10 +317,19 @@ public class Mek extends Bsdx {
 
     }
 
+    /**
+     * 14*8
+     */
     @Data
-    public static class MekUnknownBlock1 {
+    public static class MekPairBlock {
 
-        private byte[] info;
+        private List<MekPairBlock.Pair> unkPair = new ArrayList<>();
+
+        @Data
+        public static class Pair {
+            private Integer int1;
+            private Integer int2;
+        }
 
     }
 
@@ -510,11 +504,6 @@ public class Mek extends Bsdx {
          */
         private Integer weaponUnknownProperty19;
 
-        /**
-         * 该武装对应的插槽信息
-         */
-        private byte[] weaponPluginInfo;
-
     }
 
     @Data
@@ -529,27 +518,62 @@ public class Mek extends Bsdx {
 
     @Data
     public static class MekVoiceInfo {
+        // 文件头版本
+        private Integer version;
 
-        private byte[] info;
+        // emotions，随后每条读取两个字符串（先 name 再 token）
+        private List<Emotion> emotions = new ArrayList<>();
 
+        // voiceSlots，随后每条读取两个字符串（先 name 再 token）
+        private List<VoiceSlot> voiceSlots = new ArrayList<>();
+
+        // 行 = builtinEmotionCount + emotions.size()
+        // 列 = voiceSlots.size()
+        // 其中，单元为若干三元项
+        private List<List<List<Entry>>> table = new ArrayList<>();
+
+        // 内建情绪行数，用于回写
+        public Integer builtinEmotionCount = 0;
+
+        @Data
+        public static class Emotion {
+            private String name;
+            private String token;
+        }
+
+        @Data
+        public static class VoiceSlot {
+            private String name;
+            private String token;
+        }
+
+        @Data
+        public static class Entry {
+            // 大多为-1代表默认
+            private Integer voiceType;
+            // 该组下的哪个语音
+            private Integer groupId;
+            // 权重
+            private Integer weight;
+        }
     }
 
     @Data
     public static class MekMaterialBlock {
 
-        /** 直接二进制：额外常规条目数（来自 au_re_File::read_2） */
+        /** 额外常规条目数 */
         private Integer extraRegularCount;
 
-        /** 非直接（派生）：常规条目总数 = 7 + extraRegularCount */
+        /** 常规条目总数 = 7 + extraRegularCount */
         public Integer regularCount;
 
-        /** 直接二进制映射：所有条目（解析自二进制，每条对应一次 CMaterial::readArraysFromFile） */
+        /** 直接二进制映射 */
         private List<PluginEntry> entries = new ArrayList<>();
 
-        /** 非直接（视图）：前 regularCount 个为常规条目 */
+        /** 前 regularCount 个为常规条目 */
         public List<PluginEntry> regularEntries = new ArrayList<>();
 
-        /** 非直接（视图）：regular 之后直到 EOF，通常用于武装/特殊状态挂接 */
+        /** regular 之后直到 EOF，通常用于武装/特殊状态挂接 */
         public List<PluginEntry> trailingEntries = new ArrayList<>();
 
         @Data
