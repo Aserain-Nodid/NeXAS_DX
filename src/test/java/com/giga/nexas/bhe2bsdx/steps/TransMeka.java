@@ -7,6 +7,7 @@ import com.giga.nexas.dto.bsdx.waz.Waz;
 import com.giga.nexas.dto.bsdx.waz.wazfactory.SkillInfoFactory;
 import com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.SkillUnit;
 import com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.obj.*;
+import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.service.BsdxBinService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -134,13 +135,8 @@ public class TransMeka {
                     List<com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject> srcInfos =
                             srcSkillUnit.getSkillInfoObjectList();
 
-                    // 8) 源事件为空：写回空列表并添加该单元
+                    // 8) 为空跳过
                     if (srcInfos == null || srcInfos.isEmpty()) {
-
-                        dstUnit.setSkillInfoObjectList(dstInfos);
-
-                        dstPhase.getSkillUnitCollection().add(dstUnit);
-
                         continue;
                     }
 
@@ -156,63 +152,91 @@ public class TransMeka {
                         dstInfo.setSlotNum(bsdxSlot);
 
                         // 按具体子类进行 BeanCopy（BSDX 类已导入，使用简单类名便于阅读）
-                        if (dstInfo instanceof CEventSpriteAttr) {
-                            BeanUtil.copyProperties(srcInfo, (CEventSpriteAttr) dstInfo);
-                        } else if (dstInfo instanceof CEventCpuButton) {
-                            BeanUtil.copyProperties(srcInfo, (CEventCpuButton) dstInfo);
-                        } else if (dstInfo instanceof CEventVoice) {
-                            BeanUtil.copyProperties(srcInfo, (CEventVoice) dstInfo);
-                        } else if (dstInfo instanceof CEventRadialLine) {
-                            BeanUtil.copyProperties(srcInfo, (CEventRadialLine) dstInfo);
-                        } else if (dstInfo instanceof CEventValRandom) {
-                            BeanUtil.copyProperties(srcInfo, (CEventValRandom) dstInfo);
-                        } else if (dstInfo instanceof CEventMove) {
-                            BeanUtil.copyProperties(srcInfo, (CEventMove) dstInfo);
-                        } else if (dstInfo instanceof CEventSe) {
-                            BeanUtil.copyProperties(srcInfo, (CEventSe) dstInfo);
-                        } else if (dstInfo instanceof CEventTouch) {
-                            BeanUtil.copyProperties(srcInfo, (CEventTouch) dstInfo);
-                        } else if (dstInfo instanceof CEventEffect) {
-                            BeanUtil.copyProperties(srcInfo, (CEventEffect) dstInfo);
-                        } else if (dstInfo instanceof CEventScreenLine) {
-                            BeanUtil.copyProperties(srcInfo, (CEventScreenLine) dstInfo);
-                        } else if (dstInfo instanceof CEventSlipHosei) {
-                            BeanUtil.copyProperties(srcInfo, (CEventSlipHosei) dstInfo);
-                        } else if (dstInfo instanceof CEventVal) {
-                            BeanUtil.copyProperties(srcInfo, (CEventVal) dstInfo);
-                        } else if (dstInfo instanceof CEventBlur) {
-                            BeanUtil.copyProperties(srcInfo, (CEventBlur) dstInfo);
-                        } else if (dstInfo instanceof CEventCharge) {
-                            BeanUtil.copyProperties(srcInfo, (CEventCharge) dstInfo);
-                        } else if (dstInfo instanceof CEventScreenAttr) {
-                            BeanUtil.copyProperties(srcInfo, (CEventScreenAttr) dstInfo);
-                        } else if (dstInfo instanceof CEventTerm) {
-                            BeanUtil.copyProperties(srcInfo, (CEventTerm) dstInfo);
-                        } else if (dstInfo instanceof CEventEscape) {
-                            BeanUtil.copyProperties(srcInfo, (CEventEscape) dstInfo);
-                        } else if (dstInfo instanceof CEventScreenEffect) {
-                            BeanUtil.copyProperties(srcInfo, (CEventScreenEffect) dstInfo);
-                        } else if (dstInfo instanceof CEventHit) {
-                            BeanUtil.copyProperties(srcInfo, (CEventHit) dstInfo);
-                        } else if (dstInfo instanceof CEventStatus) {
-                            BeanUtil.copyProperties(srcInfo, (CEventStatus) dstInfo);
-                        } else if (dstInfo instanceof CEventChange) {
-                            BeanUtil.copyProperties(srcInfo, (CEventChange) dstInfo);
-                        } else if (dstInfo instanceof CEventSprite) {
-                            BeanUtil.copyProperties(srcInfo, (CEventSprite) dstInfo);
-                        } else if (dstInfo instanceof CEventHeight) {
-                            BeanUtil.copyProperties(srcInfo, (CEventHeight) dstInfo);
-                        } else if (dstInfo instanceof CEventCamera) {
-                            BeanUtil.copyProperties(srcInfo, (CEventCamera) dstInfo);
-                        } else if (dstInfo instanceof CEventScreenYure) {
-                            BeanUtil.copyProperties(srcInfo, (CEventScreenYure) dstInfo);
-                        } else if (dstInfo instanceof CEventSpriteYure) {
-                            BeanUtil.copyProperties(srcInfo, (CEventSpriteYure) dstInfo);
-                        } else if (dstInfo instanceof CEventBlink) {
-                            BeanUtil.copyProperties(srcInfo, (CEventBlink) dstInfo);
+                        if (dstInfo instanceof CEventSpriteAttr ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventCpuButton ev) {
+                            BeanUtil.copyProperties(srcInfo, ev);
+                            // todo 手动对应子类
+                        } else if (dstInfo instanceof CEventVoice ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventRadialLine ev) {
+                            BeanUtil.copyProperties(srcInfo, ev);
+                            // todo 手动对应子类
+                        } else if (dstInfo instanceof CEventValRandom ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventMove ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventSe ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventTouch ev) {
+                            // diff but copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventEffect ev) {
+                            BeanUtil.copyProperties(srcInfo, ev);
+                            // todo 手动对应子类 ⚠
+                        } else if (dstInfo instanceof CEventScreenLine ev) {
+                            BeanUtil.copyProperties(srcInfo, ev);
+                            // todo 手动对应子类
+                        } else if (dstInfo instanceof CEventSlipHosei ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventVal ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventBlur ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventCharge ev) {
+                            BeanUtil.copyProperties(srcInfo, ev);
+                            // todo 手动对应子类
+                        } else if (dstInfo instanceof CEventScreenAttr ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventTerm ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventEscape ev) {
+                            BeanUtil.copyProperties(srcInfo, ev);
+                            // todo 手动对应子类
+                        } else if (dstInfo instanceof CEventScreenEffect ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventHit ev) {
+                            // todo diff
+                            BeanUtil.copyProperties(srcInfo, ev);
+                            // todo 手动对应子类
+                        } else if (dstInfo instanceof CEventStatus ev) {
+                            BeanUtil.copyProperties(srcInfo, ev);
+                            // todo 手动对应子类 ⚠
+                        } else if (dstInfo instanceof CEventChange ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventSprite ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventHeight ev) {
+                            BeanUtil.copyProperties(srcInfo, ev);
+                            // todo 手动对应子类
+                        } else if (dstInfo instanceof CEventCamera ev) {
+                            // copy
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventScreenYure ev) {
+                            // coyp
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventSpriteYure ev) {
+                            // todo diff
+                            BeanUtil.copyProperties(srcInfo, ev);
+                        } else if (dstInfo instanceof CEventBlink ev) {
+                            // todo diff
+                            BeanUtil.copyProperties(srcInfo, ev);
                         } else {
-                            // 兜底：父类到父类的共有字段拷贝
-                            BeanUtil.copyProperties(srcInfo, dstInfo);
+                            // ？？？
+                            throw new OperationException(500, "error");
                         }
 
                         // 收集该条 BSDX 事件

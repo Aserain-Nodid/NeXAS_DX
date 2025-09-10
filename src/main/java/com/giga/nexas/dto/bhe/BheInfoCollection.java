@@ -18,15 +18,15 @@ import java.util.List;
 public class BheInfoCollection {
 
     private Integer int1;
-    private List<Integer> intList1;
-    private List<Integer> intList2;
+    private List<Integer> typeList;
+    private List<Integer> paramList;
     private List<Integer> intList3;
     private List<Integer> intList4;
     private Integer int2;
 
     public BheInfoCollection() {
-        intList1 = new ArrayList<>();
-        intList2 = new ArrayList<>();
+        typeList = new ArrayList<>();
+        paramList = new ArrayList<>();
         intList3 = new ArrayList<>();
         intList4 = new ArrayList<>();
     }
@@ -37,12 +37,12 @@ public class BheInfoCollection {
 
         int count1 = reader.readInt();
         for (int i = 0; i < count1; i++) {
-            intList1.add(reader.readInt());
+            typeList.add(reader.readInt());
         }
 
         int count2 = reader.readInt();
         for (int i = 0; i < count2; i++) {
-            intList2.add(reader.readInt());
+            paramList.add(reader.readInt());
         }
 
         int count3 = reader.readInt();
@@ -61,13 +61,13 @@ public class BheInfoCollection {
     public void writeCollection(BinaryWriter writer) throws  IOException {
         writer.writeInt(this.int1);
 
-        writer.writeInt(intList1.size());
-        for (Integer val : intList1) {
+        writer.writeInt(typeList.size());
+        for (Integer val : typeList) {
             writer.writeInt(val);
         }
 
-        writer.writeInt(intList2.size());
-        for (Integer val : intList2) {
+        writer.writeInt(paramList.size());
+        for (Integer val : paramList) {
             writer.writeInt(val);
         }
 

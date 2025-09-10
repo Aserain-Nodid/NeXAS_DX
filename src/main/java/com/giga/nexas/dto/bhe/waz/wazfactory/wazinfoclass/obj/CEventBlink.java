@@ -50,7 +50,7 @@ public class CEventBlink extends SkillInfoObject {
     private Byte byte5;
     private Byte byte6;
     private Integer int8;
-    private Integer int9;
+    private Integer int9; // short for bsdx?
 
     public CEventBlink(Integer typeId) {
         super(typeId);
