@@ -2,12 +2,10 @@ package com.giga.nexas.bhe2bsdx;
 
 import com.giga.nexas.bhe2bsdx.steps.TransMeka;
 import com.giga.nexas.dto.ResponseDTO;
-import com.giga.nexas.dto.bhe.grp.groupmap.BatVoiceGrp;
-import com.giga.nexas.dto.bhe.mek.Mek;
-import com.giga.nexas.dto.bhe.spm.Spm;
-import com.giga.nexas.dto.bhe.waz.Waz;
+
 import com.giga.nexas.service.BheBinService;
 import com.giga.nexas.service.BsdxBinService;
+import com.giga.nexas.util.PacUtil;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +20,8 @@ import java.util.Map;
 
 public class TransferTest {
 
+    private static final Path OUTPUT_DIR = Paths.get("src/main/resources/testBhe");
+
     private static final Logger log = LoggerFactory.getLogger(TransferTest.class);
     private final BsdxBinService bsdxBinService = new BsdxBinService();
     private final BheBinService bheBinService = new BheBinService();
@@ -31,6 +31,8 @@ public class TransferTest {
      */
     @Test
     public void testPipeline() throws Exception {
+
+        String outputPath = "D:\\A\\NeXAS_DX\\src\\main\\resources\\testBhe";
 
         // 1.注册全部所需文件资源
         // grp
@@ -50,21 +52,35 @@ public class TransferTest {
         // 2.抽出移植目标
         // 月读
         // batVoice
-        com.giga.nexas.dto.bhe.grp.groupmap.BatVoiceGrp batvoice =
+        com.giga.nexas.dto.bhe.grp.groupmap.BatVoiceGrp bheBatVoice =
                 (com.giga.nexas.dto.bhe.grp.groupmap.BatVoiceGrp) bheGrp.get("batvoice");
-        BatVoiceGrp.BatVoiceGroup tsukuyomiBatvoice = batvoice.getVoiceList().get(1);
+        com.giga.nexas.dto.bsdx.grp.groupmap.BatVoiceGrp bsdxBatVoice =
+                (com.giga.nexas.dto.bsdx.grp.groupmap.BatVoiceGrp) bsdxGrp.get("batvoice");
+        com.giga.nexas.dto.bhe.grp.groupmap.BatVoiceGrp.BatVoiceGroup tsukuyomiBatvoice = bheBatVoice.getVoiceList().get(1);
         // mek
-        Mek tsukuyomiMek = bheMek.get("tsukuyomi");
+        com.giga.nexas.dto.bhe.mek.Mek tsukuyomiMek = bheMek.get("tsukuyomi");
         // waz
-        Waz tsukuyomiWaz = bheWaz.get("tsukuyomi");
+        com.giga.nexas.dto.bhe.waz.Waz tsukuyomiWaz = bheWaz.get("tsukuyomi");
         // spm
-        Spm tsukuyomiSpm = bheSpm.get("tsukuyomi");
-        //
-        TransMeka.process(tsukuyomiMek,
-                tsukuyomiWaz,
-                tsukuyomiSpm);
+        com.giga.nexas.dto.bhe.spm.Spm tsukuyomiSpm = bheSpm.get("tsukuyomi");
 
-        log.info("");
+        com.giga.nexas.dto.bsdx.spm.Spm mekaPilotSpm = bsdxSpm.get("mekapilot");
+        com.giga.nexas.dto.bsdx.spm.Spm selectMekaMenuMekaSpm = bsdxSpm.get("selectmekamenumeka");
+
+        //
+        TransMeka.process(
+                tsukuyomiMek,
+                tsukuyomiWaz,
+                tsukuyomiSpm,
+
+                tsukuyomiBatvoice,
+                bsdxBatVoice,
+
+                mekaPilotSpm,
+                selectMekaMenuMekaSpm);
+
+        // 打包
+        log.info("outputPath === {}", PacUtil.unpack(outputPath));
     }
 
     // grp
@@ -246,5 +262,32 @@ public class TransferTest {
 
     // dat
     // dat无差别，全为csv
+
+    @Test
+    void outputClassName() {
+        HashMap<String, Object> classMapBsdx = new HashMap<>();
+        for (int i = 0; i < 72; i++) {
+            com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.obj.SkillInfoObject obj =
+                    com.giga.nexas.dto.bsdx.waz.wazfactory.SkillInfoFactory.createEventObjectBsdx(i);
+            log.info("{}", obj.getClass().getSimpleName());
+            classMapBsdx.put(obj.getClass().getSimpleName(),null);
+        }
+
+        log.info("==========");
+
+        for (int i = 0; i < 83; i++) {
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject obj =
+                    com.giga.nexas.dto.bhe.waz.wazfactory.SkillInfoFactory.createEventObjectBhe(i);
+            log.info("{}", obj.getClass().getSimpleName());
+
+        }
+
+        log.info("==========");
+        log.info("==========");
+        log.info("==========");
+
+        classMapBsdx.forEach((k, v) -> {log.info("{}", k);});
+
+    }
 
 }

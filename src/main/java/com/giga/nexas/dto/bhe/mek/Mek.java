@@ -438,7 +438,7 @@ public class Mek extends Bhe {
          * 26.
          * ps:攻撃Ｌｖ是你吗？
          */
-        private Integer weaponUnknownProperty26;
+        private Integer weaponUnknownProperty19;
         /**
          * jpフラグ：武器娘
          *

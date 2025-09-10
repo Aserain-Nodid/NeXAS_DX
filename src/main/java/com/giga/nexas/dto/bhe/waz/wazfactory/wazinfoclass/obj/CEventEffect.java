@@ -52,7 +52,7 @@ public class CEventEffect extends SkillInfoObject {
             new CEventEffectType(0x7, "位置"),
             new CEventEffectType(0x2, "位置：分散率"),
             new CEventEffectType(0x9, "座標移動"),
-            new CEventEffectType(0x7, "標的"), // add
+            new CEventEffectType(0x7, "標的"), // diff
             new CEventEffectType(0x0B, "ﾍﾞｸﾄﾙ：方向"),
             new CEventEffectType(0x3, "ﾍﾞｸﾄﾙ：方向補正"),
             new CEventEffectType(0x3, "ﾍﾞｸﾄﾙ：方向増分"),

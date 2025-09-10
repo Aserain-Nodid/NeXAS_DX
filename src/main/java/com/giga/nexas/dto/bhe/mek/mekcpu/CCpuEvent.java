@@ -136,7 +136,7 @@ public class CCpuEvent {
     private Integer int23;
     private Integer int24;
     private Integer int25;
-//    private Integer int26; // diff
+    private Integer int26 = -999; // diff　bhe中实际上不存在
 
     private Short short2;
 

@@ -200,7 +200,7 @@ public class MekParser implements BheParser<Mek> {
             // diff
             mekWeaponInfo.setBheInt7(reader.readInt());
 
-            mekWeaponInfo.setWeaponUnknownProperty26(reader.readInt());
+            mekWeaponInfo.setWeaponUnknownProperty19(reader.readInt());
             // diff
             mekWeaponInfo.setFeiFlag(reader.readInt());
             for (int integer = 0; integer < mekWeaponInfo.getFeiFlag(); integer++) {

@@ -151,7 +151,7 @@ public class MekGenerator implements BheGenerator<Mek> {
                 writer.writeInt(weaponInfo.getExplosiveSkillFlag());
                 writer.writeInt(weaponInfo.getDefensiveWeaponSkillFlag());
                 writer.writeInt(weaponInfo.getWeaponIdentifier());
-                writer.writeInt(weaponInfo.getWeaponUnknownProperty26());
+                writer.writeInt(weaponInfo.getWeaponUnknownProperty19());
             }
 
             writer.close();
