@@ -1,5 +1,6 @@
 package com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.obj;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.giga.nexas.io.BinaryReader;
 import com.giga.nexas.io.BinaryWriter;
 import lombok.AllArgsConstructor;
@@ -53,8 +54,8 @@ public class CEventStatus extends SkillInfoObject {
             new CEventStatusType(0xFFFFFFFF, "開始時間"),
             new CEventStatusType(0xFFFFFFFF, "実行間隔"),
             new CEventStatusType(0xFFFFFFFF, "優先順位"),
-            new CEventStatusType(0x4, "重複タイプ"),
-            new CEventStatusType(0xFFFFFFFF, "エフェクト")
+            new CEventStatusType(0xFFFFFFFF, "重複タイプ"),
+            new CEventStatusType(0x4, "エフェクト")
     };
 
     public static final String[] CEVENT_STATUS_FORMATS = {
@@ -168,5 +169,46 @@ public class CEventStatus extends SkillInfoObject {
             }
         }
     }
+
+    public void transBheCEventStatusToBsdx(
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject src,
+            CEventStatus bsdx) {
+
+        if (!(src instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventStatus bhe)) {
+            return;
+        }
+
+        bsdx.getCeventStatusUnitList().clear();
+
+        var bheUnits = bhe.getCeventStatusUnitList();
+        if (bheUnits == null) {
+            return;
+        }
+
+        for (int i = 0; i < 25; i++) {
+            CEventStatus.CEventStatusUnit bsdxUnit = new CEventStatus.CEventStatusUnit();
+            bsdxUnit.setCeventStatusUnitQuantity(i);
+            bsdxUnit.setDescription(CEVENT_STATUS_TYPES[i].getDescription());
+            bsdxUnit.setUnitSlotNum(i);
+            bsdxUnit.setBuffer(0);
+
+            if (bheUnits.size() > i) {
+                var bheUnit = bheUnits.get(i);
+                Integer buffer = bheUnit.getBuffer();
+                if (buffer == null) buffer = (bheUnit.getData() != null ? 1 : 0);
+
+                if (buffer != 0 && bheUnit.getData() != null) {
+                    SkillInfoObject inner = createCEventObjectByTypeBsdx(CEVENT_STATUS_TYPES[i].getType());
+                    BeanUtil.copyProperties(bheUnit.getData(), inner);
+                    inner.setSlotNum(CEVENT_STATUS_TYPES[i].getType());
+                    bsdxUnit.setBuffer(1);
+                    bsdxUnit.setData(inner);
+                }
+            }
+
+            bsdx.getCeventStatusUnitList().add(bsdxUnit);
+        }
+    }
+
 
 }

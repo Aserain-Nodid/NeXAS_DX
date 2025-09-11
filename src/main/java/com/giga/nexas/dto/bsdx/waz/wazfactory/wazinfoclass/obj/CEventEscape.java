@@ -141,4 +141,45 @@ public class CEventEscape extends SkillInfoObject {
         }
     }
 
+    public void transBheCEventEscapeToBsdx(
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject src,
+            CEventEscape bsdx) {
+
+        if (!(src instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventEscape bhe)) {
+            return;
+        }
+
+        bsdx.getCeventEscapeUnitList().clear();
+        var bheUnits = bhe.getCeventEscapeUnitList();
+        if (bheUnits == null || bheUnits.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < 10; i++) {
+            if (i == 2 || i == 8) {
+                var bsdxUnit = new CEventEscape.CEventEscapeUnit();
+                bsdxUnit.setCeventEscapeUnitQuantity(i);
+                bsdxUnit.setDescription(CEVENT_ESCAPE_TYPES[i].getDescription());
+                bsdxUnit.setUnitSlotNum(i);
+                bsdxUnit.setBuffer(0);
+
+                if (bheUnits.size() > i) {
+                    var bheUnit = bheUnits.get(i);
+                    Integer buffer = bheUnit.getBuffer();
+                    if (buffer == null) buffer = (bheUnit.getData() != null ? 1 : 0);
+
+                    if (buffer != 0 && bheUnit.getData() != null) {
+                        SkillInfoObject inner = createCEventObjectByTypeBsdx(CEVENT_ESCAPE_TYPES[i].getType());
+                        cn.hutool.core.bean.BeanUtil.copyProperties(bheUnit.getData(), inner);
+                        inner.setSlotNum(CEVENT_ESCAPE_TYPES[i].getType());
+                        bsdxUnit.setBuffer(1);
+                        bsdxUnit.setData(inner);
+                    }
+                }
+
+                bsdx.getCeventEscapeUnitList().add(bsdxUnit);
+            }
+        }
+    }
+
 }

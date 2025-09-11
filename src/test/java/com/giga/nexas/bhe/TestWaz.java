@@ -53,7 +53,7 @@ public class TestWaz {
 
         for (int i = 0; i < allWazList.size(); i++) {
             Waz waz = allWazList.get(i);
-            String jsonStr = JSONUtil.toJsonStr(waz);
+            String jsonStr = JSONUtil.toJsonPrettyStr(waz);
             Path jsonPath = JSON_OUTPUT_DIR.resolve(waz.getFileName() + ".waz.json");
             FileUtil.writeUtf8String(jsonStr, jsonPath.toFile());
             log.info("✅ Exported: {}", jsonPath);

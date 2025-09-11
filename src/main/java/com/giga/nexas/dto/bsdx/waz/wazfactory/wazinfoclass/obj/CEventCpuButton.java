@@ -1,5 +1,7 @@
 package com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.obj;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.io.BinaryReader;
 import com.giga.nexas.io.BinaryWriter;
 import lombok.AllArgsConstructor;
@@ -126,6 +128,58 @@ public class CEventCpuButton extends SkillInfoObject {
                 if (target.getBuffer() != 0 && target.getData() != null) {
                     target.getData().writeInfo(writer);
                 }
+            }
+        }
+    }
+
+    public void transBheCEventCpuButtonToBsdx(
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject src,
+            CEventCpuButton bsdx) {
+
+        if (!(src instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventCpuButton bhe)) {
+            throw new OperationException(500, "transBheCEventCpuButtonToBsdx: src is not bhe CEventCpuButton");
+        }
+
+        bsdx.getCeventCpuButtonUnitList().clear();
+
+        var bheUnits = bhe.getCeventCpuButtonUnitList();
+        if (bheUnits == null || bheUnits.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < 8; i++) {
+
+            if (i == 0) {
+                com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventCpuButton.CEventCpuButtonUnit bheUnit
+                        = bheUnits.get(i);
+
+                CEventCpuButton.CEventCpuButtonUnit bsdxUnit = new CEventCpuButton.CEventCpuButtonUnit();
+                bsdxUnit.setCeventCpuButtonUnitQuantity(i);
+                bsdxUnit.setDescription(CEVENT_CPU_BUTTON_ENTRIES[i].getDescription());
+                bsdxUnit.setUnitSlotNum(i);
+
+                Integer buffer = bheUnit.getBuffer();
+                if (buffer == null) {
+                    buffer = (bheUnit.getData() != null ? 1 : 0);
+                }
+
+                bsdxUnit.setBuffer(0);
+
+                if (buffer != 0 &&
+                        bheUnit.getData() instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventTerm bheTerm) {
+
+                    SkillInfoObject inner = createCEventObjectByTypeBsdx(CEVENT_CPU_BUTTON_ENTRIES[i].getType()); // 0x09
+                    if (!(inner instanceof CEventTerm)) {
+                        throw new OperationException(500, "CPU Button[i=0] expects CEventTerm (type 0x09).");
+                    }
+
+                    BeanUtil.copyProperties(bheTerm, inner);
+                    bsdxUnit.setBuffer(1);
+                    inner.setSlotNum(CEVENT_CPU_BUTTON_ENTRIES[i].getType());
+                    bsdxUnit.setData(inner);
+                }
+
+                bsdx.getCeventCpuButtonUnitList().add(bsdxUnit);
             }
         }
     }

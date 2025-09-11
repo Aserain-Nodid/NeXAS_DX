@@ -1,5 +1,6 @@
 package com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.obj;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.giga.nexas.io.BinaryReader;
 import com.giga.nexas.io.BinaryWriter;
 import lombok.AllArgsConstructor;
@@ -152,6 +153,51 @@ public class CEventRadialLine extends SkillInfoObject {
             }
         }
     }
+
+    public void transBheCEventRadialLineToBsdx(
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject src,
+            CEventRadialLine bsdx) {
+
+        if (!(src instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventRadialLine bhe)) {
+            return;
+        }
+
+        bsdx.getCeventRadialLineUnitList().clear();
+
+        var bheUnits = bhe.getCeventRadialLineUnitList();
+        if (bheUnits == null || bheUnits.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < 13; i++) {
+            if (i == 4) {
+                var bsdxUnit = new CEventRadialLine.CEventRadialLineUnit();
+                bsdxUnit.setCeventRadialLineUnitQuantity(i);
+                bsdxUnit.setDescription(CEVENT_RADIAL_LINE_TYPES[i].getDescription());
+                bsdxUnit.setUnitSlotNum(i);
+                bsdxUnit.setBuffer(0);
+
+                if (bheUnits.size() > i) {
+                    var bheUnit = bheUnits.get(i);
+                    Integer buffer = bheUnit.getBuffer();
+                    if (buffer == null) {
+                        buffer = (bheUnit.getData() != null ? 1 : 0);
+                    }
+
+                    if (buffer != 0 && bheUnit.getData() != null) {
+                        SkillInfoObject inner = createCEventObjectByTypeBsdx(CEVENT_RADIAL_LINE_TYPES[i].getType());
+                        BeanUtil.copyProperties(bheUnit.getData(), inner);
+                        inner.setSlotNum(CEVENT_RADIAL_LINE_TYPES[i].getType());
+                        bsdxUnit.setBuffer(1);
+                        bsdxUnit.setData(inner);
+                    }
+                }
+
+                bsdx.getCeventRadialLineUnitList().add(bsdxUnit);
+            }
+        }
+    }
+
 
 }
 

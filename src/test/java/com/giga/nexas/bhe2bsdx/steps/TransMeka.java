@@ -105,65 +105,87 @@ public class TransMeka {
                 dstSkill.setSkillSuffixList(dstSuffix);
             }
 
-            // phasesInfo 重建
+            // phasesInfo重建
             List<Waz.Skill.SkillPhase> dstPhases = new ArrayList<>();
-            for (com.giga.nexas.dto.bhe.waz.Waz.Skill.SkillPhase srcPhase : srcSkill.getPhasesInfo()) {
+            for (com.giga.nexas.dto.bhe.waz.Waz.Skill.SkillPhase srcSkillPhase : srcSkill.getPhasesInfo()) {
 
                 Waz.Skill.SkillPhase dstPhase = new Waz.Skill.SkillPhase();
-                for (com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.SkillUnit srcSkillUnit : srcPhase.getSkillUnitCollection()) {
-                    // 1) 读取 BHE 槽位（此处你的 UnitQuantity 用作槽位号）
+                for (com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.SkillUnit srcSkillUnit : srcSkillPhase.getSkillUnitCollection()) {
+                    // 读取bhe槽位
                     Integer bheSlot = srcSkillUnit.getUnitQuantity();
 
-                    // 2) 槽位映射：BHE -> BSDX
+                    // 槽位映射 bhe->bsdx
                     Integer bsdxSlot = bheToBsdxSlotMap.get(bheSlot);
 
-                    // 3) 无映射或越界则丢弃该单元
+                    // 无映射或越界则丢弃该单元
                     if (bsdxSlot == null || bsdxSlot < 0 || bsdxSlot >= 72) {
                         continue;
                     }
 
-                    // 4) 新建 BSDX 的 SkillUnit（不预设，逐个 new）
+                    // 新建bsdx的SkillUnit
                     SkillUnit dstUnit = new SkillUnit();
 
-                    // 5) 记录目标槽位到单元（你当前把 unitQuantity 用作槽位记录）
+                    // 记录目标槽位到单元 把unitQuantity用作槽位记录
                     dstUnit.setUnitQuantity(bsdxSlot);
 
-                    // 6) 目标事件列表
+                    // 目标事件列表
                     List<SkillInfoObject> dstInfos = new ArrayList<>();
 
-                    // 7) 源事件列表（BHE）
-                    List<com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject> srcInfos =
+                    // 源事件列表（bhe）
+                    List<com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject> srcSkillInfoObjectList =
                             srcSkillUnit.getSkillInfoObjectList();
 
-                    // 8) 为空跳过
-                    if (srcInfos == null || srcInfos.isEmpty()) {
+                    // 为空跳过
+                    if (srcSkillInfoObjectList == null || srcSkillInfoObjectList.isEmpty()) {
                         continue;
                     }
 
-                    // 9) 特例：BHE 槽位 37（汎用変数）→ BSDX 工厂会返回 CEventVal，这里仅注释说明
-                    //    if (bheSlot == 37) { /* BHE:CEventFreeParam -> BSDX:CEventVal */ }
 
-                    // 10) 将每个 BHE 事件用 BSDX 工厂按“BSDX 槽位”创建正确子类并拷贝共有字段
-                    for (com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject srcInfo : srcInfos) {
 
-                        SkillInfoObject dstInfo = SkillInfoFactory.createEventObjectBsdx(bsdxSlot);
+                    // 将每个bhe事件用bsdx工厂按bsdx槽位，创建正确子类并拷贝共有字段
+                    for (com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject srcInfo : srcSkillInfoObjectList) {
+
+                        SkillInfoObject dstInfo;
+                        // 37: 汎用変数  BHE:CEventFreeParam -> BSDX:CEventVal
+                        if (bheSlot == 37 && srcInfo instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventFreeParam srcBhe) {
+                            dstInfo = com.giga.nexas.dto.bsdx.waz.wazfactory.SkillInfoFactory.createEventObjectBsdx(35);
+                            if (dstInfo instanceof CEventVal ev) {
+                                for (var unit : srcBhe.getUnitList()) {
+                                    if (unit.getBuffer() == 1) continue;
+                                    if (unit.getData() instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventVal v) {
+                                        ev.setInt1(v.getInt1());
+                                        ev.setInt2(v.getInt2());
+                                        ev.setInt3(v.getInt3());
+                                        ev.setInt4(v.getInt4());
+                                    }
+                                }
+                                dstInfos.add(ev);
+                            } else {
+                                throw new OperationException(500, "汎用変数error");
+                            }
+                            continue;
+                        }
+
+                        dstInfo = SkillInfoFactory.createEventObjectBsdx(bsdxSlot);
 
                         // 槽位号同步
                         dstInfo.setSlotNum(bsdxSlot);
 
-                        // 按具体子类进行 BeanCopy（BSDX 类已导入，使用简单类名便于阅读）
+                        // 按具体子类进行BeanCopy
                         if (dstInfo instanceof CEventSpriteAttr ev) {
                             // copy
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else if (dstInfo instanceof CEventCpuButton ev) {
                             BeanUtil.copyProperties(srcInfo, ev);
-                            // todo 手动对应子类
+                            // 手动对应子类
+                            ev.transBheCEventCpuButtonToBsdx(srcInfo, ev);
                         } else if (dstInfo instanceof CEventVoice ev) {
                             // copy
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else if (dstInfo instanceof CEventRadialLine ev) {
                             BeanUtil.copyProperties(srcInfo, ev);
-                            // todo 手动对应子类
+                            // 手动对应子类
+                            ev.transBheCEventRadialLineToBsdx(srcInfo, ev);
                         } else if (dstInfo instanceof CEventValRandom ev) {
                             // copy
                             BeanUtil.copyProperties(srcInfo, ev);
@@ -178,10 +200,12 @@ public class TransMeka {
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else if (dstInfo instanceof CEventEffect ev) {
                             BeanUtil.copyProperties(srcInfo, ev);
-                            // todo 手动对应子类 ⚠
+                            // 手动对应子类 ⚠
+                            ev.transBheCEventEffectToBsdx(srcInfo, ev);
                         } else if (dstInfo instanceof CEventScreenLine ev) {
                             BeanUtil.copyProperties(srcInfo, ev);
-                            // todo 手动对应子类
+                            // 手动对应子类
+                            ev.transBheCEventScreenLineToBsdx(srcInfo, ev);
                         } else if (dstInfo instanceof CEventSlipHosei ev) {
                             // copy
                             BeanUtil.copyProperties(srcInfo, ev);
@@ -193,7 +217,8 @@ public class TransMeka {
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else if (dstInfo instanceof CEventCharge ev) {
                             BeanUtil.copyProperties(srcInfo, ev);
-                            // todo 手动对应子类
+                            // 手动对应子类
+                            ev.transBheCEventChargeToBsdx(srcInfo, ev);
                         } else if (dstInfo instanceof CEventScreenAttr ev) {
                             // copy
                             BeanUtil.copyProperties(srcInfo, ev);
@@ -202,7 +227,8 @@ public class TransMeka {
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else if (dstInfo instanceof CEventEscape ev) {
                             BeanUtil.copyProperties(srcInfo, ev);
-                            // todo 手动对应子类
+                            // 手动对应子类
+                            ev.transBheCEventEscapeToBsdx(srcInfo, ev);
                         } else if (dstInfo instanceof CEventScreenEffect ev) {
                             // copy
                             BeanUtil.copyProperties(srcInfo, ev);
@@ -212,7 +238,8 @@ public class TransMeka {
                             // todo 手动对应子类
                         } else if (dstInfo instanceof CEventStatus ev) {
                             BeanUtil.copyProperties(srcInfo, ev);
-                            // todo 手动对应子类 ⚠
+                            // 手动对应子类
+                            ev.transBheCEventStatusToBsdx(srcInfo, ev);
                         } else if (dstInfo instanceof CEventChange ev) {
                             // copy
                             BeanUtil.copyProperties(srcInfo, ev);
@@ -221,32 +248,33 @@ public class TransMeka {
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else if (dstInfo instanceof CEventHeight ev) {
                             BeanUtil.copyProperties(srcInfo, ev);
-                            // todo 手动对应子类
+                            // 手动对应子类
+                            ev.transBheCEventHeightToBsdx(srcInfo, ev);
                         } else if (dstInfo instanceof CEventCamera ev) {
                             // copy
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else if (dstInfo instanceof CEventScreenYure ev) {
-                            // coyp
+                            // copy
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else if (dstInfo instanceof CEventSpriteYure ev) {
-                            // todo diff
+                            // copy
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else if (dstInfo instanceof CEventBlink ev) {
-                            // todo diff
+                            // diff
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else {
                             // ？？？
                             throw new OperationException(500, "error");
                         }
 
-                        // 收集该条 BSDX 事件
+                        // 收集该条bsdx事件
                         dstInfos.add(dstInfo);
                     }
 
-                    // 11) 写回该单元的事件集合
+                    // 写回该单元的事件集合
                     dstUnit.setSkillInfoObjectList(dstInfos);
 
-                    // 12) 将该单元加入当前 Phase
+                    // 将该单元加入当前Phase
                     dstPhase.getSkillUnitCollection().add(dstUnit);
                 }
                 if (dstPhase.getSkillUnitCollection().size()!=0){

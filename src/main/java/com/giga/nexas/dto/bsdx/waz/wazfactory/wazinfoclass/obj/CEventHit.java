@@ -67,7 +67,7 @@ public class CEventHit extends SkillInfoObject {
     /**
      * 01为正常对敌造成伤害，01更改为06时会只对自机造成伤害，更改为03时会对敌机和友军造成伤害
      */
-    private Short attackTargetType;
+    private Short attackTargetType; // short1
 
     /**
      *
@@ -94,14 +94,14 @@ public class CEventHit extends SkillInfoObject {
      *
      * ヒット数
      */
-    private Integer hitCount;
+    private Integer hitCount; // int4
 
     /**
      * 每hit的间隔
      *
      * ヒット間隔
      */
-    private Integer hitInterval;
+    private Integer hitInterval; // int5
 
     /**
      * 内补正，简单来说就是多段伤害的技能在每次造成伤害后
@@ -109,35 +109,35 @@ public class CEventHit extends SkillInfoObject {
      *
      * 攻撃力補正：技のみ
      */
-    private Integer internalCorrection;
+    private Integer internalCorrection; // int6
 
     /**
      * 连段中的补正，中途补正，加上终了补正为最终补正
      *
      * 攻撃力補正
      */
-    private Integer midComboCorrection;
+    private Integer midComboCorrection; // int7
 
     /**
      * 起手补正一般是起手+终了
      *
      * 攻撃力補正：技終了時
      */
-    private Integer endCorrection;
+    private Integer endCorrection; // int8
 
     /**
      * 底伤，保底伤害
      *
      * 攻撃力最低値
      */
-    private Integer minDamage;
+    private Integer minDamage; // int9
 
     /**
      * 起手补正，一般是本补正+终了补正
      *
      * 基底コンボ補正値
      */
-    private Integer startComboCorrection;
+    private Integer startComboCorrection; // int10
 
     /**
      *
@@ -151,7 +151,7 @@ public class CEventHit extends SkillInfoObject {
      *
      * 攻撃力溜め反映率
      */
-    private Integer chargeDamageRate;
+    private Integer chargeDamageRate; // int11
 
     /**
      *
@@ -188,7 +188,7 @@ public class CEventHit extends SkillInfoObject {
      *
      * 画面：振動時間
      */
-    private Integer screenShakeFrame;
+    private Integer screenShakeFrame; // int19
 
     /**
      *
@@ -210,7 +210,7 @@ public class CEventHit extends SkillInfoObject {
      *
      * 自分停止時間
      */
-    private Integer selfStunFrame;
+    private Integer selfStunFrame; // int23
 
     private List<CEventHitUnit> ceventHitUnitList = new ArrayList<>();
 

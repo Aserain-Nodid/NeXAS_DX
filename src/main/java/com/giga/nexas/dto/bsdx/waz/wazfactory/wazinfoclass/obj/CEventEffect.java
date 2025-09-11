@@ -176,5 +176,78 @@ public class CEventEffect extends SkillInfoObject {
         }
     }
 
+    public void transBheCEventEffectToBsdx(
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject src,
+            CEventEffect bsdx) {
+
+        if (!(src instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventEffect bhe)) {
+            return;
+        }
+
+        bsdx.getCeventEffectUnitList().clear();
+
+        var bheUnits = bhe.getCeventEffectUnitList();
+        if (bheUnits == null) {
+            return;
+        }
+
+        final int SHIFT_FROM = 28; // BHE 在 i==28 多了「標的」，BSDX 无此项
+
+        for (int i = 0; i < CEVENT_EFFECT_TYPES.length; i++) {
+            int bheIndex = (i < SHIFT_FROM) ? i : i + 1;
+
+            CEventEffect.CEventEffectUnit bsdxUnit = new CEventEffect.CEventEffectUnit();
+            bsdxUnit.setCeventEffectUnitQuantity(i);
+            bsdxUnit.setDescription(CEVENT_EFFECT_TYPES[i].getDescription());
+            bsdxUnit.setUnitSlotNum(i);
+            bsdxUnit.setBuffer(0);
+
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventEffect.CEventEffectUnit bheUnit = null;
+            for (com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventEffect.CEventEffectUnit u : bheUnits) {
+                if (u.getUnitSlotNum() != null && u.getUnitSlotNum() == bheIndex) {
+                    bheUnit = u;
+                    break;
+                }
+            }
+
+            if (bheUnit != null) {
+                Integer buffer = bheUnit.getBuffer();
+                if (buffer == null) {
+                    buffer = (bheUnit.getData() != null ? 1 : 0);
+                }
+
+                if (buffer != 0 && bheUnit.getData() != null) {
+                    SkillInfoObject inner = createCEventObjectByTypeBsdx(CEVENT_EFFECT_TYPES[i].getType());
+
+                    // 汎用変数：BHE(0x0F CEventFreeParam) -> BSDX(0x00 CEventVal)
+                    if (CEVENT_EFFECT_TYPES[i].getType() == 0x0
+                            && bheUnit.getData() instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventFreeParam bheFree) {
+
+                        if (inner instanceof CEventVal valTarget) {
+                            for (com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventFreeParam.CEventFreeParamUnit fu : bheFree.getUnitList()) {
+                                if (fu.getBuffer() != null && fu.getBuffer() == 1) continue;
+                                if (fu.getData() instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventVal v) {
+                                    valTarget.setInt1(v.getInt1());
+                                    valTarget.setInt2(v.getInt2());
+                                    valTarget.setInt3(v.getInt3());
+                                    valTarget.setInt4(v.getInt4());
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        cn.hutool.core.bean.BeanUtil.copyProperties(bheUnit.getData(), inner);
+                    }
+
+                    inner.setSlotNum(CEVENT_EFFECT_TYPES[i].getType());
+                    bsdxUnit.setBuffer(1);
+                    bsdxUnit.setData(inner);
+                }
+            }
+
+            bsdx.getCeventEffectUnitList().add(bsdxUnit);
+        }
+    }
+
 }
 
