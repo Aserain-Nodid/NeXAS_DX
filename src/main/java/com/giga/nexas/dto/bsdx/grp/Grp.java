@@ -17,14 +17,14 @@ import lombok.Data;
         visible = true
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.BatVoiceGrp.class, name = "BatVoice"),
-        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.MapGroupGrp.class, name = "MapGroup"),
-        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.MekaGroupGrp.class, name = "MekaGroup"),
-        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.ProgramMaterialGrp.class, name = "ProgramMaterial"),
-        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.SeGroupGrp.class, name = "SeGroup"),
-        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.SpriteGroupGrp.class, name = "SpriteGroup"),
-        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.TermGrp.class, name = "Term"),
-        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.WazaGroupGrp.class, name = "WazaGroup")
+        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.BatVoiceGrp.class, name = "batvoice"),
+        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.MapGroupGrp.class, name = "mapgroup"),
+        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.MekaGroupGrp.class, name = "mekagroup"),
+        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.ProgramMaterialGrp.class, name = "programmaterial"),
+        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.SeGroupGrp.class, name = "segroup"),
+        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.SpriteGroupGrp.class, name = "spritegroup"),
+        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.TermGrp.class, name = "term"),
+        @JsonSubTypes.Type(value = com.giga.nexas.dto.bsdx.grp.groupmap.WazaGroupGrp.class, name = "wazagroup")
 })
 @Data
 public class Grp extends Bsdx {

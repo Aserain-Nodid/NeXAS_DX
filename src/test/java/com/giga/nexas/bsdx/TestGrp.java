@@ -93,7 +93,7 @@ public class TestGrp {
         try (DirectoryStream<Path> oriStream = Files.newDirectoryStream(GRP_DIR, "*.grp")) {
             for (Path ori : oriStream) {
                 String name = ori.getFileName().toString().replace(".grp", ".generated.grp");
-                Path gen = generatedMap.get(name);
+                Path gen = generatedMap.get(name.toLowerCase());
                 if (gen == null) {
                     log.warn("Not Found: {}", name);
                     continue;
