@@ -66,4 +66,12 @@ public class CEventBlink extends SkillInfoObject {
         writer.writeShort(this.short1);
     }
 
+    public void transBheCEventBlinkToBsdx(
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject src,
+            CEventBlink bsdx) {
+        if (!(src instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventBlink bhe)) {
+            return;
+        }
+        bsdx.setShort1(bhe.getInt9().shortValue());
+    }
 }

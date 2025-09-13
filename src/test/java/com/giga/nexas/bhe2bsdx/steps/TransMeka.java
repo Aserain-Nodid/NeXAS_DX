@@ -3,6 +3,7 @@ package com.giga.nexas.bhe2bsdx.steps;
 import cn.hutool.core.bean.BeanUtil;
 import com.giga.nexas.dto.bsdx.grp.groupmap.BatVoiceGrp;
 import com.giga.nexas.dto.bsdx.mek.Mek;
+import com.giga.nexas.dto.bsdx.spm.Spm;
 import com.giga.nexas.dto.bsdx.waz.Waz;
 import com.giga.nexas.dto.bsdx.waz.wazfactory.SkillInfoFactory;
 import com.giga.nexas.dto.bsdx.waz.wazfactory.wazinfoclass.SkillUnit;
@@ -25,6 +26,10 @@ public class TransMeka {
                         com.giga.nexas.dto.bhe.mek.Mek bheMek,
                         com.giga.nexas.dto.bhe.waz.Waz bheWaz,
                         com.giga.nexas.dto.bhe.spm.Spm bheSpm,
+                        com.giga.nexas.dto.bhe.spm.Spm bheCSpm,
+                        com.giga.nexas.dto.bhe.spm.Spm bheSSpm,
+                        com.giga.nexas.dto.bhe.spm.Spm bheGSpm,
+                        com.giga.nexas.dto.bhe.spm.Spm bheMSpm,
 
                         com.giga.nexas.dto.bhe.grp.groupmap.BatVoiceGrp.BatVoiceGroup tsukuyomiBatvoice,
                         com.giga.nexas.dto.bsdx.grp.groupmap.BatVoiceGrp bsdxBatVoice,
@@ -40,6 +45,12 @@ public class TransMeka {
         Mek bsdxMeka = transMeka(bheMek);
         // waza
         Waz bsdxWaz = transWaza(bheWaz);
+        // spm
+        Spm bsdxSpm = transSprite(bheSpm);
+        Spm bsdxCSpm = transSprite(bheCSpm);
+        Spm bsdxSSpm = transSprite(bheSSpm);
+        Spm bsdxMSpm = transSprite(bheMSpm);
+        Spm bsdxGSpm = transSprite(bheGSpm);
 
         //
         log.info("");
@@ -63,6 +74,14 @@ public class TransMeka {
         bsdxMek.getMekVoiceInfo().setVersion(30);
 
         return bsdxMek;
+    }
+
+    private static com.giga.nexas.dto.bsdx.spm.Spm transSprite(com.giga.nexas.dto.bhe.spm.Spm bheSpm) {
+        Spm bsdxSpm = new Spm();
+
+        BeanUtil.copyProperties(bheSpm, bsdxSpm);
+
+        return bsdxSpm;
     }
 
     private static com.giga.nexas.dto.bsdx.waz.Waz transWaza(com.giga.nexas.dto.bhe.waz.Waz bheWaz) {
@@ -140,8 +159,6 @@ public class TransMeka {
                         continue;
                     }
 
-
-
                     // 将每个bhe事件用bsdx工厂按bsdx槽位，创建正确子类并拷贝共有字段
                     for (com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject srcInfo : srcSkillInfoObjectList) {
 
@@ -151,7 +168,9 @@ public class TransMeka {
                             dstInfo = com.giga.nexas.dto.bsdx.waz.wazfactory.SkillInfoFactory.createEventObjectBsdx(35);
                             if (dstInfo instanceof CEventVal ev) {
                                 for (var unit : srcBhe.getUnitList()) {
-                                    if (unit.getBuffer() == 1) continue;
+                                    if (unit.getBuffer() != 0) {
+                                        continue;
+                                    }
                                     if (unit.getData() instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventVal v) {
                                         ev.setInt1(v.getInt1());
                                         ev.setInt2(v.getInt2());
@@ -167,9 +186,6 @@ public class TransMeka {
                         }
 
                         dstInfo = SkillInfoFactory.createEventObjectBsdx(bsdxSlot);
-
-                        // 槽位号同步
-                        dstInfo.setSlotNum(bsdxSlot);
 
                         // 按具体子类进行BeanCopy
                         if (dstInfo instanceof CEventSpriteAttr ev) {
@@ -233,9 +249,10 @@ public class TransMeka {
                             // copy
                             BeanUtil.copyProperties(srcInfo, ev);
                         } else if (dstInfo instanceof CEventHit ev) {
-                            // todo diff
-                            BeanUtil.copyProperties(srcInfo, ev);
-                            // todo 手动对应子类
+                            // diff
+//                            BeanUtil.copyProperties(srcInfo, ev);
+                            // 手动对应子类
+                            ev.transBheCEventHitToBsdx(srcInfo, ev);
                         } else if (dstInfo instanceof CEventStatus ev) {
                             BeanUtil.copyProperties(srcInfo, ev);
                             // 手动对应子类
@@ -262,10 +279,14 @@ public class TransMeka {
                         } else if (dstInfo instanceof CEventBlink ev) {
                             // diff
                             BeanUtil.copyProperties(srcInfo, ev);
+                            ev.transBheCEventBlinkToBsdx(srcInfo, ev);
                         } else {
                             // ？？？
                             throw new OperationException(500, "error");
                         }
+
+                        // 槽位号同步
+                        dstInfo.setSlotNum(bsdxSlot);
 
                         // 收集该条bsdx事件
                         dstInfos.add(dstInfo);

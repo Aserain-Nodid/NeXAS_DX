@@ -326,4 +326,82 @@ public class CEventHit extends SkillInfoObject {
         }
     }
 
+    public void transBheCEventHitToBsdx(
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject src,
+            CEventHit bsdx) {
+
+        if (!(src instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventHit bhe)) {
+            return;
+        }
+
+        bsdx.setAttackTargetType(bhe.getShort1());
+        bsdx.setShort2(bhe.getShort2());
+
+        bsdx.setInt1(bhe.getInt1());
+        bsdx.setInt2(bhe.getInt2());
+        bsdx.setInt3(bhe.getInt3());
+        bsdx.setHitCount(bhe.getInt4());
+        bsdx.setHitInterval(bhe.getInt5());
+        bsdx.setInternalCorrection(bhe.getInt6());
+        bsdx.setMidComboCorrection(bhe.getInt7());
+        bsdx.setEndCorrection(bhe.getInt8());
+        bsdx.setMinDamage(bhe.getInt9());
+        bsdx.setStartComboCorrection(bhe.getInt16());
+        bsdx.setInt11(bhe.getInt17());
+        bsdx.setChargeDamageRate(bhe.getInt18());
+        bsdx.setInt13(bhe.getInt20());
+        bsdx.setInt14(bhe.getInt21());
+        bsdx.setInt15(bhe.getInt23());
+        bsdx.setInt16(bhe.getInt24());
+        bsdx.setInt17(bhe.getInt25());
+        bsdx.setInt18(bhe.getInt26());
+        bsdx.setScreenShakeFrame(bhe.getInt27());
+        bsdx.setInt20(bhe.getInt28());
+        bsdx.setInt21(bhe.getInt29());
+        bsdx.setInt22(bhe.getInt30());
+        bsdx.setSelfStunFrame(bhe.getInt31());
+
+        bsdx.getCeventHitUnitList().clear();
+
+        final int[] bheToBsdxIdx = {
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+                -1, -1, -1, -1, -1, -1, -1,
+                10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                -1,
+                21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
+        };
+
+        var bheUnits = bhe.getUnitList();
+        if (bheUnits == null) bheUnits = new java.util.ArrayList<>();
+
+        for (int i = 0; i < bheToBsdxIdx.length; i++) {
+            int bsdxIdx = bheToBsdxIdx[i];
+            if (bsdxIdx < 0) continue;
+
+            CEventHit.CEventHitUnit out = new CEventHit.CEventHitUnit();
+            out.setCeventHitUnitQuantity(bsdxIdx);
+            out.setUnitSlotNum(bsdxIdx);
+            out.setDescription(CEVENT_HIT_TYPES[bsdxIdx].getDescription());
+            out.setBuffer(0);
+
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventHit.CEventHitUnit in = null;
+            for (var u : bheUnits) {
+                if (u.getUnitSlotNum() != null && u.getUnitSlotNum() == i) { in = u; break; }
+            }
+            if (in != null) {
+                Integer buffer = in.getBuffer();
+                if (buffer == null) buffer = (in.getData() != null ? 1 : 0);
+                if (buffer != 0 && in.getData() != null) {
+                    SkillInfoObject inner = createCEventObjectByTypeBsdx(CEVENT_HIT_TYPES[bsdxIdx].getType());
+                    cn.hutool.core.bean.BeanUtil.copyProperties(in.getData(), inner);
+                    inner.setSlotNum(CEVENT_HIT_TYPES[bsdxIdx].getType());
+                    out.setBuffer(1);
+                    out.setData(inner);
+                }
+            }
+
+            bsdx.getCeventHitUnitList().add(out);
+        }
+    }
+
 }

@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.giga.nexas.dto.bhe.Bhe;
 import com.giga.nexas.dto.bhe.spm.hitbox.*;
 import com.giga.nexas.io.BinaryReader;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,6 +26,8 @@ public class Spm extends Bhe {
     private List<SPMAnimData> animData;
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SPMRect {
         private Integer left;
         private Integer top;
@@ -75,6 +79,12 @@ public class Spm extends Bhe {
     public static class SPMHitArea {
         private Short id;         // u16
         private Short shapeType;  // u16
+
+        // todo init ⚠
+        public SPMRect hitRect = new SPMRect(0, 0, 0, 0);
+        public Integer unk0 = 0;
+        public Integer unk1 = 0;
+        public Integer unk2 = 0;
 
         public void readInfo(BinaryReader reader) throws IOException {
             // 空实现用于继承

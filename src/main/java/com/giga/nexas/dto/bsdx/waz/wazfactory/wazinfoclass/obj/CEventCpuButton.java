@@ -128,6 +128,8 @@ public class CEventCpuButton extends SkillInfoObject {
                 if (target.getBuffer() != 0 && target.getData() != null) {
                     target.getData().writeInfo(writer);
                 }
+            } else {
+                writer.writeInt(0);
             }
         }
     }

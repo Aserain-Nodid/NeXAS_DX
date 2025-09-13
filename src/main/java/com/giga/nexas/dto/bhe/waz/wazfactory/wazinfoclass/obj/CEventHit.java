@@ -72,40 +72,42 @@ public class CEventHit extends SkillInfoObject {
         private SkillInfoObject data;
     }
 
-    private Short short1;
-    private Short short2;
+    // bhe -> bsdx 注释对应bsdx中的实际属性
+    // 未标注代表bsdx无此属性，skip
+    private Short short1; // attackTargetType
+    private Short short2; // short2
 
-    private Integer int1;
-    private Integer int2;
-    private Integer int3;
-    private Integer int4;
-    private Integer int5;
-    private Integer int6;
-    private Integer int7;
-    private Integer int8;
-    private Integer int9;
-    private Integer int10;
-    private Integer int11;
-    private Integer int12;
-    private Integer int13;
-    private Integer int14;
-    private Integer int15;
-    private Integer int16;
-    private Integer int17;
-    private Integer int18;
-    private Integer int19;
-    private Integer int20;
-    private Integer int21;
-    private Integer int22;
-    private Integer int23;
-    private Integer int24;
-    private Integer int25;
-    private Integer int26;
-    private Integer int27;
-    private Integer int28;
-    private Integer int29;
-    private Integer int30;
-    private Integer int31;
+    private Integer int1; // int1
+    private Integer int2; // int2
+    private Integer int3; // int3
+    private Integer int4; // hitCount
+    private Integer int5; // hitInterval
+    private Integer int6; // internalCorrection
+    private Integer int7; // midComboCorrection
+    private Integer int8; // endCorrection
+    private Integer int9; // minDamage
+    private Integer int10; //
+    private Integer int11; //
+    private Integer int12; //
+    private Integer int13; //
+    private Integer int14; //
+    private Integer int15; //
+    private Integer int16; // startComboCorrection
+    private Integer int17; // int11
+    private Integer int18; // chargeDamageRate
+    private Integer int19; //
+    private Integer int20; // int13
+    private Integer int21; // int14
+    private Integer int22; //
+    private Integer int23; // int15
+    private Integer int24; // int16
+    private Integer int25; // int17
+    private Integer int26; // int18
+    private Integer int27; // screenShakeFrame
+    private Integer int28; // int20
+    private Integer int29; // int21
+    private Integer int30; // int22
+    private Integer int31; // selfStunFrame
 
     private List<CEventHitUnit> unitList = new ArrayList<>();
 

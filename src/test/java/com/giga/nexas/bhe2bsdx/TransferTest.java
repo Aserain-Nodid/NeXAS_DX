@@ -63,6 +63,10 @@ public class TransferTest {
         com.giga.nexas.dto.bhe.waz.Waz tsukuyomiWaz = bheWaz.get("tsukuyomi");
         // spm
         com.giga.nexas.dto.bhe.spm.Spm tsukuyomiSpm = bheSpm.get("tsukuyomi");
+        com.giga.nexas.dto.bhe.spm.Spm tsukuyomiCSpm = bheSpm.get("c_tsukuyomi");
+        com.giga.nexas.dto.bhe.spm.Spm tsukuyomiSSpm = bheSpm.get("s_tsukuyomi");
+        com.giga.nexas.dto.bhe.spm.Spm tsukuyomiGSpm = bheSpm.get("g_tsukuyomi");
+        com.giga.nexas.dto.bhe.spm.Spm tsukuyomiMSpm = bheSpm.get("m_tsukuyomi");
 
         com.giga.nexas.dto.bsdx.spm.Spm mekaPilotSpm = bsdxSpm.get("mekapilot");
         com.giga.nexas.dto.bsdx.spm.Spm selectMekaMenuMekaSpm = bsdxSpm.get("selectmekamenumeka");
@@ -72,6 +76,10 @@ public class TransferTest {
                 tsukuyomiMek,
                 tsukuyomiWaz,
                 tsukuyomiSpm,
+                tsukuyomiCSpm,
+                tsukuyomiSSpm,
+                tsukuyomiGSpm,
+                tsukuyomiMSpm,
 
                 tsukuyomiBatvoice,
                 bsdxBatVoice,
