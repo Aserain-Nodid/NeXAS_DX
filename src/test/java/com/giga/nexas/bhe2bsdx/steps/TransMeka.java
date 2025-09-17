@@ -80,6 +80,7 @@ public class TransMeka {
         Spm bsdxSpm = new Spm();
 
         BeanUtil.copyProperties(bheSpm, bsdxSpm);
+        // todo hitbox trans
 
         return bsdxSpm;
     }
