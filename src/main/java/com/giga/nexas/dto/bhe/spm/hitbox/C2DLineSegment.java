@@ -9,28 +9,39 @@ import java.io.IOException;
 @Data
 public class C2DLineSegment extends Spm.SPMHitArea {
 
-    // x1
-    private Integer int1;
-    // y1
-    private Integer int2;
-
-    // x2
-    private Integer int3;
-    // y2
-    private Integer int4;
-
+    // 线段起点 X。
+    private Integer startX;
+    // 线段起点 Y。
+    private Integer startY;
+    // 线段终点 X。
+    private Integer endX;
+    // 线段终点 Y。
+    private Integer endY;
     private byte[] skippedBytes;
 
     @Override
     public void readInfo(BinaryReader reader) throws IOException {
-        // 起点
-        int1 = reader.readInt();
-        int2 = reader.readInt();
-
-        // 终点
-        int3 = reader.readInt();
-        int4 = reader.readInt();
-
+        startX = reader.readInt();
+        startY = reader.readInt();
+        endX = reader.readInt();
+        endY = reader.readInt();
         skippedBytes = reader.readBytes(8);
+    }
+
+    @Override
+    public com.giga.nexas.dto.bsdx.spm.Spm.SPMHitArea transHitbox() {
+        int sx = valueOrZero(startX);
+        int sy = valueOrZero(startY);
+        int ex = valueOrZero(endX);
+        int ey = valueOrZero(endY);
+        int left = Math.min(sx, ex);
+        int right = Math.max(sx, ex);
+        int top = Math.min(sy, ey);
+        int bottom = Math.max(sy, ey);
+        return buildBsdxHitArea(left, top, right, bottom, null, null, 3);
+    }
+
+    private int valueOrZero(Integer value) {
+        return value == null ? 0 : value;
     }
 }

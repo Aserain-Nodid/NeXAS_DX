@@ -77,10 +77,70 @@ public class TransMeka {
     }
 
     private static com.giga.nexas.dto.bsdx.spm.Spm transSprite(com.giga.nexas.dto.bhe.spm.Spm bheSpm) {
+        if (bheSpm == null) {
+            return null;
+        }
         Spm bsdxSpm = new Spm();
 
-        BeanUtil.copyProperties(bheSpm, bsdxSpm);
-        // todo hitbox trans
+        // 仅保留 SPM 顶层字段，逐层重建嵌套集合以便填充 BSDX 特有字段（unk0/unk1/unk2）。
+        BeanUtil.copyProperties(bheSpm, bsdxSpm, "pageData", "imageData", "animData");
+
+        if (bheSpm.getImageData() != null) {
+            List<Spm.SPMImageData> dstImages = new ArrayList<>(bheSpm.getImageData().size());
+            for (com.giga.nexas.dto.bhe.spm.Spm.SPMImageData src : bheSpm.getImageData()) {
+                Spm.SPMImageData dst = new Spm.SPMImageData();
+                BeanUtil.copyProperties(src, dst);
+                dstImages.add(dst);
+            }
+            bsdxSpm.setImageData(dstImages);
+        }
+
+        if (bheSpm.getAnimData() != null) {
+            List<Spm.SPMAnimData> dstAnimData = new ArrayList<>(bheSpm.getAnimData().size());
+            for (com.giga.nexas.dto.bhe.spm.Spm.SPMAnimData srcAnim : bheSpm.getAnimData()) {
+                Spm.SPMAnimData dstAnim = new Spm.SPMAnimData();
+                BeanUtil.copyProperties(srcAnim, dstAnim, "patData");
+                if (srcAnim.getPatData() != null) {
+                    List<Spm.SPMPatData> patList = new ArrayList<>(srcAnim.getPatData().size());
+                    for (com.giga.nexas.dto.bhe.spm.Spm.SPMPatData srcPat : srcAnim.getPatData()) {
+                        Spm.SPMPatData dstPat = new Spm.SPMPatData();
+                        BeanUtil.copyProperties(srcPat, dstPat);
+                        patList.add(dstPat);
+                    }
+                    dstAnim.setPatData(patList);
+                }
+                dstAnimData.add(dstAnim);
+            }
+            bsdxSpm.setAnimData(dstAnimData);
+        }
+
+        if (bheSpm.getPageData() != null) {
+            List<Spm.SPMPageData> dstPages = new ArrayList<>(bheSpm.getPageData().size());
+            for (com.giga.nexas.dto.bhe.spm.Spm.SPMPageData srcPage : bheSpm.getPageData()) {
+                Spm.SPMPageData dstPage = new Spm.SPMPageData();
+                BeanUtil.copyProperties(srcPage, dstPage, "hitRects", "chipData");
+
+                if (srcPage.getChipData() != null) {
+                    List<Spm.SPMChipData> chipData = new ArrayList<>(srcPage.getChipData().size());
+                    for (com.giga.nexas.dto.bhe.spm.Spm.SPMChipData srcChip : srcPage.getChipData()) {
+                        Spm.SPMChipData dstChip = new Spm.SPMChipData();
+                        BeanUtil.copyProperties(srcChip, dstChip);
+                        chipData.add(dstChip);
+                    }
+                    dstPage.setChipData(chipData);
+                }
+
+                List<Spm.SPMHitArea> dstHitAreas = new ArrayList<>();
+                if (srcPage.getHitRects() != null) {
+                    for (com.giga.nexas.dto.bhe.spm.Spm.SPMHitArea srcHit : srcPage.getHitRects()) {
+                        dstHitAreas.add(srcHit.transHitbox());
+                    }
+                }
+                dstPage.setHitRects(dstHitAreas);
+                dstPages.add(dstPage);
+            }
+            bsdxSpm.setPageData(dstPages);
+        }
 
         return bsdxSpm;
     }

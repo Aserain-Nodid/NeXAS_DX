@@ -30,9 +30,9 @@ public class TestMek {
     private final BsdxBinService bsdxBinService = new BsdxBinService();
 
     private static final Path MEK_DIR = Paths.get("src/main/resources/game/bsdx/mek");
-    private static final Path JSON_OUTPUT = Paths.get("src/main/resources/mekJson");
-    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/mekJson");
-    private static final Path MEK_OUTPUT_DIR = Paths.get("src/main/resources/mekGenerated");
+    private static final Path JSON_OUTPUT = Paths.get("src/main/resources/mekBsdxJson");
+    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/mekBsdxJson");
+    private static final Path MEK_OUTPUT_DIR = Paths.get("src/main/resources/mekBsdxGenerated");
 
     @Test
     void testParseMek() throws IOException {

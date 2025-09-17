@@ -9,18 +9,27 @@ import java.io.IOException;
 @Data
 public class C2DDot extends Spm.SPMHitArea {
 
-    // x
-    private Integer int1;
-    // y
-    private Integer int2;
-
+    // 点的 X 坐标。
+    private Integer pointX;
+    // 点的 Y 坐标。
+    private Integer pointY;
     private byte[] skippedBytes;
 
     @Override
     public void readInfo(BinaryReader reader) throws IOException {
-        int1 = reader.readInt();
-        int2 = reader.readInt();
-
+        pointX = reader.readInt();
+        pointY = reader.readInt();
         skippedBytes = reader.readBytes(16);
+    }
+
+    @Override
+    public com.giga.nexas.dto.bsdx.spm.Spm.SPMHitArea transHitbox() {
+        int x = valueOrZero(pointX);
+        int y = valueOrZero(pointY);
+        return buildBsdxHitArea(x, y, x, y, null, null, 0);
+    }
+
+    private int valueOrZero(Integer value) {
+        return value == null ? 0 : value;
     }
 }

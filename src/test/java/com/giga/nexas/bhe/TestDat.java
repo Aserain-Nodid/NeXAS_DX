@@ -1,4 +1,4 @@
-package com.giga.nexas.bsdx;
+package com.giga.nexas.bhe;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
@@ -13,16 +13,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class TestDat {
 
     private static final Logger log = LoggerFactory.getLogger(TestDat.class);
-    private static final Path INPUT_DIR = Paths.get("src/main/resources/game/bsdx/dat");
-    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/datBsdxJson");
-    private static final Path DAT_OUTPUT_DIR = Paths.get("src/main/resources/datBsdxGenerated");
+    private static final Path INPUT_DIR = Paths.get("src/main/resources/game/bhe/dat");
+    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/datBheJson");
+    private static final Path DAT_OUTPUT_DIR = Paths.get("src/main/resources/datBheGenerated");
 
     private final BsdxBinService bsdxBinService = new BsdxBinService();
 

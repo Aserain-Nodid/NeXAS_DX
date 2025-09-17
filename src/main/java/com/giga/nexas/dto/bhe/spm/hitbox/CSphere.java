@@ -9,16 +9,37 @@ import java.io.IOException;
 @Data
 public class CSphere extends Spm.SPMHitArea {
 
-    private Integer int1;
-    private Integer int2;
-    private Integer int3;
-    private Integer int4;
+    // 球心坐标。
+    private Integer centerX;
+    private Integer centerY;
+    private Integer centerZ;
+    // 半径。
+    private Integer radius;
 
     @Override
     public void readInfo(BinaryReader reader) throws IOException {
-        int1 = reader.readInt();
-        int2 = reader.readInt();
-        int3 = reader.readInt();
-        int4 = reader.readInt();
+        centerX = reader.readInt();
+        centerY = reader.readInt();
+        centerZ = reader.readInt();
+        radius = reader.readInt();
+    }
+
+    @Override
+    public com.giga.nexas.dto.bsdx.spm.Spm.SPMHitArea transHitbox() {
+        int r = valueOrZero(radius);
+        int cx = valueOrZero(centerX);
+        int cy = valueOrZero(centerY);
+        int cz = valueOrZero(centerZ);
+        int left = cx - r;
+        int right = cx + r;
+        int top = cy - r;
+        int bottom = cy + r;
+        int zMin = cz - r;
+        int zMax = cz + r;
+        return buildBsdxHitArea(left, top, right, bottom, zMin, zMax, null);
+    }
+
+    private int valueOrZero(Integer value) {
+        return value == null ? 0 : value;
     }
 }

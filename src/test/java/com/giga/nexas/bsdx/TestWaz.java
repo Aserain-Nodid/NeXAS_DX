@@ -22,8 +22,8 @@ public class TestWaz {
     private final BsdxBinService bsdxBinService = new BsdxBinService();
 
     private static final Path GAME_WAZ_DIR = Paths.get("src/main/resources/game/bsdx/waz");
-    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/wazJson");
-    private static final Path WAZ_OUTPUT_DIR = Paths.get("src/main/resources/wazGenerated");
+    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/wazBsdxJson");
+    private static final Path WAZ_OUTPUT_DIR = Paths.get("src/main/resources/wazBsdxGenerated");
 
     @Test
     void testGenerateWazJsonFiles() throws IOException {

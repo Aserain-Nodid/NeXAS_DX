@@ -9,46 +9,52 @@ import java.io.IOException;
 @Data
 public class CRotatableBox extends Spm.SPMHitArea {
 
-    // File::ReadInt(a1, (a2 + 4), 8u)
-    private Integer int1;
-    private Integer int2;
-
-    // File::ReadInt(a1, (a2 + 24), 4u)
-    private Integer int3;
-
-    // File::ReadInt(a1, (a2 + 12), 8u)
-    private Integer int4;
-    private Integer int5;
-
-    // File::ReadInt(a1, (a2 + 28), 4u)
-    private Integer int6;
-
-    private Integer int7;
-    private Integer int8;
-    // *(a2 + 32) = LOWORD(v3[0]);
-    private Integer attrU16;
+    // 中心点坐标。
+    private Integer centerX;
+    private Integer centerY;
+    private Integer centerZ;
+    // 尺寸（宽、高、深）。
+    private Integer sizeX;
+    private Integer sizeY;
+    private Integer sizeZ;
+    // 预留字段，目前样本中恒为 0。
+    private Integer reserved0;
+    private Integer reserved1;
+    // 低 16 位的属性标志。
+    private Integer propertyFlags;
 
     @Override
     public void readInfo(BinaryReader reader) throws IOException {
-        // 2 * int
-        int1 = reader.readInt();
-        int2 = reader.readInt();
-
-        // 1 * int
-        int3 = reader.readInt();
-
-        // 2 * int
-        int4 = reader.readInt();
-        int5 = reader.readInt();
-
-        // 1 * int
-        int6 = reader.readInt();
-
-        // 最后一次只取低 16 位
-        int7 = reader.readInt();
-        int8 = reader.readInt();
-
+        centerX = reader.readInt();
+        centerY = reader.readInt();
+        centerZ = reader.readInt();
+        sizeX = reader.readInt();
+        sizeY = reader.readInt();
+        sizeZ = reader.readInt();
+        reserved0 = reader.readInt();
+        reserved1 = reader.readInt();
         int raw = reader.readInt();
-        attrU16 = raw & 0xFFFF;
+        propertyFlags = raw & 0xFFFF;
+    }
+
+    @Override
+    public com.giga.nexas.dto.bsdx.spm.Spm.SPMHitArea transHitbox() {
+        int w = valueOrZero(sizeX);
+        int h = valueOrZero(sizeY);
+        int d = valueOrZero(sizeZ);
+        int cx = valueOrZero(centerX);
+        int cy = valueOrZero(centerY);
+        int cz = valueOrZero(centerZ);
+        int left = cx - w / 2;
+        int top = cy - h / 2;
+        int right = left + w;
+        int bottom = top + h;
+        int zMin = cz - d / 2;
+        int zMax = zMin + d;
+        return buildBsdxHitArea(left, top, right, bottom, zMin, zMax, null);
+    }
+
+    private int valueOrZero(Integer value) {
+        return value == null ? 0 : value;
     }
 }

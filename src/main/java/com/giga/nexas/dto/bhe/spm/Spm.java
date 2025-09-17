@@ -80,7 +80,7 @@ public class Spm extends Bhe {
         private Short id;         // u16
         private Short shapeType;  // u16
 
-        // todo init ⚠
+        // 旧格式解析时会直接写入这些字段
         public SPMRect hitRect = new SPMRect(0, 0, 0, 0);
         public Integer unk0 = 0;
         public Integer unk1 = 0;
@@ -88,6 +88,45 @@ public class Spm extends Bhe {
 
         public void readInfo(BinaryReader reader) throws IOException {
             // 空实现用于继承
+        }
+
+        public com.giga.nexas.dto.bsdx.spm.Spm.SPMHitArea transHitbox() {
+            int left = hitRect != null && hitRect.getLeft() != null ? hitRect.getLeft() : 0;
+            int top = hitRect != null && hitRect.getTop() != null ? hitRect.getTop() : 0;
+            int right = hitRect != null && hitRect.getRight() != null ? hitRect.getRight() : left;
+            int bottom = hitRect != null && hitRect.getBottom() != null ? hitRect.getBottom() : top;
+            return buildBsdxHitArea(left, top, right, bottom, null, null, null);
+        }
+
+        protected com.giga.nexas.dto.bsdx.spm.Spm.SPMHitArea buildBsdxHitArea(int left, int top, int right, int bottom, Integer zMin, Integer zMax, Integer overrideUnk0) {
+            com.giga.nexas.dto.bsdx.spm.Spm.SPMHitArea area = new com.giga.nexas.dto.bsdx.spm.Spm.SPMHitArea();
+            com.giga.nexas.dto.bsdx.spm.Spm.SPMRect rect = new com.giga.nexas.dto.bsdx.spm.Spm.SPMRect();
+            rect.setLeft(left);
+            rect.setTop(top);
+            rect.setRight(right);
+            rect.setBottom(bottom);
+            area.setHitRect(rect);
+            area.setUnk0(overrideUnk0 != null ? overrideUnk0 : mapShapeTypeForBsdx());
+            area.setUnk1(zMin != null ? zMin : 0);
+            area.setUnk2(zMax != null ? zMax : 0);
+            return area;
+        }
+
+        private int mapShapeTypeForBsdx() {
+            if (shapeType == null) {
+                return 1;
+            }
+            return switch (shapeType) {
+                case 0 -> 1;   // Default rectangle
+                case 1 -> 2;   // Rotatable rect -> general body
+                case 2 -> 4;   // Circle
+                case 7 -> 3;   // 2D line
+                case 8 -> 0;   // 2D dot
+                case 9 -> 5;   // Box (3D axis-aligned)
+                case 10 -> 7;  // Rotatable box (3D)
+                case 11 -> 6;  // Sphere
+                default -> 2;  // Fallback to main body
+            };
         }
     }
 

@@ -9,23 +9,37 @@ import java.io.IOException;
 @Data
 public class CBox extends Spm.SPMHitArea {
 
-    // File::ReadInt(a1, a2 + 1, 0x10u)
-    private Integer int1;
-    private Integer int2;
-    private Integer int3;
-    private Integer int4;
-
-    private Integer int5;
-    private Integer int6;
+    // 包围盒最小 X/Y/Z。
+    private Integer minX;
+    private Integer minY;
+    private Integer minZ;
+    // 包围盒最大 X/Y/Z。
+    private Integer maxX;
+    private Integer maxY;
+    private Integer maxZ;
 
     @Override
     public void readInfo(BinaryReader reader) throws IOException {
-        int1 = reader.readInt();
-        int2 = reader.readInt();
-        int3 = reader.readInt();
-        int4 = reader.readInt();
+        minX = reader.readInt();
+        minY = reader.readInt();
+        minZ = reader.readInt();
+        maxX = reader.readInt();
+        maxY = reader.readInt();
+        maxZ = reader.readInt();
+    }
 
-        int5 = reader.readInt();
-        int6 = reader.readInt();
+    @Override
+    public com.giga.nexas.dto.bsdx.spm.Spm.SPMHitArea transHitbox() {
+        int left = Math.min(valueOrZero(minX), valueOrZero(maxX));
+        int right = Math.max(valueOrZero(minX), valueOrZero(maxX));
+        int top = Math.min(valueOrZero(minY), valueOrZero(maxY));
+        int bottom = Math.max(valueOrZero(minY), valueOrZero(maxY));
+        int zMin = Math.min(valueOrZero(minZ), valueOrZero(maxZ));
+        int zMax = Math.max(valueOrZero(minZ), valueOrZero(maxZ));
+        return buildBsdxHitArea(left, top, right, bottom, zMin, zMax, null);
+    }
+
+    private int valueOrZero(Integer value) {
+        return value == null ? 0 : value;
     }
 }

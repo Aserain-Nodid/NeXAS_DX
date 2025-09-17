@@ -22,7 +22,7 @@ public class TestGrp {
     private final BsdxBinService bsdxBinService = new BsdxBinService();
 
     private static final Path GRP_DIR = Paths.get("src/main/resources/game/bsdx/grp");
-    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/grpJson");
+    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/grpBsdxJson");
     private static final Path GRP_OUTPUT_DIR = Paths.get("src/main/resources/grpGenerated");
 
     @Test

@@ -24,8 +24,8 @@ public class TestSpm {
     private static final String CHARSET = "windows-31j";
 
     private static final Path GAME_SPM_DIR = Paths.get("src/main/resources/game/bsdx/spm");
-    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/spmJson");
-    private static final Path SPM_OUTPUT_DIR = Paths.get("src/main/resources/spmGenerated");
+    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/spmBsdxJson");
+    private static final Path SPM_OUTPUT_DIR = Paths.get("src/main/resources/spmBsdxGenerated");
 
     @Test
     void testGenerateSpmJsonFiles() throws IOException {
