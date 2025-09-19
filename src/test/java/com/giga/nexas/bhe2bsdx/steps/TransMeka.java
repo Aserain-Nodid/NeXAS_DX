@@ -170,7 +170,6 @@ public class TransMeka {
         for (com.giga.nexas.dto.bhe.waz.Waz.Skill srcSkill : bheWaz.getSkillList()) {
             com.giga.nexas.dto.bsdx.waz.Waz.Skill dstSkill = new com.giga.nexas.dto.bsdx.waz.Waz.Skill();
 
-            dstSkill.setPhaseQuantity(srcSkill.getPhaseQuantity());
             dstSkill.setSkillNameJapanese(srcSkill.getSkillNameJapanese());
             dstSkill.setSkillNameEnglish(srcSkill.getSkillNameEnglish());
 
@@ -359,11 +358,10 @@ public class TransMeka {
                     // 将该单元加入当前Phase
                     dstPhase.getSkillUnitCollection().add(dstUnit);
                 }
-                if (dstPhase.getSkillUnitCollection().size()!=0){
-                    dstPhases.add(dstPhase);
-                }
+                dstPhases.add(dstPhase);
             }
 
+            dstSkill.setPhaseQuantity(dstPhases.size());
             dstSkill.setPhasesInfo(dstPhases);
             dstSkills.add(dstSkill);
         }
