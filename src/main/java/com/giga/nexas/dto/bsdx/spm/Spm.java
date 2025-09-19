@@ -62,8 +62,8 @@ public class Spm extends Bsdx {
 
     @Data
     public static class SPMHitArea {
-        private SPMRect hitRect;
         private Integer unk0;
+        private SPMRect hitRect;
         private Integer unk1;
         private Integer unk2;
     }

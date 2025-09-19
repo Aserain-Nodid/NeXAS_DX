@@ -102,8 +102,8 @@ public class SpmParser implements BsdxParser<Spm> {
 
     private Spm.SPMHitArea parseHitArea(BinaryReader reader) {
         Spm.SPMHitArea hitArea = new Spm.SPMHitArea();
-        hitArea.setHitRect(parseRect(reader));
         hitArea.setUnk0(reader.readInt());
+        hitArea.setHitRect(parseRect(reader));
         hitArea.setUnk1(reader.readInt());
         hitArea.setUnk2(reader.readInt());
         return hitArea;

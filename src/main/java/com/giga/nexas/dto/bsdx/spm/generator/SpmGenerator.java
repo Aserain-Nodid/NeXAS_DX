@@ -86,8 +86,8 @@ public class SpmGenerator implements BsdxGenerator<Spm> {
     }
 
     private void writeHitArea(BinaryWriter writer, Spm.SPMHitArea hitArea) throws IOException {
-        writeRect(writer, hitArea.getHitRect());
         writer.writeInt(hitArea.getUnk0());
+        writeRect(writer, hitArea.getHitRect());
         writer.writeInt(hitArea.getUnk1());
         writer.writeInt(hitArea.getUnk2());
     }
