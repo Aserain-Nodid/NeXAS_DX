@@ -50,7 +50,12 @@
                     </GridPane>
 
                     <HBox alignment="CENTER_RIGHT">
-                        <Button fx:id="actionButton" text="Start" minWidth="80"/>
+                        <CheckBox fx:id="lockOutPutPath" text="Lock output path" />
+                        <Button fx:id="actionButton" text="Start" minWidth="80">
+                            <HBox.margin>
+                                <Insets left="12"/>
+                            </HBox.margin>
+                        </Button>
                     </HBox>
                 </VBox>
 

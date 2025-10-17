@@ -18,6 +18,7 @@ public class FilePickerController {
 
     private final MainViewController view;
     private boolean userSelectedOutput = false;
+    private boolean lockOutput = false;
 
     // 全局路径变量
     private static final String PREF_INPUT_PATH = "lastInputPath";
@@ -37,11 +38,43 @@ public class FilePickerController {
 
         // 输出路径选择逻辑
         bindOutputBrowse();
+
+        // 绑定锁定输出路径复选框
+        bindLockOutput();
+
+        // 当输入路径以其它方式改变（例如拖放）时，也执行自动选择/自动填充逻辑
+        view.getInputField().textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.isEmpty()) return;
+
+            // 保存输入路径偏好
+            prefs.put(PREF_INPUT_PATH, newVal);
+
+            File file = new File(newVal);
+
+            // 自动选择功能（和原来一致）
+            autoSelectFunction(file);
+
+            // 只有在用户没有手动指定输出目录并且没有锁定时，才自动填充输出
+            if (!userSelectedOutput && !lockOutput) {
+                File parent = file.isDirectory() ? file : file.getParentFile();
+                if (parent != null) {
+                    String absolutePath = parent.getAbsolutePath();
+                    view.getOutputField().setText(absolutePath);
+                    prefs.put(PREF_OUTPUT_PATH, absolutePath);
+                }
+            }
+        });
     }
 
     private void loadLastPaths() {
         String lastInput = prefs.get(PREF_INPUT_PATH, "");
         String lastOutput = prefs.get(PREF_OUTPUT_PATH, "");
+        // 读取锁定状态
+        lockOutput = prefs.getBoolean("lockOutputPath", false);
+        view.getLockOutPutPath().setSelected(lockOutput);
+        // 根据锁定状态设置输出控件是否可用
+        view.getOutputField().setDisable(lockOutput);
+        view.getOutputBrowse().setDisable(lockOutput);
         if (!lastInput.isEmpty()) {
             view.getInputField().setText(lastInput);
         }
@@ -97,7 +130,7 @@ public class FilePickerController {
                 autoSelectFunction(selected);
 
                 // 只有在用户没有手动指定输出目录时，才自动填充
-                if (!userSelectedOutput) {
+                    if (!userSelectedOutput && !lockOutput) {
                     String absolutePath = selected.getParentFile().getAbsolutePath();
                     view.getOutputField().setText(absolutePath);
                     prefs.put(PREF_OUTPUT_PATH, absolutePath);
@@ -118,12 +151,26 @@ public class FilePickerController {
 
             File selected = chooser.showDialog(view.getRoot().getScene().getWindow());
             if (selected != null) {
-                view.getOutputField().setText(selected.getAbsolutePath());
-                prefs.put(PREF_OUTPUT_PATH, selected.getAbsolutePath());
-                userSelectedOutput = true;
+                    // 如果输出被锁定，则忽略用户选择
+                    if (lockOutput) return;
+
+                    view.getOutputField().setText(selected.getAbsolutePath());
+                    prefs.put(PREF_OUTPUT_PATH, selected.getAbsolutePath());
+                    userSelectedOutput = true;
             }
         });
     }
+
+        private void bindLockOutput() {
+            view.getLockOutPutPath().setOnAction(e -> {
+                lockOutput = view.getLockOutPutPath().isSelected();
+                prefs.putBoolean("lockOutputPath", lockOutput);
+
+                // 禁用/启用输出路径输入与浏览按钮
+                view.getOutputField().setDisable(lockOutput);
+                view.getOutputBrowse().setDisable(lockOutput);
+            });
+        }
 
     private void autoSelectFunction(File file) {
         String path = file.getAbsolutePath();

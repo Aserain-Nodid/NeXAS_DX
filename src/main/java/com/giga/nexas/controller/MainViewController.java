@@ -18,6 +18,7 @@ public class MainViewController {
     @FXML private TextArea logArea;
     @FXML private Button actionButton;
     @FXML private CheckBox alwaysOnTop;
+    @FXML private CheckBox lockOutPutPath;
     @FXML private RadioButton modePackRadio;
     @FXML private RadioButton modeAnalyzeRadio;
 
