@@ -6,18 +6,20 @@ import com.giga.nexas.controller.model.WorkspaceState;
 import com.giga.nexas.controller.support.BranchActionHandler;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tooltip;
+import javafx.beans.binding.Bindings;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import lombok.Setter;
 
 import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.HashMap;
 
 /**
  * Controller for branch grid category cards.
@@ -79,31 +81,94 @@ public class BranchGridController {
                 + " | JSON: " + category.getJsonFiles().size();
         Label stats = new Label(statsText);
 
-        HBox buttons = new HBox(8);
-        Button parse = new Button("Parse all");
-        parse.setDisable(!category.isCanParse() || category.getBinaryFiles().isEmpty());
-        parse.setOnAction(e -> triggerAction(category, BranchActionType.PARSE));
-        parse.setTooltip(new Tooltip("Convert binary files to JSON"));
+        ListView<Path> binaryList = createFileList(category.getBinaryFiles());
+        ListView<Path> jsonList = createFileList(category.getJsonFiles());
 
-        Button generate = new Button("Generate all");
-        generate.setDisable(!category.isCanGenerate() || category.getJsonFiles().isEmpty());
-        generate.setOnAction(e -> triggerAction(category, BranchActionType.GENERATE));
-        generate.setTooltip(new Tooltip("Convert JSON files back to binary"));
+        Button parseAll = new Button("Parse all");
+        parseAll.setDisable(!category.isCanParse() || category.getBinaryFiles().isEmpty());
+        parseAll.setOnAction(e -> triggerAction(category, BranchActionType.PARSE, null));
+        parseAll.setTooltip(new Tooltip("Convert all binary files to JSON"));
 
-        buttons.getChildren().addAll(parse, generate);
+        Button parseSelected = new Button("Parse selected");
+        parseSelected.disableProperty().bind(Bindings.isEmpty(binaryList.getSelectionModel().getSelectedItems()));
+        parseSelected.setOnAction(e -> {
+            List<Path> targets = new ArrayList<>(binaryList.getSelectionModel().getSelectedItems());
+            triggerAction(category, BranchActionType.PARSE, targets);
+        });
+        HBox parseButtons = new HBox(8, parseAll, parseSelected);
+        parseButtons.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
 
-        ListView<String> preview = new ListView<>();
-        preview.getItems().addAll(buildPreviewList(category));
-        preview.setPrefHeight(96);
-        preview.setMouseTransparent(true);
-        preview.setFocusTraversable(false);
+        Button generateAll = new Button("Generate all");
+        generateAll.setDisable(!category.isCanGenerate() || category.getJsonFiles().isEmpty());
+        generateAll.setOnAction(e -> triggerAction(category, BranchActionType.GENERATE, null));
+        generateAll.setTooltip(new Tooltip("Generate binaries for all JSON files"));
 
-        box.getChildren().addAll(title, stats, buttons, preview);
+        Button generateSelected = new Button("Generate selected");
+        generateSelected.disableProperty().bind(Bindings.isEmpty(jsonList.getSelectionModel().getSelectedItems()));
+        generateSelected.setOnAction(e -> {
+            List<Path> targets = new ArrayList<>(jsonList.getSelectionModel().getSelectedItems());
+            triggerAction(category, BranchActionType.GENERATE, targets);
+        });
+        HBox generateButtons = new HBox(8, generateAll, generateSelected);
+        generateButtons.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+
+        configureListInteractions(binaryList, category, BranchActionType.PARSE);
+        configureListInteractions(jsonList, category, BranchActionType.GENERATE);
+
+        VBox binarySection = new VBox(4,
+                new Label("Binary files"),
+                binaryList,
+                parseButtons);
+        VBox jsonSection = new VBox(4,
+                new Label("JSON files"),
+                jsonList,
+                generateButtons);
+
+        box.getChildren().addAll(title, stats, binarySection, jsonSection);
         return box;
     }
 
+    private ListView<Path> createFileList(List<Path> files) {
+        ListView<Path> list = new ListView<>();
+        list.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        list.getItems().addAll(files);
+        list.setPrefHeight(120);
+        list.setCellFactory(view -> new ListCell<>() {
+            @Override
+            protected void updateItem(Path item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getFileName().toString());
+            }
+        });
+        list.setPlaceholder(new Label("No files"));
+        return list;
+    }
+
+    private void configureListInteractions(ListView<Path> list,
+                                           WorkspaceCategory category,
+                                           BranchActionType type) {
+        list.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Path selected = list.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    triggerAction(category, type, List.of(selected));
+                }
+            }
+        });
+        ContextMenu menu = new ContextMenu();
+        MenuItem openItem = new MenuItem(type == BranchActionType.PARSE ? "Parse selected" : "Generate selected");
+        openItem.setOnAction(e -> {
+            List<Path> targets = new ArrayList<>(list.getSelectionModel().getSelectedItems());
+            if (!targets.isEmpty()) {
+                triggerAction(category, type, targets);
+            }
+        });
+        menu.getItems().add(openItem);
+        list.setContextMenu(menu);
+    }
+
     private VBox createCard(WorkspaceCategory category) {
-        VBox box = new VBox(6);
+        VBox box = new VBox(8);
         box.setFillWidth(true);
         box.setStyle(defaultStyle());
         box.setOnMouseClicked(e -> triggerSelection(category));
@@ -119,30 +184,20 @@ public class BranchGridController {
         }
     }
 
-    private void triggerAction(WorkspaceCategory category, BranchActionType type) {
+    private void triggerAction(WorkspaceCategory category, BranchActionType type, List<Path> files) {
         if (actionHandler != null) {
-            actionHandler.handle(category, type);
+            List<Path> payload = files == null ? null : Collections.unmodifiableList(new ArrayList<>(files));
+            actionHandler.handle(category, type, payload);
         }
-    }
-
-    private List<String> buildPreviewList(WorkspaceCategory category) {
-        List<String> entries = new ArrayList<>();
-        for (Path path : category.getBinaryFiles()) {
-            entries.add("[BIN] " + path.getFileName());
-        }
-        for (Path path : category.getJsonFiles()) {
-            entries.add("[JSON] " + path.getFileName());
-        }
-        return entries.stream().limit(10).collect(Collectors.toList());
     }
 
     private String defaultStyle() {
-        return "-fx-padding:12; -fx-spacing:6; -fx-border-color:#8aa2c1; -fx-border-radius:8; "
+        return "-fx-padding:12; -fx-spacing:8; -fx-border-color:#8aa2c1; -fx-border-radius:8; "
                 + "-fx-background-radius:8; -fx-background-color:#f4f7fb;";
     }
 
     private String highlightedStyle() {
-        return "-fx-padding:12; -fx-spacing:6; -fx-border-color:#346bd6; -fx-border-radius:8; "
+        return "-fx-padding:12; -fx-spacing:8; -fx-border-color:#346bd6; -fx-border-radius:8; "
                 + "-fx-background-radius:8; -fx-background-color:#e4eeff;";
     }
 }

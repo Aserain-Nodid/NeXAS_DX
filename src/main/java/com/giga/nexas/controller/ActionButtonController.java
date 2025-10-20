@@ -37,18 +37,23 @@ public class ActionButtonController {
     public void bind() {
         view.getActionButton().setOnAction(e -> runSelected());
         view.getProcessAllButton().setOnAction(e -> runAll());
-        gridController.setActionHandler(this::handleCategoryAction);
+        gridController.setActionHandler(this::handleCardRequest);
     }
 
-    public void handleCategoryAction(WorkspaceCategory category, BranchActionType actionType) {
-        if (category == null) {
-            logLater("No category available for action.");
+    private void handleCardRequest(WorkspaceCategory category,
+                                   BranchActionType actionType,
+                                   List<Path> files) {
+        if ((files == null || files.isEmpty()) && category == null) {
+            logLater("Select a category or file to run.");
             return;
         }
-        switch (actionType) {
-            case PARSE -> runCategoryBatch(List.of(category), true, false);
-            case GENERATE -> runCategoryBatch(List.of(category), false, true);
+        if (files != null && !files.isEmpty()) {
+            runFileBatch(files, actionType);
+            return;
         }
+        runCategoryBatch(List.of(category),
+                actionType == BranchActionType.PARSE,
+                actionType == BranchActionType.GENERATE);
     }
 
     private void runSelected() {
@@ -79,14 +84,6 @@ public class ActionButtonController {
             return;
         }
         runCategoryBatch(categories, true, true);
-    }
-
-    private List<WorkspaceCategory> categoryAsList(WorkspaceCategory category) {
-        if (category == null) {
-            logLater("Select a valid category first.");
-            return List.of();
-        }
-        return List.of(category);
     }
 
     private void runCategoryBatch(List<WorkspaceCategory> categories, boolean runParse, boolean runGenerate) {
@@ -145,28 +142,7 @@ public class ActionButtonController {
             logLater("Select a binary file to parse.");
             return;
         }
-        BinaryEngineAdapter adapter = createAdapter();
-        String charset = resolveCharset();
-        Path inputRoot = state.getInputDirectory().get();
-        Path outputRoot = determineOutputRoot();
-
-        initializeProgress(1);
-        AtomicInteger completed = new AtomicInteger();
-        String label = "Parse " + file.getFileName();
-        runAsync(label, true, () -> {
-            String name = file.getFileName().toString();
-            try {
-                Path targetDir = resolveOutputDir(outputRoot, inputRoot, file);
-                adapter.parse(file, targetDir, charset);
-                logLater("Parsed " + name);
-            } catch (Exception ex) {
-                logLater("Parse failed for " + name + ": " + ex.getMessage());
-                throw rethrow(ex);
-            } finally {
-                int done = completed.incrementAndGet();
-                updateProgress(done, 1, name);
-            }
-        });
+        runFileBatch(List.of(file), BranchActionType.PARSE);
     }
 
     private void runSingleGenerate(WorkspaceCategory category, Path file) {
@@ -174,27 +150,48 @@ public class ActionButtonController {
             logLater("Select a JSON file to generate.");
             return;
         }
+        runFileBatch(List.of(file), BranchActionType.GENERATE);
+    }
+
+    private void runFileBatch(List<Path> files, BranchActionType type) {
+        if (files == null || files.isEmpty()) {
+            logLater("No files selected for " + (type == BranchActionType.PARSE ? "parse" : "generate") + ".");
+            return;
+        }
         BinaryEngineAdapter adapter = createAdapter();
         String charset = resolveCharset();
         Path inputRoot = state.getInputDirectory().get();
         Path outputRoot = determineOutputRoot();
 
-        initializeProgress(1);
+        initializeProgress(files.size());
         AtomicInteger completed = new AtomicInteger();
-        String label = "Generate " + file.getFileName();
+        String label = type == BranchActionType.PARSE ? "Parse selected" : "Generate selected";
         runAsync(label, true, () -> {
-            String name = file.getFileName().toString();
-            try {
-                Path targetDir = resolveOutputDir(outputRoot, inputRoot, file);
-                adapter.generate(file, targetDir, charset);
-                logLater("Generated binary from " + name);
-            } catch (Exception ex) {
-                logLater("Generation failed for " + name + ": " + ex.getMessage());
-                throw rethrow(ex);
-            } finally {
-                int done = completed.incrementAndGet();
-                updateProgress(done, 1, name);
+            BatchStats stats = new BatchStats();
+            for (Path file : files) {
+                String name = file.getFileName().toString();
+                try {
+                    Path targetDir = resolveOutputDir(outputRoot, inputRoot, file);
+                    if (type == BranchActionType.PARSE) {
+                        adapter.parse(file, targetDir, charset);
+                        logLater("Parsed " + name);
+                    } else {
+                        adapter.generate(file, targetDir, charset);
+                        logLater("Generated binary from " + name);
+                    }
+                    stats.success();
+                } catch (Exception ex) {
+                    String message = (type == BranchActionType.PARSE ? "Parse failed for " : "Generation failed for ")
+                            + name + ": " + ex.getMessage();
+                    stats.failure(message);
+                    logLater(message);
+                } finally {
+                    int done = completed.incrementAndGet();
+                    updateProgress(done, files.size(), name);
+                }
             }
+            logLater(summaryText(type == BranchActionType.PARSE ? "Parse" : "Generate", stats));
+            stats.failures().forEach(detail -> logLater(" - " + detail));
         });
     }
 

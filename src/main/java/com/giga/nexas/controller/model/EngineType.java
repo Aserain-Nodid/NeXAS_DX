@@ -7,7 +7,7 @@ import java.util.Set;
  */
 public enum EngineType {
 
-    BSDX("BALDR SKY DIVE X",
+    BSDX("BALDR SKY DIVEX",
             "windows-31j",
             Set.of("waz", "mek", "spm", "grp", "bin", "dat"),
             Set.of("waz", "mek", "spm", "grp", "bin")),

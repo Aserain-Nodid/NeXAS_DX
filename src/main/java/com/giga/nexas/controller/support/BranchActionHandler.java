@@ -3,13 +3,14 @@ package com.giga.nexas.controller.support;
 import com.giga.nexas.controller.model.BranchActionType;
 import com.giga.nexas.controller.model.WorkspaceCategory;
 
+import java.nio.file.Path;
+import java.util.List;
+
 /**
- * @Date 2025/10/19
- * @Description 缂冩垶鐗搁崡锛勫閸斻劋缍旈崶鐐剁殶
+ * 卡片触发批量/单文件操作时使用的回调接口。
  */
 @FunctionalInterface
 public interface BranchActionHandler {
 
-    void handle(WorkspaceCategory category, BranchActionType actionType);
+    void handle(WorkspaceCategory category, BranchActionType actionType, List<Path> files);
 }
-
