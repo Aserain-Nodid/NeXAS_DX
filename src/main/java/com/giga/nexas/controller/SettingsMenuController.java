@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 /**
- * Controller for the settings menu dialog.
+ * 负责设置菜单对话框的控制器。
  */
 @RequiredArgsConstructor
 public class SettingsMenuController {

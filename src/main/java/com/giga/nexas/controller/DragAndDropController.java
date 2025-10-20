@@ -8,7 +8,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 /**
- * Controller handling directory drag-and-drop.
+ * 处理目录拖拽交互的控制器。
  */
 @RequiredArgsConstructor
 public class DragAndDropController {

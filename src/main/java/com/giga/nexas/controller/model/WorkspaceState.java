@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.nio.file.Path;
 
 /**
- * Workspace-level state container.
+ * 保存工作区全局状态的数据容器。
  */
 @Getter
 public class WorkspaceState {

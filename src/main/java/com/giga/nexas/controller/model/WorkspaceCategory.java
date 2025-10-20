@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Workspace category data for tree and grid.
+ * 在树视图与卡片网格中共享的分类数据模型。
  */
 @Getter
 @Builder

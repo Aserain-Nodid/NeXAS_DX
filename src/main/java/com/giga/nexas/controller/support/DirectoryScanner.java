@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * Scanner utility grouping files by engine extensions.
+ * 按引擎扩展名归档文件的扫描工具。
  */
 public class DirectoryScanner {
 

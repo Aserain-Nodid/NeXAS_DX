@@ -1,7 +1,7 @@
 package com.giga.nexas.controller.model;
 
 /**
- * Action options for branch grid.
+ * 卡片网格支持的操作类型。
  */
 public enum BranchActionType {
     PARSE,

@@ -1,7 +1,7 @@
 package com.giga.nexas.controller.model;
 
 /**
- * Node kind definitions for the workspace tree.
+ * 工作区树结构使用的节点类型定义。
  */
 public enum WorkspaceNodeKind {
     ROOT,

@@ -9,6 +9,7 @@ import javafx.collections.ListChangeListener;
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import lombok.Setter;
@@ -22,7 +23,7 @@ import java.util.Objects;
 import java.util.HashMap;
 
 /**
- * Controller for branch grid category cards.
+ * 用于渲染分类卡片网格的控制器。
  */
 public class BranchGridController {
 
@@ -76,13 +77,19 @@ public class BranchGridController {
         VBox box = createCard(category);
         Label title = new Label(category.getTitle());
         title.getStyleClass().add("branch-card-title");
+        title.setWrapText(true);
+        title.setMaxWidth(Double.MAX_VALUE);
 
         String statsText = "Binary: " + category.getBinaryFiles().size()
                 + " | JSON: " + category.getJsonFiles().size();
         Label stats = new Label(statsText);
+        stats.setWrapText(true);
+        stats.setMaxWidth(Double.MAX_VALUE);
 
         ListView<Path> binaryList = createFileList(category.getBinaryFiles());
         ListView<Path> jsonList = createFileList(category.getJsonFiles());
+        VBox.setVgrow(binaryList, Priority.ALWAYS);
+        VBox.setVgrow(jsonList, Priority.ALWAYS);
 
         Button parseAll = new Button("Parse all");
         parseAll.setDisable(!category.isCanParse() || category.getBinaryFiles().isEmpty());
@@ -170,6 +177,8 @@ public class BranchGridController {
     private VBox createCard(WorkspaceCategory category) {
         VBox box = new VBox(8);
         box.setFillWidth(true);
+        box.setMinWidth(280);
+        box.setPrefWidth(320);
         box.setStyle(defaultStyle());
         box.setOnMouseClicked(e -> triggerSelection(category));
         return box;

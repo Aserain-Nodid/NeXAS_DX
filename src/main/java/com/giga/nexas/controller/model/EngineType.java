@@ -3,7 +3,7 @@ package com.giga.nexas.controller.model;
 import java.util.Set;
 
 /**
- * Engine types and supported extensions.
+ * 引擎类型及其支持的扩展名定义。
  */
 public enum EngineType {
 

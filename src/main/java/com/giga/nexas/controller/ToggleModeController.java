@@ -5,7 +5,7 @@ import com.giga.nexas.controller.model.WorkspaceState;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Controller for selecting the active engine.
+ * 用于切换当前引擎的控制器。
  */
 @RequiredArgsConstructor
 public class ToggleModeController {

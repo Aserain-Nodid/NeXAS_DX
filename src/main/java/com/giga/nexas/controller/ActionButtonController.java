@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 /**
- * Controller for action button operations.
+ * 负责执行操作按钮相关逻辑的控制器。
  */
 @RequiredArgsConstructor
 public class ActionButtonController {

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.prefs.Preferences;
 
 /**
- * Controller for directory selection and scanning.
+ * 负责目录选择与扫描逻辑的控制器。
  */
 @RequiredArgsConstructor
 public class FilePickerController {

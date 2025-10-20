@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Controller building the workspace tree view.
+ * 用于构建工作区树形视图的控制器。
  */
 @RequiredArgsConstructor
 public class ModeTreeController {
@@ -24,6 +24,7 @@ public class ModeTreeController {
     private final WorkspaceState state;
     private final BranchGridController gridController;
     private final Map<String, TreeItem<WorkspaceTreeNode>> categoryItems = new HashMap<>();
+    private static final int STATUS_SEGMENT_LIMIT = 3;
 
     public void setup() {
         TreeView<WorkspaceTreeNode> tree = view.getTree();
@@ -135,14 +136,22 @@ public class ModeTreeController {
     private void updateStatus() {
         EngineType engine = state.getEngineType().get();
         int categoryCount = state.getCategories().size();
-        String extras = categoryCount == 0 ? "waiting for scan" :
-                state.getCategories().stream()
-                        .map(this::formatCategoryInfo)
-                        .collect(Collectors.joining(" | "));
-        String status = "Data files | " + engine.getDisplayName();
-        if (!extras.isEmpty()) {
-            status += " | " + extras;
+        String summary;
+        if (categoryCount == 0) {
+            summary = "waiting for scan";
+        } else {
+            List<String> segments = state.getCategories().stream()
+                    .map(this::formatCategoryInfo)
+                    .collect(Collectors.toList());
+            String displayed = segments.stream()
+                    .limit(STATUS_SEGMENT_LIMIT)
+                    .collect(Collectors.joining(", "));
+            if (segments.size() > STATUS_SEGMENT_LIMIT) {
+                displayed += ", +" + (segments.size() - STATUS_SEGMENT_LIMIT) + " more";
+            }
+            summary = categoryCount + " categories | " + displayed;
         }
+        String status = "Data files | " + engine.getDisplayName() + " | " + summary;
         view.getStatusLabel().setText(status);
     }
 

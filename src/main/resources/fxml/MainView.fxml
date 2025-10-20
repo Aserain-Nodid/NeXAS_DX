@@ -21,12 +21,13 @@
                 <CheckBox fx:id="alwaysOnTop" text="Always on Top"/>
             </HBox>
 
-            <HBox spacing="10.0" alignment="CENTER_LEFT">
-                <Label text="Engine"/>
-                <ComboBox fx:id="engineSelector" prefWidth="220.0"/>
-                <Pane HBox.hgrow="ALWAYS"/>
-                <Label fx:id="statusLabel" text="Ready"/>
-            </HBox>
+            <VBox spacing="4.0">
+                <HBox spacing="10.0" alignment="CENTER_LEFT">
+                    <Label text="Engine"/>
+                    <ComboBox fx:id="engineSelector" prefWidth="220.0"/>
+                </HBox>
+                <Label fx:id="statusLabel" text="Ready" wrapText="true" maxWidth="Infinity"/>
+            </VBox>
         </VBox>
     </top>
 
@@ -62,10 +63,6 @@
                             <Button fx:id="actionButton" text="Run selected" minWidth="110.0"/>
                             <Button fx:id="processAllButton" text="Run all" minWidth="90.0"/>
                         </HBox>
-                        <VBox spacing="4.0">
-                            <ProgressBar fx:id="progressBar" prefWidth="400.0" progress="0.0"/>
-                            <Label fx:id="progressLabel" text="Idle"/>
-                        </VBox>
                     </VBox>
                 </top>
 
@@ -85,15 +82,24 @@
                 </center>
 
                 <bottom>
-                    <VBox spacing="6.0">
+                    <BorderPane>
                         <padding>
                             <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
                         </padding>
-                        <Label text="Log"/>
-                        <TextArea fx:id="logArea" editable="false" prefRowCount="8"
-                                  style="-fx-control-inner-background: black; -fx-text-fill: white;"
-                                  VBox.vgrow="ALWAYS"/>
-                    </VBox>
+                        <top>
+                            <Label text="Log"/>
+                        </top>
+                        <center>
+                            <TextArea fx:id="logArea" editable="false" prefRowCount="8"
+                                      style="-fx-control-inner-background: black; -fx-text-fill: white;"/>
+                        </center>
+                        <bottom>
+                            <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                                <Label fx:id="progressLabel" text="Idle" wrapText="true" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                                <ProgressBar fx:id="progressBar" prefWidth="260.0" progress="0.0" />
+                            </HBox>
+                        </bottom>
+                    </BorderPane>
                 </bottom>
             </BorderPane>
         </SplitPane>

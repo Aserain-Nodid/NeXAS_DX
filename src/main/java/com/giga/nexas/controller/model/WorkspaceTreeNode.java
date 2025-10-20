@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 /**
- * Tree node wrapper for workspace data.
+ * 封装工作区数据的树节点模型。
  */
 @Getter
 @AllArgsConstructor
