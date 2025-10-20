@@ -99,4 +99,12 @@ public class BheBinService {
         int extensionIndex = fileName.lastIndexOf(".");
         return extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
     }
+
+    public Map<String, BheParser<?>> getParserMap() {
+        return new HashMap<>(parserMap);
+    }
+
+    public Map<String, BheGenerator<?>> getGeneratorMap() {
+        return new HashMap<>(generatorMap);
+    }
 }

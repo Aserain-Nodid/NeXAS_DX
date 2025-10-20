@@ -1,117 +1,391 @@
 package com.giga.nexas.controller;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.json.JSONUtil;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.giga.nexas.dto.ResponseDTO;
-import com.giga.nexas.dto.bsdx.Bsdx;
-import com.giga.nexas.dto.bsdx.bin.Bin;
-import com.giga.nexas.dto.bsdx.grp.Grp;
-import com.giga.nexas.dto.bsdx.mek.Mek;
-import com.giga.nexas.dto.bsdx.spm.Spm;
-import com.giga.nexas.dto.bsdx.waz.Waz;
-import com.giga.nexas.exception.OperationException;
-import com.giga.nexas.service.BsdxBinService;
-import com.giga.nexas.service.PacService;
+import com.giga.nexas.controller.model.*;
+import com.giga.nexas.service.engine.BinaryEngineAdapter;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
 import lombok.RequiredArgsConstructor;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
-import static com.giga.nexas.controller.consts.MainConst.*;
-
+/**
+ * Controller for action button operations.
+ */
 @RequiredArgsConstructor
 public class ActionButtonController {
 
     private final MainViewController view;
+    private final WorkspaceState state;
+    private final BranchGridController gridController;
+    private final Function<EngineType, BinaryEngineAdapter> adapterFactory;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "nexas-batch-worker");
+        t.setDaemon(true);
+        return t;
+    });
 
     public void bind() {
-        view.getActionButton().setOnAction(e -> {
-            File file = new File(view.getInputField().getText());
-            if (!file.exists()) {
-                view.getLogArea().appendText("⚠ invalid path\n");
-                return;
+        view.getActionButton().setOnAction(e -> runSelected());
+        view.getProcessAllButton().setOnAction(e -> runAll());
+        gridController.setActionHandler(this::handleCategoryAction);
+    }
+
+    public void handleCategoryAction(WorkspaceCategory category, BranchActionType actionType) {
+        if (category == null) {
+            logLater("No category available for action.");
+            return;
+        }
+        switch (actionType) {
+            case PARSE -> runCategoryBatch(List.of(category), true, false);
+            case GENERATE -> runCategoryBatch(List.of(category), false, true);
+        }
+    }
+
+    private void runSelected() {
+        TreeItem<WorkspaceTreeNode> selected = view.getTree().getSelectionModel().getSelectedItem();
+        if (selected == null || selected.getValue() == null) {
+            logLater("Select a category or file to run.");
+            return;
+        }
+        WorkspaceTreeNode node = selected.getValue();
+        WorkspaceCategory category = node.getCategory();
+        Path file = node.getFilePath();
+        WorkspaceNodeKind kind = node.getKind();
+
+        switch (kind) {
+            case FILE_BINARY -> runSingleParse(category, file);
+            case FILE_JSON -> runSingleGenerate(category, file);
+            case GROUP_BINARY -> runCategoryBatch(List.of(category), true, false);
+            case GROUP_JSON -> runCategoryBatch(List.of(category), false, true);
+            case CATEGORY -> runCategoryBatch(List.of(category), true, true);
+            case ROOT -> logLater("Select a category or file to run.");
+        }
+    }
+
+    private void runAll() {
+        List<WorkspaceCategory> categories = new ArrayList<>(state.getCategories());
+        if (categories.isEmpty()) {
+            logLater("Nothing to process. Load a directory first.");
+            return;
+        }
+        runCategoryBatch(categories, true, true);
+    }
+
+    private List<WorkspaceCategory> categoryAsList(WorkspaceCategory category) {
+        if (category == null) {
+            logLater("Select a valid category first.");
+            return List.of();
+        }
+        return List.of(category);
+    }
+
+    private void runCategoryBatch(List<WorkspaceCategory> categories, boolean runParse, boolean runGenerate) {
+        if (categories.isEmpty() || (!runParse && !runGenerate)) {
+            return;
+        }
+        BinaryEngineAdapter adapter = createAdapter();
+        String charset = resolveCharset();
+        Path inputRoot = state.getInputDirectory().get();
+        Path outputRoot = determineOutputRoot();
+
+        int totalOps = 0;
+        if (runParse) {
+            totalOps += categories.stream().mapToInt(c -> c.getBinaryFiles().size()).sum();
+        }
+        if (runGenerate) {
+            totalOps += categories.stream().mapToInt(c -> c.getJsonFiles().size()).sum();
+        }
+
+        if (totalOps == 0) {
+            initializeProgress(0);
+            logLater("No files matched the selected actions.");
+            return;
+        }
+
+        final int totalTasks = totalOps;
+        initializeProgress(totalTasks);
+        AtomicInteger completed = new AtomicInteger();
+        String label = buildLabel(runParse && runGenerate ? "Data batch" : (runParse ? "Parse" : "Generate"), categories.size());
+        runAsync(label, true, () -> {
+            BatchStats parseStats = new BatchStats();
+            BatchStats generateStats = new BatchStats();
+
+            for (WorkspaceCategory category : categories) {
+                if (runParse && category.isCanParse()) {
+                    parseCategory(adapter, category, inputRoot, outputRoot, charset, parseStats, completed, totalTasks);
+                }
+                if (runGenerate && category.isCanGenerate()) {
+                    generateCategory(adapter, category, inputRoot, outputRoot, charset, generateStats, completed, totalTasks);
+                }
             }
 
-            TreeItem<String> selected = view.getTree()
-                    .getSelectionModel()
-                    .getSelectedItem();
-            if (selected == null || selected.getParent() == null) {
-                view.getLogArea().appendText("⚠ please select an option！\n");
-                return;
+            if (runParse) {
+                logLater(summaryText("Parse", parseStats));
+                parseStats.failures().forEach(detail -> logLater(" - " + detail));
             }
-            String func = selected.getValue();
-
-            // 根据子功能名称调用对应方法
-            switch (func) {
-                case UNPAC -> unPac(file);
-                case PAC -> pac(file);
-                case PARSE -> parse(file);
-                case GENERATE -> generate(file);
-                default     -> view.getLogArea()
-                        .appendText("⚠ unknown option:\n " + func + "\n");
+            if (runGenerate) {
+                logLater(summaryText("Generate", generateStats));
+                generateStats.failures().forEach(detail -> logLater(" - " + detail));
             }
         });
     }
 
-    private void parse(File selectedFile) {
-        try {
-            BsdxBinService service = new BsdxBinService();
-            Object result = service.parse(selectedFile.getAbsolutePath(), "windows-31j").getData();
-            String json = JSONUtil.toJsonStr(result);
-            File outputFile = new File(view.getOutputField().getText(), FileUtil.getName(selectedFile) + ".json");
-            FileUtil.writeUtf8String(json, outputFile);
-            view.getLogArea().appendText("✔ parsing succeeded: \n" + selectedFile.getName() + "\n");
-            view.getLogArea().appendText("✔ JSON file written to:\n" + outputFile.getAbsolutePath() + "\n");
-        } catch (Exception e) {
-            view.getLogArea().appendText("⚠ parsing failed: \n" + e.getMessage() + "\n");
+    private void runSingleParse(WorkspaceCategory category, Path file) {
+        if (category == null || file == null) {
+            logLater("Select a binary file to parse.");
+            return;
+        }
+        BinaryEngineAdapter adapter = createAdapter();
+        String charset = resolveCharset();
+        Path inputRoot = state.getInputDirectory().get();
+        Path outputRoot = determineOutputRoot();
+
+        initializeProgress(1);
+        AtomicInteger completed = new AtomicInteger();
+        String label = "Parse " + file.getFileName();
+        runAsync(label, true, () -> {
+            String name = file.getFileName().toString();
+            try {
+                Path targetDir = resolveOutputDir(outputRoot, inputRoot, file);
+                adapter.parse(file, targetDir, charset);
+                logLater("Parsed " + name);
+            } catch (Exception ex) {
+                logLater("Parse failed for " + name + ": " + ex.getMessage());
+                throw rethrow(ex);
+            } finally {
+                int done = completed.incrementAndGet();
+                updateProgress(done, 1, name);
+            }
+        });
+    }
+
+    private void runSingleGenerate(WorkspaceCategory category, Path file) {
+        if (category == null || file == null) {
+            logLater("Select a JSON file to generate.");
+            return;
+        }
+        BinaryEngineAdapter adapter = createAdapter();
+        String charset = resolveCharset();
+        Path inputRoot = state.getInputDirectory().get();
+        Path outputRoot = determineOutputRoot();
+
+        initializeProgress(1);
+        AtomicInteger completed = new AtomicInteger();
+        String label = "Generate " + file.getFileName();
+        runAsync(label, true, () -> {
+            String name = file.getFileName().toString();
+            try {
+                Path targetDir = resolveOutputDir(outputRoot, inputRoot, file);
+                adapter.generate(file, targetDir, charset);
+                logLater("Generated binary from " + name);
+            } catch (Exception ex) {
+                logLater("Generation failed for " + name + ": " + ex.getMessage());
+                throw rethrow(ex);
+            } finally {
+                int done = completed.incrementAndGet();
+                updateProgress(done, 1, name);
+            }
+        });
+    }
+
+    private BinaryEngineAdapter createAdapter() {
+        return adapterFactory.apply(state.getEngineType().get());
+    }
+
+    private String resolveCharset() {
+        String charset = state.getCharset().get();
+        return charset != null ? charset : state.getEngineType().get().getDefaultCharset();
+    }
+
+    private void parseCategory(BinaryEngineAdapter adapter,
+                               WorkspaceCategory category,
+                               Path inputRoot,
+                               Path outputRoot,
+                               String charset,
+                               BatchStats stats,
+                               AtomicInteger completed,
+                               int totalTasks) {
+        for (Path file : category.getBinaryFiles()) {
+            String name = file.getFileName().toString();
+            try {
+                Path targetDir = resolveOutputDir(outputRoot, inputRoot, file);
+                adapter.parse(file, targetDir, charset);
+                stats.success();
+                logLater("Parsed " + name);
+            } catch (Exception ex) {
+                stats.failure("Parse failed for " + name + ": " + ex.getMessage());
+                logLater("Parse failed for " + name + ": " + ex.getMessage());
+            } finally {
+                int done = completed.incrementAndGet();
+                updateProgress(done, totalTasks, name);
+            }
         }
     }
 
-    private void generate(File selectedFile) {
-        try {
-            String jsonStr = FileUtil.readUtf8String(selectedFile);
-            ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-            Bsdx obj;
-            String ext = objectMapper.readValue(jsonStr, Bsdx.class).getExtensionName().toLowerCase();
-            obj = switch (ext) {
-                case WAZ_EXT -> objectMapper.readValue(jsonStr, Waz.class);
-                case MEK_EXT -> objectMapper.readValue(jsonStr, Mek.class);
-                case SPM_EXT -> objectMapper.readValue(jsonStr, Spm.class);
-                case GRP_EXT -> objectMapper.readValue(jsonStr, Grp.class);
-                case BIN_EXT -> objectMapper.readValue(jsonStr, Bin.class);
-                default -> throw new OperationException(500, "unsupported extension: \n" + ext);
-            };
-
-            File outputPath = new File(view.getOutputField().getText(), FileUtil.mainName(selectedFile));
-            new BsdxBinService().generate(outputPath.getAbsolutePath(), obj, "windows-31j");
-
-            view.getLogArea().appendText("✔ binary game file generated:\n" + outputPath.getAbsolutePath() + "\n");
-        } catch (Exception ex) {
-            view.getLogArea().appendText("⚠ generation failed: \n" + ex.getMessage() + "\n");
-            ex.printStackTrace();
+    private void generateCategory(BinaryEngineAdapter adapter,
+                                  WorkspaceCategory category,
+                                  Path inputRoot,
+                                  Path outputRoot,
+                                  String charset,
+                                  BatchStats stats,
+                                  AtomicInteger completed,
+                                  int totalTasks) {
+        for (Path file : category.getJsonFiles()) {
+            String name = file.getFileName().toString();
+            try {
+                Path targetDir = resolveOutputDir(outputRoot, inputRoot, file);
+                adapter.generate(file, targetDir, charset);
+                stats.success();
+                logLater("Generated binary from " + name);
+            } catch (Exception ex) {
+                stats.failure("Generation failed for " + name + ": " + ex.getMessage());
+                logLater("Generation failed for " + name + ": " + ex.getMessage());
+            } finally {
+                int done = completed.incrementAndGet();
+                updateProgress(done, totalTasks, name);
+            }
         }
     }
 
-    private void unPac(File input) {
-        try {
-            ResponseDTO result = new PacService().unPac(input.getAbsolutePath());
-            view.getLogArea().appendText("✔ unpack log:\n" + result.getMsg() + "\n");
-        } catch (Exception e) {
-            view.getLogArea().appendText("⚠ unpacking failed: \n" + e + "\n");
-            e.printStackTrace();
+    private Path resolveOutputDir(Path outputRoot, Path inputRoot, Path sourceFile) throws Exception {
+        if (outputRoot == null) {
+            throw new IllegalStateException("Output directory is not configured.");
         }
+        if (inputRoot != null) {
+            try {
+                Path relative = inputRoot.relativize(sourceFile).getParent();
+                if (relative != null) {
+                    Path target = outputRoot.resolve(relative);
+                    Files.createDirectories(target);
+                    return target;
+                }
+            } catch (IllegalArgumentException ignored) {
+                // If the relative path cannot be determined, fall back to the output root directory
+            }
+        }
+        Files.createDirectories(outputRoot);
+        return outputRoot;
     }
 
-    private void pac(File input) {
-        try {
-            ResponseDTO result = new PacService().pac(input.getAbsolutePath(), "4");
-            view.getLogArea().appendText("✔ pack log:\n" + result.getMsg() + "\n");
-        } catch (Exception e) {
-            view.getLogArea().appendText("⚠ packing failed: \n" + e + "\n");
-            e.printStackTrace();
+    private Path determineOutputRoot() {
+        Path output = state.getOutputDirectory().get();
+        if (output != null) {
+            return output;
+        }
+        Path input = state.getInputDirectory().get();
+        if (input != null) {
+            return input;
+        }
+        return Paths.get(".");
+    }
+
+    private void runAsync(String label, boolean hadWork, Runnable work) {
+        setButtonsDisabled(true);
+        updateStatus(label + " in progress...");
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                work.run();
+                return null;
+            }
+        };
+        task.setOnSucceeded(e -> {
+            setButtonsDisabled(false);
+            updateStatus(label + " completed.");
+            completeProgress(label + " completed.", hadWork);
+        });
+        task.setOnFailed(e -> {
+            setButtonsDisabled(false);
+            Throwable ex = task.getException();
+            updateStatus(label + " failed: " + (ex != null ? ex.getMessage() : "unknown error"));
+            if (ex != null) {
+                logLater("Operation failed: " + ex.getMessage());
+            }
+            completeProgress(label + " failed.", hadWork);
+        });
+        executor.submit(task);
+    }
+
+    private void updateStatus(String message) {
+        Platform.runLater(() -> view.getStatusLabel().setText(message));
+    }
+
+    private void setButtonsDisabled(boolean disabled) {
+        Platform.runLater(() -> {
+            view.getActionButton().setDisable(disabled);
+            view.getProcessAllButton().setDisable(disabled);
+        });
+    }
+
+    private void logLater(String text) {
+        Platform.runLater(() -> view.getLogArea().appendText(text + System.lineSeparator()));
+    }
+
+    private void initializeProgress(int total) {
+        Platform.runLater(() -> {
+            view.getProgressBar().setProgress(0);
+            view.getProgressLabel().setText(total <= 0 ? "Idle" : String.format("0 / %d", total));
+        });
+    }
+
+    private void updateProgress(int completed, int total, String currentName) {
+        Platform.runLater(() -> {
+            if (total <= 0) {
+                view.getProgressBar().setProgress(0);
+                view.getProgressLabel().setText("Idle");
+            } else {
+                double progress = Math.min(1.0, Math.max(0.0, completed / (double) total));
+                view.getProgressBar().setProgress(progress);
+                view.getProgressLabel().setText(String.format("%d / %d - %s", completed, total, currentName));
+            }
+        });
+    }
+
+    private void completeProgress(String message, boolean hadWork) {
+        Platform.runLater(() -> {
+            view.getProgressBar().setProgress(hadWork ? 1.0 : 0.0);
+            view.getProgressLabel().setText(message);
+        });
+    }
+
+    private String summaryText(String title, BatchStats stats) {
+        return title + " summary: success " + stats.success + ", failed " + stats.failed;
+    }
+
+    private String buildLabel(String action, int categoryCount) {
+        return action + " (" + categoryCount + " categories)";
+    }
+
+    private RuntimeException rethrow(Exception ex) {
+        return ex instanceof RuntimeException ? (RuntimeException) ex : new RuntimeException(ex);
+    }
+
+    private static class BatchStats {
+        private int success = 0;
+        private int failed = 0;
+        private final List<String> failureDetails = new ArrayList<>();
+
+        void success() {
+            success++;
+        }
+
+        void failure(String detail) {
+            failed++;
+            failureDetails.add(detail);
+        }
+
+        List<String> failures() {
+            return failureDetails;
         }
     }
 }

@@ -1,8 +1,14 @@
 package com.giga.nexas.controller;
 
+import com.giga.nexas.controller.model.EngineType;
+import com.giga.nexas.controller.model.WorkspaceState;
+import com.giga.nexas.controller.model.WorkspaceTreeNode;
+import com.giga.nexas.controller.support.DirectoryScanner;
+import com.giga.nexas.service.engine.BinaryEngineFactory;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.TilePane;
 import lombok.Getter;
 
 @Getter
@@ -10,42 +16,57 @@ public class MainViewController {
 
     @FXML private BorderPane root;
     @FXML private MenuBar menuBar;
-    @FXML private TreeView<String> tree;
+    @FXML private TreeView<WorkspaceTreeNode> tree;
     @FXML private Button inputBrowse;
     @FXML private Button outputBrowse;
     @FXML private TextField inputField;
     @FXML private TextField outputField;
     @FXML private TextArea logArea;
     @FXML private Button actionButton;
+    @FXML private Button processAllButton;
     @FXML private CheckBox alwaysOnTop;
     @FXML private CheckBox lockOutPutPath;
-    @FXML private RadioButton modePackRadio;
-    @FXML private RadioButton modeAnalyzeRadio;
+    @FXML private ProgressBar progressBar;
+    @FXML private Label progressLabel;
+    @FXML private ComboBox<EngineType> engineSelector;
+    @FXML private Label statusLabel;
+    @FXML private Label treeSummaryLabel;
+    @FXML private TilePane branchGrid;
+    @FXML private ScrollPane branchScroll;
+
+    private final WorkspaceState workspaceState = new WorkspaceState();
 
     @FXML
     public void initialize() {
-        // 绑定解包封包 控制当前操作模式
-        new ToggleModeController(this).bind();
+        WorkspaceState state = workspaceState;
+        progressLabel.setText("Idle");
+        progressBar.setProgress(0);
 
-        // 设置左侧模式树形结构切换内容
-        new ModeTreeController(this).setup();
+        ToggleModeController modeController = new ToggleModeController(this, state);
+        modeController.bind();
 
-        // 设置“设置”菜单栏及其弹出设置窗口逻辑
-        new SettingsMenuController(this).setup();
+        BranchGridController gridController = new BranchGridController(this, state);
+        gridController.setup();
 
-        // 设置日志区域的右键菜单（如清空日志）
-        new LogContextMenuController(this).setup();
+        ModeTreeController treeController = new ModeTreeController(this, state, gridController);
+        treeController.setup();
 
-        // 设置“输入”、“输出”路径选择按钮及其默认输出路径逻辑
-        new FilePickerController(this).setup();
+        FilePickerController pickerController = new FilePickerController(this, state, new DirectoryScanner());
+        pickerController.setup();
 
-        // 实现“总在最前”复选框控制窗口置顶状态
-        new AlwaysOnTopController(this).bind();
+        DragAndDropController dragAndDropController = new DragAndDropController(this, pickerController);
+        dragAndDropController.setup();
 
-        // 绑定“开始”按钮，执行解包 / 封包操作
-        new ActionButtonController(this).bind();
+        SettingsMenuController settingsMenuController = new SettingsMenuController(this, state);
+        settingsMenuController.setup();
 
+        LogContextMenuController logContextMenuController = new LogContextMenuController(this);
+        logContextMenuController.setup();
 
+        AlwaysOnTopController alwaysOnTopController = new AlwaysOnTopController(this);
+        alwaysOnTopController.bind();
+
+        ActionButtonController actionController = new ActionButtonController(this, state, gridController, BinaryEngineFactory::create);
+        actionController.bind();
     }
-
 }

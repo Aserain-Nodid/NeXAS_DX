@@ -105,4 +105,12 @@ public class BsdxBinService {
         int extensionIndex = fileName.lastIndexOf(".");
         return extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
     }
+
+    public Map<String, BsdxParser<?>> getParserMap() {
+        return new HashMap<>(parserMap);
+    }
+
+    public Map<String, BsdxGenerator<?>> getGeneratorMap() {
+        return new HashMap<>(generatorMap);
+    }
 }

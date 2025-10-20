@@ -1,7 +1,7 @@
 package com.giga.nexas.controller.consts;
 
 /**
- * @Author 这位同学(Karaik)
+ * @Author 鏉╂瑤缍呴崥灞筋劅(Karaik)
  * @Date 2025/5/5
  * @Description MainConst
  */

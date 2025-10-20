@@ -1,69 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
 <BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml" fx:controller="com.giga.nexas.controller.MainViewController">
 
     <top>
-        <HBox spacing="10.0" alignment="CENTER_LEFT">
+        <VBox spacing="6.0">
             <padding>
-                <Insets top="6.0" right="10.0" bottom="6.0" left="10.0"/>
+                <Insets top="8.0" right="12.0" bottom="6.0" left="12.0"/>
             </padding>
 
-            <MenuBar fx:id="menuBar">
-                <menus>
-                    <Menu text="Settings"/>
-                </menus>
-            </MenuBar>
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <MenuBar fx:id="menuBar">
+                    <menus>
+                        <Menu text="Settings"/>
+                    </menus>
+                </MenuBar>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <CheckBox fx:id="alwaysOnTop" text="Always on Top"/>
+            </HBox>
 
-            <RadioButton fx:id="modePackRadio" text="Pack or Unpack"/>
-            <RadioButton fx:id="modeAnalyzeRadio" text="Parse or Generate" selected="true"/>
-            <Pane HBox.hgrow="ALWAYS"/>
-            <CheckBox fx:id="alwaysOnTop" text="Always on Top"/>
-        </HBox>
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Label text="Engine"/>
+                <ComboBox fx:id="engineSelector" prefWidth="220.0"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Label fx:id="statusLabel" text="Ready"/>
+            </HBox>
+        </VBox>
     </top>
+
     <center>
-        <SplitPane dividerPositions="0.25">
-            <TreeView fx:id="tree" prefWidth="300.0"/>
-
-            <VBox spacing="10.0" VBox.vgrow="ALWAYS">
-                <padding>
-                    <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
-                </padding>
-
-                <VBox spacing="10.0" VBox.vgrow="ALWAYS">
-                    <GridPane hgap="6.0" vgap="6.0">
-                        <columnConstraints>
-                            <ColumnConstraints halignment="RIGHT" prefWidth="60.0"/>
-                            <ColumnConstraints hgrow="ALWAYS"/>
-                            <ColumnConstraints prefWidth="32.0"/>
-                        </columnConstraints>
-
-                        <Label text="Input" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                        <TextField fx:id="inputField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                        <Button fx:id="inputBrowse" text="…" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-
-                        <Label text="Output" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                        <TextField fx:id="outputField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                        <Button fx:id="outputBrowse" text="…" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-                    </GridPane>
-
-                    <HBox alignment="CENTER_RIGHT">
-                        <CheckBox fx:id="lockOutPutPath" text="Lock output path" />
-                        <Button fx:id="actionButton" text="Start" minWidth="80">
-                            <HBox.margin>
-                                <Insets left="12"/>
-                            </HBox.margin>
-                        </Button>
-                    </HBox>
-                </VBox>
-
-                <Label text="Log"/>
-                <TextArea fx:id="logArea" editable="false" prefRowCount="8"
-                          VBox.vgrow="ALWAYS"
-                          style="-fx-control-inner-background: black; -fx-text-fill: white;"/>
+        <SplitPane dividerPositions="0.27">
+            <VBox spacing="8.0" prefWidth="260.0">
+                <Label text="Workspace Tree"/>
+                <TreeView fx:id="tree" VBox.vgrow="ALWAYS"/>
+                <Label fx:id="treeSummaryLabel" text="Select a directory to begin." wrapText="true"/>
             </VBox>
+
+            <BorderPane>
+                <top>
+                    <VBox spacing="8.0">
+                        <GridPane hgap="8.0" vgap="8.0">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="RIGHT" prefWidth="110.0"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                                <ColumnConstraints prefWidth="40.0"/>
+                            </columnConstraints>
+
+                            <Label text="Input directory" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="inputField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                            <Button fx:id="inputBrowse" text="..." GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+
+                            <Label text="Output base" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <TextField fx:id="outputField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                            <Button fx:id="outputBrowse" text="..." GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                        </GridPane>
+
+                        <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                            <CheckBox fx:id="lockOutPutPath" text="Lock output path"/>
+                            <Button fx:id="actionButton" text="Run selected" minWidth="110.0"/>
+                            <Button fx:id="processAllButton" text="Run all" minWidth="90.0"/>
+                        </HBox>
+                        <VBox spacing="4.0">
+                            <ProgressBar fx:id="progressBar" prefWidth="400.0" progress="0.0"/>
+                            <Label fx:id="progressLabel" text="Idle"/>
+                        </VBox>
+                    </VBox>
+                </top>
+
+                <center>
+                    <ScrollPane fx:id="branchScroll" fitToWidth="true">
+                        <BorderPane.margin>
+                            <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+                        </BorderPane.margin>
+                        <content>
+                            <TilePane fx:id="branchGrid" hgap="12.0" vgap="12.0" prefColumns="2">
+                                <padding>
+                                    <Insets top="4.0" right="4.0" bottom="4.0" left="4.0"/>
+                                </padding>
+                            </TilePane>
+                        </content>
+                    </ScrollPane>
+                </center>
+
+                <bottom>
+                    <VBox spacing="6.0">
+                        <padding>
+                            <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+                        </padding>
+                        <Label text="Log"/>
+                        <TextArea fx:id="logArea" editable="false" prefRowCount="8"
+                                  style="-fx-control-inner-background: black; -fx-text-fill: white;"
+                                  VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </bottom>
+            </BorderPane>
         </SplitPane>
     </center>
 
