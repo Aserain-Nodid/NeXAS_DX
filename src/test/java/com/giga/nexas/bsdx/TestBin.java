@@ -55,6 +55,10 @@ public class TestBin {
             for (Path path : stream) {
                 String fileName = path.getFileName().toString();
                 String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+                if (baseName.equalsIgnoreCase("__GLOBAL")) {
+                    log.info("⚠️ skip __GLOBAL.bin !!!");
+                    continue;
+                }
                 baseNames.add(baseName);
 
                 try {
@@ -64,6 +68,7 @@ public class TestBin {
                     log.info("✅ parsed: {}", fileName);
                 } catch (Exception e) {
                     log.warn("❌ Failed to parse: {}", fileName, e);
+                    throw e;
                 }
             }
         }

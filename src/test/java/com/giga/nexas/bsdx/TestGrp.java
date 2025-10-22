@@ -54,6 +54,7 @@ public class TestGrp {
                     allGrpList.add(grp);
                 } catch (Exception e) {
                     log.warn("❌ Failed to parse: {}", fileName, e);
+                    throw e;
                 }
             }
         }

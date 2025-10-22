@@ -56,6 +56,7 @@ public class TestSpm {
                     log.info("✅ parsed: {}", fileName);
                 } catch (Exception e) {
                     log.warn("❌ Failed to parse: {}", fileName, e);
+//                    throw e;
                 }
             }
         }

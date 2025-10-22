@@ -5,7 +5,7 @@
 
     <groupId>com.nexas.dx</groupId>
     <artifactId>NeXAS_DX</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <name>NeXASConverter</name>
 
     <!-- ========= common properties ========= -->
@@ -177,6 +177,7 @@
                         <include>**/bsdx/TestGrp.java</include>
                         <include>**/bsdx/TestMek.java</include>
                         <include>**/bsdx/TestSpm.java</include>
+                        <include>**/bsdx/TestWaz.java</include>
                     </includes>
                 </configuration>
             </plugin>

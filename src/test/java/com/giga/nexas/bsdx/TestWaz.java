@@ -54,6 +54,7 @@ public class TestWaz {
                     allWazList.add(waz);
                 } catch (Exception e) {
                     log.warn("❌ Failed to parse: {}", fileName, e);
+                    throw e;
                 }
             }
         }

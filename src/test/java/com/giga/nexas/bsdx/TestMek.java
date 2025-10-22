@@ -54,6 +54,7 @@ public class TestMek {
                     allMekList.add(mek);
                 } catch (Exception e) {
                     log.warn("❌ Failed to parse: {}", fileName, e);
+                    throw e;
                 }
             }
         }
