@@ -1,4 +1,4 @@
-package com.giga.nexas.bsdx;
+package com.giga.nexas.bsdx.tmp;
 
 import cn.hutool.core.util.StrUtil;
 import com.giga.nexas.dto.ResponseDTO;

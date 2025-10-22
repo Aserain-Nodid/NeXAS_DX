@@ -1,4 +1,4 @@
-package com.giga.nexas.bsdx;
+package com.giga.nexas.bsdx.tmp;
 
 import com.giga.nexas.dto.bsdx.mek.Mek;
 import lombok.Data;
