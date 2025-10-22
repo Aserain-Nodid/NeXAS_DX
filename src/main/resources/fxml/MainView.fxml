@@ -12,11 +12,13 @@
             </padding>
 
             <HBox spacing="10.0" alignment="CENTER_LEFT">
-<!--                <MenuBar fx:id="menuBar">-->
-<!--                    <menus>-->
-<!--                        <Menu text="Settings"/>-->
-<!--                    </menus>-->
-<!--                </MenuBar>-->
+                <!--
+                <MenuBar fx:id="menuBar">
+                    <menus>
+                        <Menu text="Settings"/>
+                    </menus>
+                </MenuBar>
+                -->
 
                 <VBox spacing="4.0">
                     <HBox spacing="10.0" alignment="CENTER_LEFT">
@@ -35,9 +37,9 @@
 
     <center>
         <SplitPane dividerPositions="0.27">
+
             <VBox spacing="8.0" prefWidth="260.0">
                 <TreeView fx:id="tree" VBox.vgrow="ALWAYS"/>
-                <Label fx:id="treeSummaryLabel" text="Select a directory to begin." wrapText="true"/>
             </VBox>
 
             <BorderPane>
@@ -47,26 +49,26 @@
                             <Insets top="12.0" right="16.0" bottom="12.0" left="16.0"/>
                         </padding>
 
-                        <VBox spacing="8.0" maxWidth="620.0" fillWidth="true">
+                        <VBox spacing="8.0" maxWidth="Infinity" fillWidth="true" StackPane.alignment="TOP_LEFT">
                             <GridPane hgap="8.0" vgap="8.0">
                                 <columnConstraints>
-                                    <ColumnConstraints halignment="RIGHT" prefWidth="110.0"/>
+                                    <ColumnConstraints halignment="RIGHT" prefWidth="45.0"/>
                                     <ColumnConstraints hgrow="ALWAYS"/>
                                     <ColumnConstraints prefWidth="40.0"/>
                                 </columnConstraints>
 
-                                <Label text="Input directory" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <Label text="Input" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                                 <TextField fx:id="inputField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
                                 <Button fx:id="inputBrowse" text="..." GridPane.rowIndex="0" GridPane.columnIndex="2"/>
 
-                                <Label text="Output base" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <Label text="Output" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                                 <TextField fx:id="outputField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
                                 <Button fx:id="outputBrowse" text="..." GridPane.rowIndex="1" GridPane.columnIndex="2"/>
                             </GridPane>
 
                             <HBox spacing="10.0" alignment="CENTER_RIGHT">
                                 <CheckBox fx:id="lockOutPutPath" text="Lock output path"/>
-<!--                                <Button fx:id="actionButton" text="Run selected" minWidth="110.0"/>-->
+                                <Button fx:id="actionButton" text="Run selected" minWidth="110.0"/>
                                 <Button fx:id="processAllButton" text="Run all" minWidth="90.0"/>
                             </HBox>
                         </VBox>
@@ -88,6 +90,7 @@
                     </ScrollPane>
                 </center>
 
+                <!-- 右侧面板：去掉原来的 bottom 状态行，仅保留 Log 区域 -->
                 <bottom>
                     <BorderPane>
                         <padding>
@@ -100,16 +103,28 @@
                             <TextArea fx:id="logArea" editable="false" prefRowCount="8"
                                       style="-fx-control-inner-background: black; -fx-text-fill: white;"/>
                         </center>
-                        <bottom>
-                            <HBox spacing="10.0" alignment="CENTER_RIGHT">
-                                <Label fx:id="progressLabel" text="Idle" wrapText="true" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                                <ProgressBar fx:id="progressBar" prefWidth="260.0" progress="0.0" />
-                            </HBox>
-                        </bottom>
                     </BorderPane>
                 </bottom>
             </BorderPane>
         </SplitPane>
     </center>
+
+    <bottom>
+        <HBox spacing="10.0" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="6.0" right="10.0" bottom="6.0" left="10.0"/>
+            </padding>
+
+            <Label fx:id="treeSummaryLabel"
+                   text="Select a directory to begin."
+                   wrapText="true"
+                   maxWidth="Infinity"
+                   HBox.hgrow="ALWAYS"/>
+
+            <Label fx:id="progressLabel" wrapText="true"/>
+
+            <ProgressBar fx:id="progressBar" prefWidth="260.0" progress="0.0"/>
+        </HBox>
+    </bottom>
 
 </BorderPane>

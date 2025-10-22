@@ -35,6 +35,7 @@ public class ActionButtonController {
     });
 
     public void bind() {
+        view.getActionButton().setOnAction(e -> runSelected());
         view.getProcessAllButton().setOnAction(e -> runAll());
         gridController.setActionHandler(this::handleCardRequest);
     }
@@ -318,6 +319,7 @@ public class ActionButtonController {
 
     private void setButtonsDisabled(boolean disabled) {
         Platform.runLater(() -> {
+            view.getActionButton().setDisable(disabled);
             view.getProcessAllButton().setDisable(disabled);
         });
     }
@@ -329,7 +331,7 @@ public class ActionButtonController {
     private void initializeProgress(int total) {
         Platform.runLater(() -> {
             view.getProgressBar().setProgress(0);
-            view.getProgressLabel().setText(total <= 0 ? "Idle" : String.format("0 / %d", total));
+            view.getProgressLabel().setText(total <= 0 ? "ERROR" : String.format("0 / %d", total));
         });
     }
 
@@ -337,7 +339,6 @@ public class ActionButtonController {
         Platform.runLater(() -> {
             if (total <= 0) {
                 view.getProgressBar().setProgress(0);
-                view.getProgressLabel().setText("Idle");
             } else {
                 double progress = Math.min(1.0, Math.max(0.0, completed / (double) total));
                 view.getProgressBar().setProgress(progress);

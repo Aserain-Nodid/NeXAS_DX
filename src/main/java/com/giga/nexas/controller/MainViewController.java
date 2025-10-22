@@ -39,7 +39,6 @@ public class MainViewController {
     @FXML
     public void initialize() {
         WorkspaceState state = workspaceState;
-        progressLabel.setText("Idle");
         progressBar.setProgress(0);
 
         ToggleModeController modeController = new ToggleModeController(this, state);
