@@ -1,7 +1,10 @@
 package com.giga.nexas.bsdx;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.json.JSONUtil;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giga.nexas.dto.ResponseDTO;
 import com.giga.nexas.dto.bsdx.bin.Bin;
 import com.giga.nexas.service.BsdxBinService;
@@ -29,116 +32,110 @@ import java.util.Map;
 public class TestBin {
 
     private static final Logger log = LoggerFactory.getLogger(TestBin.class);
-    private static final Path BIN_DIR = Paths.get("src/main/resources/game/bsdx/bin");
-    private static final Path OUTPUT_DIR = Paths.get("src/main/resources/binJson");
-
     private final BsdxBinService bsdxBinService = new BsdxBinService();
+
+    private static final String CHARSET = "windows-31j";
+
+    private static final Path GAME_BIN_DIR   = Paths.get("src/main/resources/game/bsdx/bin");
+    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/binBsdxJson");
+    private static final Path BIN_OUTPUT_DIR  = Paths.get("src/main/resources/binBsdxGenerated");
+
+    private static final String BIN_EXT = ".bin";
+    private static final String GENERATED_SUFFIX = ".generated"; // 所有生成的二进制都带这个后缀（放在扩展名后面）
 
     @Test
     @Order(1)
-    public void testGenerateBinJsonFiles() throws IOException {
-        if (!Files.exists(BIN_DIR)) {
-            log.error("❌ Bin 目录不存在: {}", BIN_DIR);
-            return;
-        }
-
-        Files.createDirectories(OUTPUT_DIR);
+    void testGenerateBinJsonFiles() throws IOException {
         List<Bin> allBinList = new ArrayList<>();
         List<String> baseNames = new ArrayList<>();
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(BIN_DIR, "*.bin")) {
+        Files.createDirectories(JSON_OUTPUT_DIR);
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(GAME_BIN_DIR, "*" + BIN_EXT)) {
             for (Path path : stream) {
-                String fileName = URLDecoder.decode(path.getFileName().toString(), StandardCharsets.UTF_8);
+                String fileName = path.getFileName().toString();
                 String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
-                if (baseName.equalsIgnoreCase("__GLOBAL")) {
-                    continue;
-                }
                 baseNames.add(baseName);
 
                 try {
-                    ResponseDTO parse = bsdxBinService.parse(path.toString(), "windows-31j");
-                    Bin bin = (Bin) parse.getData();
-                    if (bin != null) {
-                        allBinList.add(bin);
-                    } else {
-                        log.info("⚠️ 解析为空: " + fileName);
-                    }
+                    ResponseDTO dto = bsdxBinService.parse(path.toString(), CHARSET);
+                    Bin bin = (Bin) dto.getData();
+                    allBinList.add(bin);
+                    log.info("✅ parsed: {}", fileName);
                 } catch (Exception e) {
-                    log.error("❌ 解析失败: {} - {}", fileName, e.getMessage());
-                    throw e;
+                    log.warn("❌ Failed to parse: {}", fileName, e);
                 }
             }
         }
 
-        log.info("✅ bin 文件总数: " + allBinList.size());
-
         for (int i = 0; i < allBinList.size(); i++) {
             Bin bin = allBinList.get(i);
             String jsonStr = JSONUtil.toJsonStr(bin);
-            if (jsonStr == null) continue;
-
-            Path outputPath = OUTPUT_DIR.resolve(baseNames.get(i) + ".json");
-            FileUtil.writeUtf8String(jsonStr, outputPath.toFile());
-            log.info("✅ 导出 JSON: {}", outputPath);
+            Path jsonPath = JSON_OUTPUT_DIR.resolve(baseNames.get(i) + BIN_EXT + ".json");
+            FileUtil.writeUtf8String(jsonStr, jsonPath.toFile());
+            log.info("✅ Exported: {}", jsonPath);
         }
     }
 
     @Test
     @Order(2)
-    void testGenerateGlobalJsonFile() throws IOException {
-        Path globalPath = BIN_DIR.resolve("__GLOBAL.bin");
-        if (!Files.exists(globalPath)) {
-            System.err.println("❌ 未找到 __GLOBAL.bin 文件: " + globalPath);
-            return;
+    void testGenerateBinFilesByJson() throws IOException {
+        Files.createDirectories(BIN_OUTPUT_DIR);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(JSON_OUTPUT_DIR, "*.json")) {
+            for (Path path : stream) {
+                String fileName = path.getFileName().toString();
+                // 期望 JSON 文件名：<basename>.bin.json
+                String baseName = fileName.endsWith(BIN_EXT + ".json")
+                        ? fileName.substring(0, fileName.length() - (BIN_EXT + ".json").length())
+                        : fileName.substring(0, fileName.lastIndexOf('.'));
+
+                String jsonStr = FileUtil.readUtf8String(path.toFile());
+                Bin bin = mapper.readValue(jsonStr, Bin.class);
+
+                // 生成的二进制统一命名：<basename>.bin.generated
+                Path output = BIN_OUTPUT_DIR.resolve(baseName + BIN_EXT + GENERATED_SUFFIX);
+                bsdxBinService.generate(output.toString(), bin, CHARSET);
+                log.info("✅ Generated: {}", output);
+            }
         }
-
-        byte[] data = FileUtil.readBytes(globalPath.toFile());
-        com.giga.nexas.dto.bsdx.bin.parser.GLOBALParser parser = new com.giga.nexas.dto.bsdx.bin.parser.GLOBALParser();
-        com.giga.nexas.dto.bsdx.bin.GLOBAL global = parser.parse(data, "__GLOBAL", "windows-31j");
-
-        String jsonStr = JSONUtil.toJsonStr(global);
-        Path outputPath = OUTPUT_DIR.resolve("__GLOBAL.json");
-        FileUtil.writeUtf8String(jsonStr, outputPath.toFile());
-
-        System.out.println("✅ 导出 __GLOBAL.json: " + outputPath);
     }
 
     @Test
     @Order(3)
     void testBinParseGenerateBinaryConsistency() throws IOException {
-        Path BIN_OUTPUT_DIR = Paths.get("src/main/resources/binGenerated");
         Map<String, Path> generatedMap = new HashMap<>();
-        if (Files.exists(BIN_OUTPUT_DIR)) {
-            try (DirectoryStream<Path> genStream = Files.newDirectoryStream(BIN_OUTPUT_DIR, "*.generated.bin")) {
-                for (Path gen : genStream) {
-                    generatedMap.put(gen.getFileName().toString(), gen);
-                }
+        try (DirectoryStream<Path> genStream = Files.newDirectoryStream(BIN_OUTPUT_DIR, "*" + BIN_EXT + GENERATED_SUFFIX)) {
+            for (Path gen : genStream) {
+                String genName = gen.getFileName().toString();
+                String originalName = genName.replace(GENERATED_SUFFIX, "");
+                generatedMap.put(originalName, gen);
             }
         }
 
-        Path mismatchDir = BIN_OUTPUT_DIR.resolve("mismatch");
-        Files.createDirectories(mismatchDir);
+        boolean anyIssue = false;
+        int compared = 0;
+        int matched = 0;
 
-        try (DirectoryStream<Path> oriStream = Files.newDirectoryStream(BIN_DIR, "*.bin")) {
+        try (DirectoryStream<Path> oriStream = Files.newDirectoryStream(GAME_BIN_DIR, "*" + BIN_EXT)) {
             for (Path ori : oriStream) {
-                String oriName = ori.getFileName().toString();
-                if ("__GLOBAL.bin".equals(oriName)) {
-                    log.info("Skip GLOBAL bin: {}", ori);
-                    continue;
-                }
-
-                String genName = oriName.replace(".bin", ".generated.bin");
-                Path gen = generatedMap.get(genName);
+                compared++;
+                String name = ori.getFileName().toString();
+                Path gen = generatedMap.get(name);
                 if (gen == null) {
-                    log.warn("Not Found generated file for: {}", oriName);
+                    anyIssue = true;
+                    log.error("❌ Generated file not found for original: {}", name);
                     continue;
                 }
 
                 byte[] originalBytes = FileUtil.readBytes(ori.toFile());
                 byte[] generatedBytes = FileUtil.readBytes(gen.toFile());
 
-                if (!java.util.Arrays.equals(originalBytes, generatedBytes)) {
-                    log.error("Mismatch: {}", genName);
+                if (!ArrayUtil.equals(originalBytes, generatedBytes)) {
+                    anyIssue = true;
+                    log.error("❌ Mismatch: {}", name);
                     int minLen = Math.min(originalBytes.length, generatedBytes.length);
                     for (int i = 0; i < minLen; i++) {
                         if (originalBytes[i] != generatedBytes[i]) {
@@ -149,16 +146,30 @@ public class TestBin {
                             break;
                         }
                     }
-                    if (originalBytes.length != generatedBytes.length) {
-                        log.error("Length diff: orig={} gen={}", originalBytes.length, generatedBytes.length);
-                    }
-                    String newName = gen.getFileName().toString().replace(".generated", "");
-                    Path target = mismatchDir.resolve(newName);
-                    Files.move(gen, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                    log.warn("Moved mismatch file to: {}", target);
                 } else {
-                    log.info("Matched: {}", genName);
+                    matched++;
+                    log.info("✅ Match: {}", name);
                 }
+            }
+        }
+
+        double rate = compared > 0 ? (matched * 1.0 / compared) : 0.0;
+        log.info("Matched {}/{} ({})", matched, compared, String.format("%.2f%%", rate * 100.0));
+
+        if (compared > 0 && rate >= 0.90) {
+            if (Files.exists(JSON_OUTPUT_DIR)) {
+                FileUtil.del(JSON_OUTPUT_DIR.toFile());
+                log.info("🧹 Removed: {}", JSON_OUTPUT_DIR.toAbsolutePath());
+            }
+            if (Files.exists(BIN_OUTPUT_DIR)) {
+                FileUtil.del(BIN_OUTPUT_DIR.toFile());
+                log.info("🧹 Removed: {}", BIN_OUTPUT_DIR.toAbsolutePath());
+            }
+        } else {
+            if (anyIssue) {
+                Assertions.fail("Success rate below 90%. Outputs retained for inspection.");
+            } else {
+                Assertions.fail("No files compared. Check inputs/outputs before cleanup.");
             }
         }
     }
@@ -166,16 +177,16 @@ public class TestBin {
     @Test
     @Disabled
     public void testOutputIR() throws IOException {
-        if (!Files.exists(BIN_DIR)) {
-            log.error("❌ Bin 目录不存在: {}", BIN_DIR);
+        if (!Files.exists(GAME_BIN_DIR)) {
+            log.error("❌ Bin 目录不存在: {}", GAME_BIN_DIR);
             return;
         }
 
-        Files.createDirectories(OUTPUT_DIR);
+        Files.createDirectories(JSON_OUTPUT_DIR);
         List<Bin> allBinList = new ArrayList<>();
         List<String> baseNames = new ArrayList<>();
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(BIN_DIR, "*.bin")) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(GAME_BIN_DIR, "*.bin")) {
             for (Path path : stream) {
                 String fileName = URLDecoder.decode(path.getFileName().toString(), StandardCharsets.UTF_8);
                 String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
@@ -203,7 +214,7 @@ public class TestBin {
             String jsonStr = JSONUtil.toJsonStr(bin);
             if (jsonStr == null) continue;
 
-            Path outputPath = OUTPUT_DIR.resolve(baseNames.get(i) + ".json");
+            Path outputPath = JSON_OUTPUT_DIR.resolve(baseNames.get(i) + ".json");
             FileUtil.writeUtf8String(jsonStr, outputPath.toFile());
             log.info("✅ 导出 bin 内的IR: {}", outputPath);
         }
@@ -212,16 +223,16 @@ public class TestBin {
     @Test
     @Disabled
     void testOutputInstructions() throws IOException {
-        if (!Files.exists(BIN_DIR)) {
-            log.error("❌ Bin 目录不存在: {}", BIN_DIR);
+        if (!Files.exists(GAME_BIN_DIR)) {
+            log.error("❌ Bin 目录不存在: {}", GAME_BIN_DIR);
             return;
         }
 
-        Files.createDirectories(OUTPUT_DIR);
+        Files.createDirectories(JSON_OUTPUT_DIR);
         List<List<Bin.Instruction>> allInstructionList = new ArrayList<>();
         List<String> baseNames = new ArrayList<>();
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(BIN_DIR, "*.bin")) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(GAME_BIN_DIR, "*.bin")) {
             for (Path path : stream) {
                 String fileName = URLDecoder.decode(path.getFileName().toString(), StandardCharsets.UTF_8);
                 String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
@@ -254,37 +265,10 @@ public class TestBin {
             }
             if (instructionStr.isEmpty()) continue;
 
-            Path outputPath = OUTPUT_DIR.resolve(baseNames.get(i) + ".txt");
+            Path outputPath = JSON_OUTPUT_DIR.resolve(baseNames.get(i) + ".txt");
             FileUtil.writeUtf8String(instructionStr.toString(), outputPath.toFile());
             log.info("✅ 导出 JSON: {}", outputPath);
         }
     }
 
-    @Test
-    @Disabled
-    void testGenerateBinFilesByJson() throws IOException {
-        Path BIN_OUTPUT_DIR = Paths.get("src/main/resources/binGenerated");
-        Files.createDirectories(BIN_OUTPUT_DIR);
-
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(OUTPUT_DIR, "*.json")) {
-            for (Path path : stream) {
-                String fileName = path.getFileName().toString();
-                String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
-
-                if ("__GLOBAL".equals(baseName)) {
-                    log.info("Skip GLOBAL json: {}", path);
-                    continue;
-                }
-
-                String jsonStr = FileUtil.readUtf8String(path.toFile());
-                com.giga.nexas.dto.bsdx.bin.Bin bin = JSONUtil.toBean(jsonStr, com.giga.nexas.dto.bsdx.bin.Bin.class);
-
-                Path output = BIN_OUTPUT_DIR.resolve(baseName + ".generated.bin");
-                String charset = (bin != null && bin.getCharset() != null) ? bin.getCharset() : "windows-31j";
-
-                bsdxBinService.generate(output.toString(), bin, charset);
-                log.info("Generated: {}", output);
-            }
-        }
-    }
 }
