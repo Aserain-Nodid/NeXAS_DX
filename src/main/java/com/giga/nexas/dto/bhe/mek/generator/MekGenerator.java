@@ -1,5 +1,6 @@
 package com.giga.nexas.dto.bhe.mek.generator;
 
+import cn.hutool.core.io.FileUtil;
 import com.giga.nexas.dto.bhe.mek.Mek;
 import com.giga.nexas.dto.bhe.mek.mekcpu.CCpuEvent;
 import com.giga.nexas.dto.bhe.BheGenerator;
@@ -23,10 +24,8 @@ public class MekGenerator implements BheGenerator<Mek> {
     @Override
     public void generate(String path, Mek mek, String charset) throws IOException {
 
-        File originalFile   = new File(path);
-        String parentDir    = originalFile.getParent();
-        String fileNameBase = originalFile.getName().replaceFirst("\\.mek$", "");
-        File newFile        = new File(parentDir, fileNameBase + ".mek");
+        FileUtil.mkdir(FileUtil.getParent(path, 1));
+        File newFile = new File(path);
 
         // 区块序列化为byte[]
         byte[] bodyInfoBlock     = serializeMekBasicInfo(mek, charset);
