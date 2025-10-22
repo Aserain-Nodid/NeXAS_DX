@@ -38,17 +38,6 @@ public class ModeTreeController {
                 }
             }
         });
-        tree.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                TreeItem<WorkspaceTreeNode> selected = tree.getSelectionModel().getSelectedItem();
-                if (selected != null) {
-                    WorkspaceNodeKind kind = selected.getValue().getKind();
-                    if (kind == WorkspaceNodeKind.FILE_BINARY || kind == WorkspaceNodeKind.FILE_JSON) {
-                        view.getActionButton().fire();
-                    }
-                }
-            }
-        });
 
         state.getCategories().addListener((ListChangeListener<WorkspaceCategory>) change -> rebuildTree());
         state.getInputDirectory().addListener((obs, oldPath, newPath) -> rebuildTree());

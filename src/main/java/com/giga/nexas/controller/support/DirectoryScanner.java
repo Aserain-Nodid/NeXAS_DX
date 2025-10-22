@@ -23,12 +23,9 @@ public class DirectoryScanner {
         Map<String, List<Path>> jsonMap = new ConcurrentHashMap<>();
         Set<String> parseExts = engineType.getParseExtensions();
 
-        Files.walkFileTree(root, new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                if (!attrs.isRegularFile()) {
-                    return FileVisitResult.CONTINUE;
-                }
+        // 仅扫描根目录下的直接文件（非递归）
+        try (var stream = Files.list(root)) {
+            stream.filter(Files::isRegularFile).forEach(file -> {
                 String name = file.getFileName().toString();
                 String lower = name.toLowerCase(Locale.ROOT);
 
@@ -37,7 +34,7 @@ public class DirectoryScanner {
                         .findFirst();
                 if (matchedBinary.isPresent()) {
                     binaryMap.computeIfAbsent(matchedBinary.get(), k -> new ArrayList<>()).add(file);
-                    return FileVisitResult.CONTINUE;
+                    return;
                 }
 
                 for (String ext : parseExts) {
@@ -47,9 +44,8 @@ public class DirectoryScanner {
                         break;
                     }
                 }
-                return FileVisitResult.CONTINUE;
-            }
-        });
+            });
+        }
 
         Set<String> allExts = new HashSet<>();
         allExts.addAll(binaryMap.keySet());

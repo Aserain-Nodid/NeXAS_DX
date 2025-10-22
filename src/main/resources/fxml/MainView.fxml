@@ -12,58 +12,65 @@
             </padding>
 
             <HBox spacing="10.0" alignment="CENTER_LEFT">
-                <MenuBar fx:id="menuBar">
-                    <menus>
-                        <Menu text="Settings"/>
-                    </menus>
-                </MenuBar>
+<!--                <MenuBar fx:id="menuBar">-->
+<!--                    <menus>-->
+<!--                        <Menu text="Settings"/>-->
+<!--                    </menus>-->
+<!--                </MenuBar>-->
+
+                <VBox spacing="4.0">
+                    <HBox spacing="10.0" alignment="CENTER_LEFT">
+                        <Label text="Engine"/>
+                        <ComboBox fx:id="engineSelector" prefWidth="220.0"/>
+                    </HBox>
+                </VBox>
+
                 <Pane HBox.hgrow="ALWAYS"/>
                 <CheckBox fx:id="alwaysOnTop" text="Always on Top"/>
             </HBox>
 
-            <VBox spacing="4.0">
-                <HBox spacing="10.0" alignment="CENTER_LEFT">
-                    <Label text="Engine"/>
-                    <ComboBox fx:id="engineSelector" prefWidth="220.0"/>
-                </HBox>
-                <Label fx:id="statusLabel" text="Ready" wrapText="true" maxWidth="Infinity"/>
-            </VBox>
+            <Label fx:id="statusLabel" text="Ready" wrapText="true" maxWidth="Infinity"/>
         </VBox>
     </top>
 
     <center>
         <SplitPane dividerPositions="0.27">
             <VBox spacing="8.0" prefWidth="260.0">
-                <Label text="Workspace Tree"/>
                 <TreeView fx:id="tree" VBox.vgrow="ALWAYS"/>
                 <Label fx:id="treeSummaryLabel" text="Select a directory to begin." wrapText="true"/>
             </VBox>
 
             <BorderPane>
                 <top>
-                    <VBox spacing="8.0">
-                        <GridPane hgap="8.0" vgap="8.0">
-                            <columnConstraints>
-                                <ColumnConstraints halignment="RIGHT" prefWidth="110.0"/>
-                                <ColumnConstraints hgrow="ALWAYS"/>
-                                <ColumnConstraints prefWidth="40.0"/>
-                            </columnConstraints>
+                    <StackPane>
+                        <padding>
+                            <Insets top="12.0" right="16.0" bottom="12.0" left="16.0"/>
+                        </padding>
 
-                            <Label text="Input directory" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                            <TextField fx:id="inputField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                            <Button fx:id="inputBrowse" text="..." GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                        <VBox spacing="8.0" maxWidth="620.0" fillWidth="true">
+                            <GridPane hgap="8.0" vgap="8.0">
+                                <columnConstraints>
+                                    <ColumnConstraints halignment="RIGHT" prefWidth="110.0"/>
+                                    <ColumnConstraints hgrow="ALWAYS"/>
+                                    <ColumnConstraints prefWidth="40.0"/>
+                                </columnConstraints>
 
-                            <Label text="Output base" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                            <TextField fx:id="outputField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                            <Button fx:id="outputBrowse" text="..." GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-                        </GridPane>
+                                <Label text="Input directory" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <TextField fx:id="inputField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                <Button fx:id="inputBrowse" text="..." GridPane.rowIndex="0" GridPane.columnIndex="2"/>
 
-                        <HBox spacing="10.0" alignment="CENTER_RIGHT">
-                            <CheckBox fx:id="lockOutPutPath" text="Lock output path"/>
-                            <Button fx:id="actionButton" text="Run selected" minWidth="110.0"/>
-                            <Button fx:id="processAllButton" text="Run all" minWidth="90.0"/>
-                        </HBox>
-                    </VBox>
+                                <Label text="Output base" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <TextField fx:id="outputField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                <Button fx:id="outputBrowse" text="..." GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                            </GridPane>
+
+                            <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                                <CheckBox fx:id="lockOutPutPath" text="Lock output path"/>
+<!--                                <Button fx:id="actionButton" text="Run selected" minWidth="110.0"/>-->
+                                <Button fx:id="processAllButton" text="Run all" minWidth="90.0"/>
+                            </HBox>
+                        </VBox>
+                    </StackPane>
                 </top>
 
                 <center>

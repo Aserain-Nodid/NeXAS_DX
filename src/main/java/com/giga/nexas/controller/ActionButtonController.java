@@ -35,7 +35,6 @@ public class ActionButtonController {
     });
 
     public void bind() {
-        view.getActionButton().setOnAction(e -> runSelected());
         view.getProcessAllButton().setOnAction(e -> runAll());
         gridController.setActionHandler(this::handleCardRequest);
     }
@@ -319,7 +318,6 @@ public class ActionButtonController {
 
     private void setButtonsDisabled(boolean disabled) {
         Platform.runLater(() -> {
-            view.getActionButton().setDisable(disabled);
             view.getProcessAllButton().setDisable(disabled);
         });
     }

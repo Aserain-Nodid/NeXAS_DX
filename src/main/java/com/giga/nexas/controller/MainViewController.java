@@ -57,8 +57,8 @@ public class MainViewController {
         DragAndDropController dragAndDropController = new DragAndDropController(this, pickerController);
         dragAndDropController.setup();
 
-        SettingsMenuController settingsMenuController = new SettingsMenuController(this, state);
-        settingsMenuController.setup();
+//        SettingsMenuController settingsMenuController = new SettingsMenuController(this, state);
+//        settingsMenuController.setup();
 
         LogContextMenuController logContextMenuController = new LogContextMenuController(this);
         logContextMenuController.setup();
