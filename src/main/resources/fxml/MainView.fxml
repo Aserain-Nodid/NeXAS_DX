@@ -68,6 +68,7 @@
 
                             <HBox spacing="10.0" alignment="CENTER_RIGHT">
                                 <CheckBox fx:id="lockOutPutPath" text="Lock output path"/>
+                                <Button fx:id="reloadButton" text="Reload" minWidth="80.0"/>
                                 <Button fx:id="actionButton" text="Run selected" minWidth="110.0"/>
                                 <Button fx:id="processAllButton" text="Run all" minWidth="90.0"/>
                             </HBox>

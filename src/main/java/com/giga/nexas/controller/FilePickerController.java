@@ -43,6 +43,7 @@ public class FilePickerController {
         bindLockToggle();
         bindManualPathInput();
         bindStateRescan();
+        bindReloadButton();
     }
 
     public void loadDirectory(Path directory) {
@@ -162,6 +163,21 @@ public class FilePickerController {
 
     private void bindStateRescan() {
         state.getEngineType().addListener((obs, oldEngine, newEngine) -> rescanIfAvailable());
+    }
+
+    private void bindReloadButton() {
+        if (view.getReloadButton() == null) {
+            return;
+        }
+        view.getReloadButton().setOnAction(e -> {
+            // 等价于“再次指定当前 input 路径”
+            Path current = state.getInputDirectory().get();
+            if (current != null && Files.isDirectory(current)) {
+                loadDirectory(current);
+            } else {
+                appendLog("No valid input directory to reload.");
+            }
+        });
     }
 
     private void applyLockState() {
