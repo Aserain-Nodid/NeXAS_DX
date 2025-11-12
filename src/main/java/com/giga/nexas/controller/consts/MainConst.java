@@ -1,7 +1,7 @@
 package com.giga.nexas.controller.consts;
 
 /**
- * @Author 鏉╂瑤缍呴崥灞筋劅(Karaik)
+ * @Author 这位同学(Karaik)
  * @Date 2025/5/5
  * @Description MainConst
  */
@@ -17,5 +17,6 @@ public class MainConst {
     public static final String SPM_EXT ="spm";
     public static final String GRP_EXT ="grp";
     public static final String BIN_EXT ="bin";
+    public static final String DAT_EXT ="dat";
 
 }

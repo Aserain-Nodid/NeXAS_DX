@@ -14,6 +14,7 @@ public class BinaryEngineFactory {
         return switch (engineType) {
             case BSDX -> new BsdxBinaryEngineAdapter();
             case BHE -> new BheBinaryEngineAdapter();
+            case CLARIAS -> new ClariasBinaryEngineAdapter();
         };
     }
 }

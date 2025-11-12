@@ -10,12 +10,17 @@ public enum EngineType {
     BSDX("BALDR SKY DIVEX",
             "windows-31j",
             Set.of("waz", "mek", "spm", "grp", "bin", "dat"),
-            Set.of("waz", "mek", "spm", "grp", "bin")),
+            Set.of("waz", "mek", "spm", "grp", "bin", "dat")),
 
     BHE("BALDR HEART EXE",
             "windows-31j",
             Set.of("waz", "mek", "spm", "grp"),
-            Set.of("spm", "grp"));
+            Set.of("spm", "grp")),
+
+    CLARIAS("CLARIAS",
+            "windows-31j",
+            Set.of("dat"),
+            Set.of("dat"));
 
     private final String displayName;
     private final String defaultCharset;
