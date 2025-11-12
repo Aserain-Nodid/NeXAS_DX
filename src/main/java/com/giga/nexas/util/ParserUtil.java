@@ -13,10 +13,13 @@ public class ParserUtil {
     public static final int DAT_COLUMN_TYPE_STRING = 1;
     // 也是数值，疑似代表新引擎的int
     public static final int DAT_COLUMN_TYPE_INT_NEW = 2;
+    // 闪钢中存在
+    public static final int DAT_COLUMN_TYPE_BYTE = 3;
     // 字符串
     public static final String TYPE_STRING  = "String";
     public static final String TYPE_INT     = "Integer";
     public static final String TYPE_INT_NEW = "IntegerNew";
+    public static final String TYPE_BYTE = "Byte";
 
     /**
      * 判断句子是否大致上为日语

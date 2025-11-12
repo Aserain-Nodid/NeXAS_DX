@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.giga.nexas.util.ParserUtil.*;
 
@@ -23,14 +24,23 @@ public class DatParser implements ClariasParser<Dat> {
         return "dat";
     }
 
+    private static final Set<String> FILTER_FILES = Set.of(
+            "mekaformationlist",
+            "mekapartnercpulist",
+            "wazafreeparamdefine"
+    );
+
     @Override
     public Dat parse(byte[] data, String fileName, String charset) {
         Dat dat = new Dat();
         dat.setFileName(fileName);
 
+        if (FILTER_FILES.contains(fileName)) {
+            return dat;
+        }
+
         BinaryReader reader = new BinaryReader(data);
         try {
-
             // 读取列数
             int columnCount = reader.readInt();
             dat.setColumnCount(columnCount);
@@ -86,6 +96,8 @@ public class DatParser implements ClariasParser<Dat> {
                 return TYPE_INT;
             case DAT_COLUMN_TYPE_INT_NEW:
                 return TYPE_INT_NEW;
+            case DAT_COLUMN_TYPE_BYTE:
+                return TYPE_BYTE;
             default:
                 return String.valueOf(typeFlag);
         }
@@ -118,6 +130,8 @@ public class DatParser implements ClariasParser<Dat> {
             case TYPE_INT:
             case TYPE_INT_NEW:
                 return reader.readInt();
+            case TYPE_BYTE:
+                return reader.readByte();
             default:
                 log.warn("Unexpected column type: {}", columnType);
                 return null;
