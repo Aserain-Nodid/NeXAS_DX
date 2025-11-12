@@ -1,7 +1,7 @@
-package com.giga.nexas.dto.bsdx.dat.parser;
+package com.giga.nexas.dto.clarias.dat.parser;
 
-import com.giga.nexas.dto.bsdx.BsdxParser;
-import com.giga.nexas.dto.bsdx.dat.Dat;
+import com.giga.nexas.dto.clarias.ClariasParser;
+import com.giga.nexas.dto.clarias.dat.Dat;
 import com.giga.nexas.io.BinaryReader;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,11 +12,11 @@ import static com.giga.nexas.util.ParserUtil.*;
 
 /**
  * @Author 这位同学(Karaik)
- * @Date 2025/2/1
+ * @Date 2025/11/12
  * @Description DatParser
  */
 @Slf4j
-public class DatParser implements BsdxParser<Dat> {
+public class DatParser implements ClariasParser<Dat> {
 
     @Override
     public String supportExtension() {
@@ -35,8 +35,8 @@ public class DatParser implements BsdxParser<Dat> {
             int columnCount = reader.readInt();
             dat.setColumnCount(columnCount);
 
-            log.info("Parsing Dat file: {}", fileName);
-            log.info("Column count   : {}", columnCount);
+            log.info("Parsing Clarias Dat file: {}", fileName);
+            log.info("Column count          : {}", columnCount);
 
             // 1. 读列类型
             List<String> columnTypes = readColumnTypes(reader, columnCount);
@@ -46,7 +46,7 @@ public class DatParser implements BsdxParser<Dat> {
             readRows(reader, data.length, dat);
 
         } catch (Exception e) {
-            log.error("Failed to parse .dat file: {}", fileName, e);
+            log.error("Failed to parse Clarias .dat file: {}", fileName, e);
             throw e;
         }
 

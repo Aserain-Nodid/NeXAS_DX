@@ -6,25 +6,17 @@ package com.giga.nexas.util;
  */
 public class ParserUtil {
 
-    // 常用于块与块之间分割符
-    public static final byte[] FLAG_DATA =  new byte[] { (byte) 0x01, 0x00, 0x00, 0x00 };
-
-    // 常用mek中，武装插槽块与块之间分割符
-    public static final byte[] WEAPON_PLUGINS_FLAG_DATA =  new byte[] { (byte) 0x8A, 0x00, 0x00, 0x00 };
-    public static final byte[] WEAPON_PLUGINS_FLAG_DATA_2 =  new byte[] { (byte) 0x88, 0x00, 0x00, 0x00 };
-    public static final byte[] WEAPON_PLUGINS_FLAG_DATA_3 =  new byte[] { (byte) 0x8B, 0x00, 0x00, 0x00 };
-
-    // BHE
-    public static final byte[] WEAPON_PLUGINS_FLAG_DATA_BHE =  new byte[] { (byte) 0xD0, 0x00, 0x00, 0x00 };
-
+    // .dat
     // 数值
-    public static final Integer DAT_COLUMN_TYPE_DATA = 0;
-
+    public static final int DAT_COLUMN_TYPE_DATA = 0;
     // 字符串
-    public static final Integer DAT_COLUMN_TYPE_STRING = 1;
-
-    // 编号？
-    public static final Integer DAT_COLUMN_TYPE_UNKNOWN = 2;
+    public static final int DAT_COLUMN_TYPE_STRING = 1;
+    // 也是数值，疑似代表新引擎的int
+    public static final int DAT_COLUMN_TYPE_INT_NEW = 2;
+    // 字符串
+    public static final String TYPE_STRING  = "String";
+    public static final String TYPE_INT     = "Integer";
+    public static final String TYPE_INT_NEW = "IntegerNew";
 
     /**
      * 判断句子是否大致上为日语

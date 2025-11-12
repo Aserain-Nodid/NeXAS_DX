@@ -1,4 +1,4 @@
-package com.giga.nexas.bsdx;
+package com.giga.nexas.clarias;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.text.csv.*;
@@ -8,8 +8,8 @@ import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giga.nexas.dto.ResponseDTO;
-import com.giga.nexas.dto.bsdx.dat.Dat;
-import com.giga.nexas.service.BsdxBinService;
+import com.giga.nexas.dto.clarias.dat.Dat;
+import com.giga.nexas.service.ClariasBinService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -35,12 +35,12 @@ import java.util.Map;
 public class TestDat {
 
     private static final Logger log = LoggerFactory.getLogger(TestDat.class);
-    private final BsdxBinService bsdxBinService = new BsdxBinService();
+    private final ClariasBinService clariasBinService = new ClariasBinService();
 
-    private static final Path GAME_DAT_DIR   = Paths.get("src/main/resources/game/bsdx/dat");
-    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/datBsdxJson");
-    private static final Path DAT_OUTPUT_DIR  = Paths.get("src/main/resources/datBsdxGenerated");
-    private static final Path CSV_OUTPUT_DIR  = Paths.get("src/main/resources/datBsdxCsvGenerated");
+    private static final Path GAME_DAT_DIR   = Paths.get("src/main/resources/game/clarias/dat");
+    private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/datClariasJson");
+    private static final Path DAT_OUTPUT_DIR  = Paths.get("src/main/resources/datClariasGenerated");
+    private static final Path CSV_OUTPUT_DIR  = Paths.get("src/main/resources/datClariasCsvGenerated");
 
     private static final String DAT_EXT = ".dat";
     private static final String GENERATED_SUFFIX = ".generated";
@@ -60,7 +60,7 @@ public class TestDat {
                 baseNames.add(baseName);
 
                 try {
-                    ResponseDTO dto = bsdxBinService.parse(path.toString(), "windows-31j");
+                    ResponseDTO dto = clariasBinService.parse(path.toString(), "windows-31j");
                     Dat dat = (Dat) dto.getData();
                     allDatList.add(dat);
                 } catch (Exception e) {
@@ -100,7 +100,7 @@ public class TestDat {
 
                 // 生成的二进制统一命名：<basename>.dat.generated
                 Path output = DAT_OUTPUT_DIR.resolve(baseName + DAT_EXT + GENERATED_SUFFIX);
-                bsdxBinService.generate(output.toString(), dat, "windows-31j");
+                clariasBinService.generate(output.toString(), dat, "windows-31j");
                 log.info("✅ Generated: {}", output);
             }
         }
