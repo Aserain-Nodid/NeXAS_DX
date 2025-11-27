@@ -38,7 +38,6 @@ public class TfnParser implements KingdomParser<Tfn> {
             throw new OperationException(500, "Unsupported Tfn magic : " + magicHeader);
         }
 
-        // Public field access
         tfn.fileName = filename;
 
         // 2. Read Header
