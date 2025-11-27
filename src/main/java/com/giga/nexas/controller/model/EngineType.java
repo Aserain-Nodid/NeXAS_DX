@@ -20,7 +20,12 @@ public enum EngineType {
     CLARIAS("CLARIAS",
             "windows-31j",
             Set.of("dat"),
-            Set.of("dat"));
+            Set.of("dat")),
+
+    KINGDOM("KINGDOM",
+                    "windows-31j",
+            Set.of("tfn"),
+            null);
 
     private final String displayName;
     private final String defaultCharset;

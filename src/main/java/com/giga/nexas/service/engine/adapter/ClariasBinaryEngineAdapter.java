@@ -1,4 +1,4 @@
-package com.giga.nexas.service.engine;
+package com.giga.nexas.service.engine.adapter;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONUtil;
@@ -9,6 +9,7 @@ import com.giga.nexas.dto.clarias.Clarias;
 import com.giga.nexas.dto.clarias.dat.Dat;
 import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.service.ClariasBinService;
+import com.giga.nexas.service.engine.BinaryEngineAdapter;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package com.giga.nexas.service.engine;
+package com.giga.nexas.service.engine.adapter;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONUtil;
@@ -14,6 +14,7 @@ import com.giga.nexas.dto.bsdx.spm.Spm;
 import com.giga.nexas.dto.bsdx.waz.Waz;
 import com.giga.nexas.exception.OperationException;
 import com.giga.nexas.service.BsdxBinService;
+import com.giga.nexas.service.engine.BinaryEngineAdapter;
 
 import java.io.IOException;
 import java.nio.file.Files;
