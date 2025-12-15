@@ -1,0 +1,33 @@
+package com.giga.nexas.dto.bhe.grp.parser.impl;
+
+import com.giga.nexas.dto.bhe.grp.Grp;
+import com.giga.nexas.dto.bhe.grp.groupmap.MekaGroupGrp;
+import com.giga.nexas.dto.bhe.grp.parser.GrpFileParser;
+import com.giga.nexas.io.BinaryReader;
+
+public class MekaGroupGrpParser implements GrpFileParser<Grp> {
+
+    @Override
+    public String getParserKey() {
+        return "mekagroup";
+    }
+
+    @Override
+    public Grp parse(BinaryReader reader) {
+        MekaGroupGrp mekaGroupGrp = new MekaGroupGrp();
+
+        int groupCount = reader.readInt();
+        for (int i = 0; i < groupCount; i++) {
+            MekaGroupGrp.MekaGroup group = new MekaGroupGrp.MekaGroup();
+            int existFLag = reader.readInt();
+            group.setExistFlag(existFLag);
+            if (existFLag != 0) {
+                group.setMekaName(reader.readNullTerminatedString());
+                group.setMekaCodeName(reader.readNullTerminatedString());
+            }
+            mekaGroupGrp.getMekaList().add(group);
+        }
+
+        return mekaGroupGrp;
+    }
+}

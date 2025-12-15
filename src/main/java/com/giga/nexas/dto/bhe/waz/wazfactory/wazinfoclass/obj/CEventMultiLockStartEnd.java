@@ -9,11 +9,6 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * @Description CEventMultiLockStartEnd
- */
 @Data
 @NoArgsConstructor
 public class CEventMultiLockStartEnd extends SkillInfoObject {
@@ -38,7 +33,6 @@ public class CEventMultiLockStartEnd extends SkillInfoObject {
     private Integer int2;
     private Integer int3;
     private Integer int4;
-    private Integer int5;
     private Short short1;
 
     @Data
@@ -63,7 +57,6 @@ public class CEventMultiLockStartEnd extends SkillInfoObject {
         this.int2 = reader.readInt();
         this.int3 = reader.readInt();
         this.int4 = reader.readInt();
-        this.int5 = reader.readInt();
         this.short1 = reader.readShort();
 
         this.unitList.clear();

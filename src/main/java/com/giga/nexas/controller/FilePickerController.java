@@ -1,164 +1,244 @@
 package com.giga.nexas.controller;
 
-import javafx.scene.control.TreeItem;
+import com.giga.nexas.controller.model.EngineType;
+import com.giga.nexas.controller.model.WorkspaceCategory;
+import com.giga.nexas.controller.model.WorkspaceState;
+import com.giga.nexas.controller.support.DirectoryScanner;
+import javafx.application.Platform;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.prefs.Preferences;
 
-import static com.giga.nexas.controller.consts.MainConst.*;
-
+/**
+ * 负责目录选择与扫描逻辑的控制器。
+ */
 @RequiredArgsConstructor
 public class FilePickerController {
 
-    private final MainViewController view;
-    private boolean userSelectedOutput = false;
-
-    // 全局路径变量
     private static final String PREF_INPUT_PATH = "lastInputPath";
     private static final String PREF_OUTPUT_PATH = "lastOutputPath";
+    private static final String PREF_LOCK_OUTPUT = "lockOutputPath";
+
+    private final MainViewController view;
+    private final WorkspaceState state;
+    private final DirectoryScanner scanner;
+
     private final Preferences prefs = Preferences.userNodeForPackage(FilePickerController.class);
 
+    private boolean userSelectedOutput = false;
+    private boolean lockOutput = false;
+
     public void setup() {
-
-//        prefs.remove(PREF_INPUT_PATH);
-//        prefs.remove(PREF_OUTPUT_PATH);
-
-        // 初始化读取上次路径
-        loadLastPaths();
-
-        // 输入路径选择逻辑
+        loadPreferences();
         bindInputBrowse();
-
-        // 输出路径选择逻辑
         bindOutputBrowse();
+        bindLockToggle();
+        bindManualPathInput();
+        bindStateRescan();
+        bindReloadButton();
     }
 
-    private void loadLastPaths() {
-        String lastInput = prefs.get(PREF_INPUT_PATH, "");
-        String lastOutput = prefs.get(PREF_OUTPUT_PATH, "");
-        if (!lastInput.isEmpty()) {
-            view.getInputField().setText(lastInput);
+    public void loadDirectory(Path directory) {
+        if (directory == null) {
+            return;
         }
-        if (!lastOutput.isEmpty()) {
-            view.getOutputField().setText(lastOutput);
+        if (!Files.isDirectory(directory)) {
+            appendLog("Input path is not a directory: " + directory);
+            return;
+        }
+        view.getInputField().setText(directory.toString());
+        prefs.put(PREF_INPUT_PATH, directory.toString());
+        state.getInputDirectory().set(directory);
+
+        if (!userSelectedOutput && !lockOutput) {
+            updateOutputPath(directory);
         }
 
-        // 如果lastInput存在，自动选择功能
-        if (!lastInput.isEmpty()) {
-            autoSelectFunction(new File(lastInput));
+        scanWorkspace(directory);
+    }
+
+    private void loadPreferences() {
+        String lastInput = prefs.get(PREF_INPUT_PATH, "");
+        String lastOutput = prefs.get(PREF_OUTPUT_PATH, "");
+        lockOutput = prefs.getBoolean(PREF_LOCK_OUTPUT, false);
+
+        view.getLockOutPutPath().setSelected(lockOutput);
+        applyLockState();
+
+        if (!lastInput.isBlank()) {
+            Path inputPath = Paths.get(lastInput);
+            if (Files.isDirectory(inputPath)) {
+                userSelectedOutput = false;
+                loadDirectory(inputPath);
+            } else {
+                view.getInputField().setText(lastInput);
+            }
+        }
+
+        if (!lastOutput.isBlank()) {
+            view.getOutputField().setText(lastOutput);
+            if (Files.isDirectory(Paths.get(lastOutput))) {
+                state.getOutputDirectory().set(Paths.get(lastOutput));
+            }
         }
     }
 
     private void bindInputBrowse() {
         view.getInputBrowse().setOnAction(e -> {
+            DirectoryChooser chooser = new DirectoryChooser();
+            chooser.setTitle("Select workspace directory");
+            String current = view.getInputField().getText();
+            if (current != null && !current.isBlank()) {
+                File currentFile = new File(current);
+                if (currentFile.exists() && currentFile.isDirectory()) {
+                    chooser.setInitialDirectory(currentFile);
+                }
+            }
             Stage stage = (Stage) view.getRoot().getScene().getWindow();
-            File selected;
-
-            boolean isPack = false;
-            var sel = view.getTree().getSelectionModel().getSelectedItem();
-            if (sel != null && PAC.equals(sel.getValue())) {
-                isPack = true;
-            }
-
-            if (isPack) {
-                DirectoryChooser chooser = new DirectoryChooser();
-                chooser.setTitle("select a folder");
-
-                File current = new File(view.getInputField().getText());
-                if (current.exists() && current.isDirectory()) {
-                    chooser.setInitialDirectory(current);
-                }
-
-                selected = chooser.showDialog(stage);
-            } else {
-                FileChooser chooser = new FileChooser();
-                chooser.setTitle("select a file");
-
-                File current = new File(view.getInputField().getText());
-                if (current.exists()) {
-                    chooser.setInitialDirectory(current.isDirectory() ? current : current.getParentFile());
-                }
-
-                selected = chooser.showOpenDialog(stage);
-            }
-
+            File selected = chooser.showDialog(stage);
             if (selected != null) {
-                view.getInputField().setText(selected.getAbsolutePath());
-                // 保存全局变量
-                prefs.put(PREF_INPUT_PATH, selected.getAbsolutePath());
-
-                // 手动选择时自动判断一个操作
-                autoSelectFunction(selected);
-
-                // 只有在用户没有手动指定输出目录时，才自动填充
-                if (!userSelectedOutput) {
-                    String absolutePath = selected.getParentFile().getAbsolutePath();
-                    view.getOutputField().setText(absolutePath);
-                    prefs.put(PREF_OUTPUT_PATH, absolutePath);
-                }
+                userSelectedOutput = false;
+                loadDirectory(selected.toPath());
             }
         });
     }
 
     private void bindOutputBrowse() {
         view.getOutputBrowse().setOnAction(e -> {
-            DirectoryChooser chooser = new DirectoryChooser();
-            chooser.setTitle("select output folder");
-
-            File current = new File(view.getOutputField().getText());
-            if (current.exists() && current.isDirectory()) {
-                chooser.setInitialDirectory(current);
+            if (lockOutput) {
+                return;
             }
-
-            File selected = chooser.showDialog(view.getRoot().getScene().getWindow());
+            DirectoryChooser chooser = new DirectoryChooser();
+            chooser.setTitle("Select output directory");
+            String current = view.getOutputField().getText();
+            if (current != null && !current.isBlank()) {
+                File currentFile = new File(current);
+                if (currentFile.exists() && currentFile.isDirectory()) {
+                    chooser.setInitialDirectory(currentFile);
+                }
+            }
+            Stage stage = (Stage) view.getRoot().getScene().getWindow();
+            File selected = chooser.showDialog(stage);
             if (selected != null) {
-                view.getOutputField().setText(selected.getAbsolutePath());
-                prefs.put(PREF_OUTPUT_PATH, selected.getAbsolutePath());
                 userSelectedOutput = true;
+                updateOutputPath(selected.toPath());
             }
         });
     }
 
-    private void autoSelectFunction(File file) {
-        String path = file.getAbsolutePath();
-        String autoFunc;
+    private void bindLockToggle() {
+        view.getLockOutPutPath().setOnAction(e -> {
+            lockOutput = view.getLockOutPutPath().isSelected();
+            prefs.putBoolean(PREF_LOCK_OUTPUT, lockOutput);
+            applyLockState();
+        });
+    }
 
-        if (file.isDirectory()) {
-            autoFunc = PAC;
-        } else if (path.toLowerCase().contains(".pac")) {
-            autoFunc = UNPAC;
-        } else if (path.toLowerCase().endsWith(".json")) {
-            autoFunc = GENERATE;
-        } else if (file.isFile()) {
-            autoFunc = PARSE;
-        } else {
-            autoFunc = null;
-        }
-
-        // 如果匹配到了功能 自动选中对应子功能
-        if (autoFunc != null) {
-            TreeItem<String> item = findTreeItemByValue(view.getTree().getRoot(), autoFunc, new HashSet<>());
-            if (item != null) {
-                view.getTree().getSelectionModel().select(item);
+    private void bindManualPathInput() {
+        view.getInputField().focusedProperty().addListener((obs, oldFocused, newFocused) -> {
+            if (!newFocused) {
+                parseManualInput(view.getInputField().getText());
             }
+        });
+        view.getInputField().setOnAction(e -> parseManualInput(view.getInputField().getText()));
+
+        view.getOutputField().setOnAction(e -> {
+            if (!lockOutput) {
+                Path path = resolveDirectory(view.getOutputField().getText());
+                if (path != null) {
+                    userSelectedOutput = true;
+                    updateOutputPath(path);
+                }
+            }
+        });
+    }
+
+    private void bindStateRescan() {
+        state.getEngineType().addListener((obs, oldEngine, newEngine) -> rescanIfAvailable());
+    }
+
+    private void bindReloadButton() {
+        if (view.getReloadButton() == null) {
+            return;
+        }
+        view.getReloadButton().setOnAction(e -> {
+            // 等价于“再次指定当前 input 路径”
+            Path current = state.getInputDirectory().get();
+            if (current != null && Files.isDirectory(current)) {
+                loadDirectory(current);
+            } else {
+                appendLog("No valid input directory to reload.");
+            }
+        });
+    }
+
+    private void applyLockState() {
+        view.getOutputField().setDisable(lockOutput);
+        view.getOutputBrowse().setDisable(lockOutput);
+    }
+
+    private void parseManualInput(String text) {
+        if (text == null || text.isBlank()) {
+            return;
+        }
+        Path path = resolveDirectory(text);
+        if (path != null) {
+            userSelectedOutput = false;
+            loadDirectory(path);
+        } else {
+            appendLog("Input directory not found: " + text);
         }
     }
 
-    private TreeItem<String> findTreeItemByValue(TreeItem<String> root, String value, Set<TreeItem<String>> visited) {
-        if (root == null || visited.contains(root)) return null;
-        visited.add(root);
-
-        if (value.equals(root.getValue())) return root;
-        for (TreeItem<String> child : root.getChildren()) {
-            TreeItem<String> result = findTreeItemByValue(child, value, visited);
-            if (result != null) return result;
+    private Path resolveDirectory(String text) {
+        try {
+            Path path = Paths.get(text.trim());
+            if (Files.isDirectory(path)) {
+                return path;
+            }
+        } catch (Exception ignored) {
         }
         return null;
     }
+
+    private void updateOutputPath(Path path) {
+        view.getOutputField().setText(path.toString());
+        prefs.put(PREF_OUTPUT_PATH, path.toString());
+        state.getOutputDirectory().set(path);
+    }
+
+    private void scanWorkspace(Path directory) {
+        EngineType engineType = state.getEngineType().get();
+        appendLog("Scanning " + directory + " (" + engineType.getDisplayName() + ")");
+        try {
+            List<WorkspaceCategory> categories = scanner.scan(directory, engineType);
+            Platform.runLater(() -> {
+                state.clearCategories();
+                state.getCategories().addAll(categories);
+            });
+            appendLog("Scan completed: " + categories.size() + " categories found.");
+        } catch (IOException ex) {
+            appendLog("Scan failed: " + ex.getMessage());
+        }
+    }
+
+    private void rescanIfAvailable() {
+        Path current = state.getInputDirectory().get();
+        if (current != null && Files.isDirectory(current)) {
+            scanWorkspace(current);
+        }
+    }
+
+    private void appendLog(String line) {
+        view.getLogArea().appendText(line + System.lineSeparator());
+    }
 }
+

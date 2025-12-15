@@ -12,12 +12,6 @@ import java.util.List;
 
 import static com.giga.nexas.dto.bhe.waz.wazfactory.SkillInfoFactory.createCEventObjectByTypeBhe;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * @Description CEventHeight
- * CEventHeight__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventHeight extends SkillInfoObject {
@@ -34,7 +28,6 @@ public class CEventHeight extends SkillInfoObject {
             new CEventHeightType(0x5, "最大増分(1=0.01)"),
             new CEventHeightType(0x4, "標的高度補正"),
 
-            // todo ???
             new CEventHeightType(0xFFFFFFFF, "増分:%s"),
             new CEventHeightType(0xFFFFFFFF, "%s 補正:%s")
     };

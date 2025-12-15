@@ -16,7 +16,7 @@ public class SpriteGroupGrpGenerator implements GrpFileGenerator<Grp> {
 
     @Override
     public String getGeneratorKey() {
-        return "SpriteGroup";
+        return "spritegroup";
     }
 
     @Override

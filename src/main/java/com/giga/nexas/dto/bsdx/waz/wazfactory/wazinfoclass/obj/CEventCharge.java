@@ -101,5 +101,43 @@ public class CEventCharge extends SkillInfoObject {
         }
     }
 
+    public void transBheCEventChargeToBsdx(
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject src,
+            CEventCharge bsdx) {
+
+        if (!(src instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventCharge bhe)) {
+            return;
+        }
+
+        bsdx.getCeventChargeUnitList().clear();
+        var bheUnits = bhe.getCeventChargeUnitList();
+        if (bheUnits == null || bheUnits.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < 2; i++) {
+            if (bheUnits.size() > i) {
+                var bheUnit = bheUnits.get(i);
+                Integer buffer = bheUnit.getBuffer();
+                if (buffer == null) buffer = (bheUnit.getData() != null ? 1 : 0);
+
+                if (buffer != 0 && bheUnit.getData() != null) {
+                    var bsdxUnit = new CEventCharge.CEventChargeUnit();
+                    bsdxUnit.setCeventChargeUnitQuantity(i);
+                    bsdxUnit.setDescription(CEVENT_CHARGE_ENTRIES[i].getDescription());
+                    bsdxUnit.setUnitSlotNum(i);
+                    bsdxUnit.setBuffer(1);
+
+                    SkillInfoObject inner = createCEventObjectByTypeBsdx(CEVENT_CHARGE_ENTRIES[i].getType()); // 0x00
+                    cn.hutool.core.bean.BeanUtil.copyProperties(bheUnit.getData(), inner);
+                    inner.setSlotNum(CEVENT_CHARGE_ENTRIES[i].getType());
+                    bsdxUnit.setData(inner);
+
+                    bsdx.getCeventChargeUnitList().add(bsdxUnit);
+                }
+            }
+        }
+    }
+
 }
 

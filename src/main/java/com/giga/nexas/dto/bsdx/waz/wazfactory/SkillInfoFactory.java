@@ -14,7 +14,7 @@ import com.giga.nexas.exception.OperationException;
 public class SkillInfoFactory {
 
     public static final SkillInfoTypeEntry[] SKILL_INFO_TYPE_ENTRIES_BSDX = {
-            new SkillInfoTypeEntry(0x0D, 0x00000000, "ｽﾌﾟﾗｲﾄ"), //0
+            new SkillInfoTypeEntry(0x0D, 0x000000, "ｽﾌﾟﾗｲﾄ"), //0
             new SkillInfoTypeEntry(0x02, 0x1E82E6, "ｽﾌﾟﾗｲﾄ：拡大縮小"), //1
             new SkillInfoTypeEntry(0x02, 0x1E82E6, "ｽﾌﾟﾗｲﾄ：拡大縮小X"), //2
             new SkillInfoTypeEntry(0x02, 0x1E82E6, "ｽﾌﾟﾗｲﾄ：拡大縮小Y"), //3
@@ -81,7 +81,7 @@ public class SkillInfoFactory {
             new SkillInfoTypeEntry(0x1D, 0x82E61E, "画面演出：集中線"), //64
             new SkillInfoTypeEntry(0x1E, 0x82E61E, "画面演出：ブラー"), //65
             new SkillInfoTypeEntry(0x1F, 0x82E61E, "画面演出：カメラ"), //66
-            new SkillInfoTypeEntry(0x00, 0x00000000, "攻撃方向"), // 67
+            new SkillInfoTypeEntry(0x00, 0x000000, "攻撃方向"), // 67
             new SkillInfoTypeEntry(0x00, 0x82E61E, "画面停止"), // 68
             new SkillInfoTypeEntry(0x00, 0x82E61E, "スロー効果"), // 69
             new SkillInfoTypeEntry(0x00, 0x82E61E, "スロー反映率"), // 70

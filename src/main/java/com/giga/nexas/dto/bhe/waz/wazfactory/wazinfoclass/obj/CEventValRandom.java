@@ -7,13 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * CEventValRandom__Read(read_wazSpmFrameAnd6Unk)
- * タイプ
- * 優先順位
- */
 @Data
 @NoArgsConstructor
 public class CEventValRandom extends SkillInfoObject {

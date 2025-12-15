@@ -12,11 +12,6 @@ import java.util.List;
 
 import static com.giga.nexas.dto.bhe.waz.wazfactory.SkillInfoFactory.createCEventObjectByTypeBhe;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * CEventEffect__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventEffect extends SkillInfoObject {
@@ -57,7 +52,7 @@ public class CEventEffect extends SkillInfoObject {
             new CEventEffectType(0x7, "位置"),
             new CEventEffectType(0x2, "位置：分散率"),
             new CEventEffectType(0x9, "座標移動"),
-            new CEventEffectType(0x7, "標的"), // add
+            new CEventEffectType(0x7, "標的"), // diff
             new CEventEffectType(0x0B, "ﾍﾞｸﾄﾙ：方向"),
             new CEventEffectType(0x3, "ﾍﾞｸﾄﾙ：方向補正"),
             new CEventEffectType(0x3, "ﾍﾞｸﾄﾙ：方向増分"),
@@ -157,7 +152,7 @@ public class CEventEffect extends SkillInfoObject {
         writer.writeInt(this.int10);
         writer.writeInt(this.int11);
 
-        for (int i = 0; i < 45; i++) {
+        for (int i = 0; i < 46; i++) {
             CEventEffectUnit target = null;
             for (CEventEffectUnit unit : this.ceventEffectUnitList) {
                 if (unit.getUnitSlotNum() != null && unit.getUnitSlotNum() == i) {

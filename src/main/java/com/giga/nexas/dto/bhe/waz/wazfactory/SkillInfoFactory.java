@@ -5,11 +5,6 @@ import com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.SkillInfoTypeEntry;
 import com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.*;
 import com.giga.nexas.exception.OperationException;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * @Description SkillInfoFactory
- */
 public class SkillInfoFactory {
 
     public static final SkillInfoTypeEntry[] SKILL_INFO_TYPE_ENTRIES_BHE = {

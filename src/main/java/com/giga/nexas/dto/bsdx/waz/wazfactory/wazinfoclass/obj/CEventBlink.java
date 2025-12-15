@@ -30,7 +30,6 @@ public class CEventBlink extends SkillInfoObject {
             new CEventBlinkType(0xFFFFFFFF, "アニメ時間"),
             new CEventBlinkType(0xFFFFFFFF, "フラグ"),
 
-            // todo unsure
             new CEventBlinkType(0xFFFFFFFF, "加算属性"),
             new CEventBlinkType(0xFFFFFFFF, "ノーマル"),
             new CEventBlinkType(0xFFFFFFFF, "親オブジェクトの拡大率反映"),
@@ -67,4 +66,12 @@ public class CEventBlink extends SkillInfoObject {
         writer.writeShort(this.short1);
     }
 
+    public void transBheCEventBlinkToBsdx(
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject src,
+            CEventBlink bsdx) {
+        if (!(src instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventBlink bhe)) {
+            return;
+        }
+        bsdx.setShort1(bhe.getInt9().shortValue());
+    }
 }

@@ -12,11 +12,6 @@ import java.util.List;
 
 import static com.giga.nexas.dto.bhe.waz.wazfactory.SkillInfoFactory.*;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * CEventScreenEffect__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventScreenEffect extends SkillInfoObject {

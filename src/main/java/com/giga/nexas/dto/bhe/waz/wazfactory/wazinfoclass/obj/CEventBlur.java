@@ -11,11 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * CEventBlur__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventBlur extends SkillInfoObject {
@@ -29,7 +24,6 @@ public class CEventBlur extends SkillInfoObject {
 
     public static final CEventBlurType[] CEVENT_BLUR_ENTRIES = {
 
-            // todo unsure
             new CEventBlurType(0xFFFFFFFF, "%3d(%3d,%3d)"),
             new CEventBlurType(0xFFFFFFFF, "%3d(%3d,%3d)"),
             new CEventBlurType(0xFFFFFFFF, "⇒ %3d(%3d,%3d)"),

@@ -11,11 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * CEventChange__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventChange extends SkillInfoObject {
@@ -57,7 +52,7 @@ public class CEventChange extends SkillInfoObject {
             int counter = 0;
             do {
                 BheInfoCollection bheInfoCollection = new BheInfoCollection();
-                bheInfoCollection.readCollection(reader);  // 使用 BinaryReader 读取数据
+                bheInfoCollection.readCollection(reader);
                 this.bheInfoCollectionList1.add(bheInfoCollection);
 
                 counter++;

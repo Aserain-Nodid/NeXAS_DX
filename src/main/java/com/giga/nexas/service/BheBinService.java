@@ -5,7 +5,11 @@ import com.giga.nexas.dto.ResponseDTO;
 import com.giga.nexas.dto.bhe.Bhe;
 import com.giga.nexas.dto.bhe.BheGenerator;
 import com.giga.nexas.dto.bhe.BheParser;
+import com.giga.nexas.dto.bhe.grp.generator.GrpGenerator;
+import com.giga.nexas.dto.bhe.grp.parser.GrpParser;
 import com.giga.nexas.dto.bhe.mek.parser.MekParser;
+import com.giga.nexas.dto.bhe.spm.generator.SpmGenerator;
+import com.giga.nexas.dto.bhe.spm.parser.SpmParser;
 import com.giga.nexas.dto.bhe.waz.parser.WazParser;
 import com.giga.nexas.exception.OperationException;
 
@@ -23,18 +27,18 @@ public class BheBinService {
 
     public BheBinService() {
         // 注册parser
-//        registerParser(new SpmParser());
+        registerParser(new SpmParser());
         registerParser(new MekParser());
         registerParser(new WazParser());
 //        registerParser(new DatParser());
 //        registerParser(new BinParser());
-//        registerParser(new GrpParser());
+        registerParser(new GrpParser());
 
         // 注册generator
-//        registerGenerator(new SpmGenerator());
+        registerGenerator(new SpmGenerator());
 //        registerGenerator(new MekGenerator());
 //        registerGenerator(new WazGenerator());
-//        registerGenerator(new GrpGenerator());
+        registerGenerator(new GrpGenerator());
     }
 
     public BheBinService(List<BheParser<?>> bheParsers) {
@@ -94,5 +98,13 @@ public class BheBinService {
         String fileName = Paths.get(path).getFileName().toString();
         int extensionIndex = fileName.lastIndexOf(".");
         return extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
+    }
+
+    public Map<String, BheParser<?>> getParserMap() {
+        return new HashMap<>(parserMap);
+    }
+
+    public Map<String, BheGenerator<?>> getGeneratorMap() {
+        return new HashMap<>(generatorMap);
     }
 }

@@ -5,7 +5,9 @@ import com.giga.nexas.dto.ResponseDTO;
 import com.giga.nexas.dto.bsdx.Bsdx;
 import com.giga.nexas.dto.bsdx.BsdxGenerator;
 import com.giga.nexas.dto.bsdx.BsdxParser;
+import com.giga.nexas.dto.bsdx.bin.generator.BinGenerator;
 import com.giga.nexas.dto.bsdx.bin.parser.BinParser;
+import com.giga.nexas.dto.bsdx.dat.generator.DatGenerator;
 import com.giga.nexas.dto.bsdx.dat.parser.DatParser;
 import com.giga.nexas.dto.bsdx.grp.generator.GrpGenerator;
 import com.giga.nexas.dto.bsdx.grp.parser.GrpParser;
@@ -42,7 +44,9 @@ public class BsdxBinService {
         registerGenerator(new SpmGenerator());
         registerGenerator(new MekGenerator());
         registerGenerator(new WazGenerator());
+        registerGenerator(new DatGenerator());
         registerGenerator(new GrpGenerator());
+        registerGenerator(new BinGenerator());
     }
 
     public BsdxBinService(List<BsdxParser<?>> bsdxParsers) {
@@ -99,8 +103,16 @@ public class BsdxBinService {
     }
 
     public static String getFileName(String path) {
-        String fileName = Paths.get(path).getFileName().toString();
+        String fileName = Paths.get(path).getFileName().toString().toLowerCase();
         int extensionIndex = fileName.lastIndexOf(".");
         return extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
+    }
+
+    public Map<String, BsdxParser<?>> getParserMap() {
+        return new HashMap<>(parserMap);
+    }
+
+    public Map<String, BsdxGenerator<?>> getGeneratorMap() {
+        return new HashMap<>(generatorMap);
     }
 }

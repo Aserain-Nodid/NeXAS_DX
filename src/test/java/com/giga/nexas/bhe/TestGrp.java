@@ -6,8 +6,8 @@ import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giga.nexas.dto.ResponseDTO;
-import com.giga.nexas.dto.bsdx.grp.Grp;
-import com.giga.nexas.service.BsdxBinService;
+import com.giga.nexas.dto.bhe.grp.Grp;
+import com.giga.nexas.service.BheBinService;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ import java.util.Map;
 public class TestGrp {
 
     private static final Logger log = LoggerFactory.getLogger(TestGrp.class);
-    private final BsdxBinService bsdxBinService = new BsdxBinService();
+    private final BheBinService bheBinService = new BheBinService();
 
     private static final Path GRP_DIR = Paths.get("src/main/resources/game/bhe/grp");
     private static final Path JSON_OUTPUT_DIR = Paths.get("src/main/resources/grpBheJson");
@@ -42,7 +42,7 @@ public class TestGrp {
                 baseNames.add(baseName);
 
                 try {
-                    ResponseDTO<?> dto = bsdxBinService.parse(path.toString(), "windows-31j");
+                    ResponseDTO<?> dto = bheBinService.parse(path.toString(), "windows-31j");
                     Grp grp = (Grp) dto.getData();
                     allGrpList.add(grp);
                 } catch (Exception e) {
@@ -71,9 +71,9 @@ public class TestGrp {
                 String jsonStr = FileUtil.readUtf8String(path.toFile());
                 Grp grp = mapper.readValue(jsonStr, Grp.class);
                 String baseName = path.getFileName().toString().replace(".json", "");
-                Path output = GRP_OUTPUT_DIR.resolve(baseName + ".generated.grp");
+                Path output = GRP_OUTPUT_DIR.resolve(baseName.replace(".grp", ".generated.grp"));
 
-                bsdxBinService.generate(output.toString(), grp, "windows-31j");
+                bheBinService.generate(output.toString(), grp, "windows-31j");
                 log.info("Generated: {}", output);
             }
         }
@@ -119,6 +119,8 @@ public class TestGrp {
                     Path target = mismatchDir.resolve(newName);
                     Files.move(gen, target, StandardCopyOption.REPLACE_EXISTING);
                     log.warn("Moved mismatch file to: {}", target);
+                } else {
+                    log.info("✅ same: {}", name);
                 }
             }
         }

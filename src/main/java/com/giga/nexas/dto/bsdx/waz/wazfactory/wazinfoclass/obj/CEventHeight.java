@@ -34,7 +34,6 @@ public class CEventHeight extends SkillInfoObject {
             new CEventHeightType(0x3, "最大増分(1=0.01)"),
             new CEventHeightType(0x2, "標的高度補正"),
 
-            // todo ???
             new CEventHeightType(0xFFFFFFFF, "増分:%s"),
             new CEventHeightType(0xFFFFFFFF, "%s 補正:%s")
     };
@@ -107,5 +106,46 @@ public class CEventHeight extends SkillInfoObject {
         }
     }
 
+    public void transBheCEventHeightToBsdx(
+            com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.SkillInfoObject src,
+            CEventHeight bsdx) {
+
+        if (!(src instanceof com.giga.nexas.dto.bhe.waz.wazfactory.wazinfoclass.obj.CEventHeight bhe)) {
+            return;
+        }
+
+        bsdx.getCeventHeightUnitList().clear();
+
+        var bheUnits = bhe.getCeventHeightUnitList();
+        if (bheUnits == null || bheUnits.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            var bsdxUnit = new CEventHeight.CEventHeightUnit();
+            bsdxUnit.setCeventHeightUnitQuantity(i);
+            bsdxUnit.setDescription(CEVENT_HEIGHT_TYPES[i].getDescription());
+            bsdxUnit.setUnitSlotNum(i);
+            bsdxUnit.setBuffer(0);
+
+            if (bheUnits.size() > i) {
+                var bheUnit = bheUnits.get(i);
+                Integer buffer = bheUnit.getBuffer();
+                if (buffer == null) {
+                    buffer = (bheUnit.getData() != null ? 1 : 0);
+                }
+
+                if (buffer != 0 && bheUnit.getData() != null) {
+                    SkillInfoObject inner = createCEventObjectByTypeBsdx(CEVENT_HEIGHT_TYPES[i].getType());
+                    cn.hutool.core.bean.BeanUtil.copyProperties(bheUnit.getData(), inner);
+                    inner.setSlotNum(CEVENT_HEIGHT_TYPES[i].getType());
+                    bsdxUnit.setBuffer(1);
+                    bsdxUnit.setData(inner);
+                }
+            }
+
+            bsdx.getCeventHeightUnitList().add(bsdxUnit);
+        }
+    }
 
 }

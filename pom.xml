@@ -5,81 +5,139 @@
 
     <groupId>com.nexas.dx</groupId>
     <artifactId>NeXAS_DX</artifactId>
-    <version>editor</version>
-    <name>NexasDxEditor</name>
+    <version>1.2.0</version>
+    <name>NeXASConverter</name>
 
+    <!-- ========= common properties ========= -->
     <properties>
+        <!-- Java/encoding -->
         <java.version>17</java.version>
-        <javafx.version>21</javafx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.test.skip>true</maven.test.skip>
+
+        <!-- Test control -->
+        <maven.test.skip>false</maven.test.skip>
+        <junit.jupiter.version>5.9.3</junit.jupiter.version>
+
+        <!-- Versions (libs) -->
+        <hutool.version>5.8.16</hutool.version>
+        <slf4j.version>1.7.36</slf4j.version>
+        <logback.version>1.2.11</logback.version>
+        <jackson.version>2.13.4</jackson.version>
+        <poi.version>5.2.3</poi.version>
+        <lombok.version>1.18.30</lombok.version>
+
+        <!-- JavaFX -->
+        <javafx.version>21</javafx.version>
+        <javafx.classifier>win</javafx.classifier>
+
+        <!-- Plugins versions -->
+        <compiler.plugin.version>3.10.1</compiler.plugin.version>
+        <surefire.plugin.version>3.0.0-M9</surefire.plugin.version>
+        <jar.plugin.version>3.2.2</jar.plugin.version>
+        <shade.plugin.version>3.4.1</shade.plugin.version>
+        <javapackager.plugin.version>1.7.6</javapackager.plugin.version>
+
+        <!-- App packaging -->
+        <main.class>com.giga.nexas.MainApplication</main.class>
+        <icon.path>${project.basedir}/src/main/resources/icon.ico</icon.path>
+        <shaded.classifier>FULL</shaded.classifier>
     </properties>
 
     <dependencies>
+        <!-- Hutool -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.16</version>
+            <version>${hutool.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-json</artifactId>
-            <version>5.8.16</version>
+            <version>${hutool.version}</version>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-poi</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
+        <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.11</version>
+            <version>${logback.version}</version>
         </dependency>
+
+        <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.13.4</version>
+            <version>${jackson.version}</version>
         </dependency>
+
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- JavaFX (Windows) -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
+            <classifier>${javafx.classifier}</classifier>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>21.0.1</version>
+            <version>${javafx.version}</version>
+            <classifier>${javafx.classifier}</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>${javafx.classifier}</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>${javafx.classifier}</classifier>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JUnit 5 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-poi</artifactId>
-            <version>5.8.16</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.20.0</version>
-        </dependency>
+        <!-- Apache POI -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>5.2.3</version>
+            <version>${poi.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -89,48 +147,60 @@
                 <includes>
                     <include>exe/**</include>
                     <include>fxml/**</include>
+                    <include>images/**</include>
                 </includes>
             </resource>
         </resources>
 
         <plugins>
+            <!-- Compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>${compiler.plugin.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
 
+            <!-- Surefire (tests) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M9</version>
+                <version>${surefire.plugin.version}</version>
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <skipTests>false</skipTests>
+                    <includes>
+                        <include>**/bsdx/TestBin.java</include>
+                        <include>**/bsdx/TestGrp.java</include>
+                        <include>**/bsdx/TestMek.java</include>
+                        <include>**/bsdx/TestSpm.java</include>
+                        <include>**/bsdx/TestWaz.java</include>
+                    </includes>
                 </configuration>
             </plugin>
 
+            <!-- Jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>${jar.plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.giga.nexas.MainApplication</mainClass>
+                            <mainClass>${main.class}</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
 
+            <!-- Shade -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>${shade.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -139,18 +209,75 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <minimizeJar>true</minimizeJar>
+                            <minimizeJar>false</minimizeJar>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>1.0.2</shadedClassifierName>
+                            <shadedClassifierName>${shaded.classifier}</shadedClassifierName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.giga.nexas.MainApplication</mainClass>
+                                    <mainClass>${main.class}</mainClass>
                                 </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Java Packager -->
+            <plugin>
+                <groupId>io.github.fvarrui</groupId>
+                <artifactId>javapackager</artifactId>
+                <version>${javapackager.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>${main.class}</mainClass>
+                            <bundleJre>true</bundleJre>
+                            <customizedJre>true</customizedJre>
+                            <copyDependencies>false</copyDependencies>
+                            <iconFile>${icon.path}</iconFile>
+                            <runnableJar>${project.build.directory}/${project.artifactId}-${project.version}-${shaded.classifier}.jar</runnableJar>
+
+                            <additionalModules>
+                                <additionalModule>javafx.base</additionalModule>
+                                <additionalModule>javafx.graphics</additionalModule>
+                                <additionalModule>javafx.controls</additionalModule>
+                                <additionalModule>javafx.fxml</additionalModule>
+                                <additionalModule>java.desktop</additionalModule>
+                                <additionalModule>java.xml</additionalModule>
+                                <additionalModule>java.xml.crypto</additionalModule>
+                                <additionalModule>java.logging</additionalModule>
+                                <additionalModule>jdk.charsets</additionalModule>
+                                <additionalModule>jdk.unsupported</additionalModule>
+                                <additionalModule>java.sql</additionalModule>
+                                <additionalModule>java.naming</additionalModule>
+                            </additionalModules>
+
+                            <!-- 外部传入的 JDK 路径：${packager.jdk}；这里保留占位 -->
+                            <jrePath>${packager.jdk}</jrePath>
+
+                            <generateInstaller>true</generateInstaller>
+                            <administratorRequired>false</administratorRequired>
+                            <platform>windows</platform>
+                            <displayName>${project.name}</displayName>
+                            <name>${project.name}</name>
+                            <version>${project.version}</version>
+                            <winConfig>
+                                <icoFile>${icon.path}</icoFile>
+                                <!-- <headerType>console</headerType> -->
+                                <generateSetup>false</generateSetup>
+                                <generateMsi>false</generateMsi>
+                                <generateMsm>false</generateMsm>
+                            </winConfig>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>

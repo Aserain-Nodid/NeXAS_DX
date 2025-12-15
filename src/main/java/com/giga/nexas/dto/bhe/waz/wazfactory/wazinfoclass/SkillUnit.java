@@ -7,11 +7,6 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * @Description WazUnit
- */
 @Data
 public class SkillUnit {
 

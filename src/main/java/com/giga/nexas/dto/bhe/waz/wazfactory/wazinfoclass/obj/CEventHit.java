@@ -31,13 +31,13 @@ public class CEventHit extends SkillInfoObject {
             new CEventHitType(0xFFFFFFFF, "攻撃力最低値"), // 7  0x07
             new CEventHitType(0xFFFFFFFF, "攻撃力溜め反映率"), // 8  0x08
             new CEventHitType(0xFFFFFFFF, "装甲攻撃力"), // 9  0x09
-            new CEventHitType(0xFFFFFFFF, "ダウン時攻撃力（％）"), // 10  0x0A
-            new CEventHitType(0xFFFFFFFF, "ヒートゲージ上昇値"), // 11  0x0B
-            new CEventHitType(0xFFFFFFFF, "ヒートゲージ上昇値（Win120）"), // 12  0x0C
-            new CEventHitType(0xFFFFFFFF, "ヒートゲージ上昇値（自機）"), // 13  0x0D
-            new CEventHitType(0xFFFFFFFF, "ヒートチャージゲージ上昇値"), // 14  0x0E
-            new CEventHitType(0xFFFFFFFF, "ヒートチャージゲージ上昇値（自機）"), // 15  0x0F
-            new CEventHitType(0xFFFFFFFF, "ヒートチャージゲージ上昇値（自機）(Win120)"), // 16  0x10
+            new CEventHitType(0xFFFFFFFF, "ダウン時攻撃力（％）"), // 10  0x0A diff add
+            new CEventHitType(0xFFFFFFFF, "ヒートゲージ上昇値"), // 11  0x0B diff add
+            new CEventHitType(0xFFFFFFFF, "ヒートゲージ上昇値（Win120）"), // 12  0x0C diff add
+            new CEventHitType(0xFFFFFFFF, "ヒートゲージ上昇値（自機）"), // 13  0x0D diff add
+            new CEventHitType(0xFFFFFFFF, "ヒートチャージゲージ上昇値"), // 14  0x0E diff add
+            new CEventHitType(0xFFFFFFFF, "ヒートチャージゲージ上昇値（自機）"), // 15  0x0F diff add
+            new CEventHitType(0xFFFFFFFF, "ヒートチャージゲージ上昇値（自機）(Win120)"), // 16  0x10 diff add
             new CEventHitType(0xFFFFFFFF, "基底コンボ補正値"), // 17  0x11
             new CEventHitType(0xFFFFFFFF, "攻撃力補正：技のみ"), // 18  0x12
             new CEventHitType(0xFFFFFFFF, "攻撃力補正"), // 19  0x13
@@ -49,7 +49,7 @@ public class CEventHit extends SkillInfoObject {
             new CEventHitType(0x27, "のけぞり（空中）"), // 25  0x19
             new CEventHitType(0x27, "のけぞり（空中→地上）"), // 26  0x1A
             new CEventHitType(0x27, "のけぞり（ダウン）"), // 27  0x1B
-            new CEventHitType(0xFFFFFFFF, "のけぞり優先順位"), // 28  0x1C
+            new CEventHitType(0xFFFFFFFF, "のけぞり優先順位"), // 28  0x1C diff add
             new CEventHitType(0xFFFFFFFF, "ヒットストップ"), // 29  0x1D
             new CEventHitType(0xFFFFFFFF, "ヒットストップ（自機）"), // 30  0x1E
             new CEventHitType(0xFFFFFFFF, "スロー反映率"), // 31  0x1F
@@ -58,10 +58,10 @@ public class CEventHit extends SkillInfoObject {
             new CEventHitType(0xFFFFFFFF, "画面：振動時間"), // 34  0x22
             new CEventHitType(0x1F, "画面：振動"), // 35  0x23
             new CEventHitType(0x1D, "ヒットＳＥ"), // 36  0x24
-            new CEventHitType(0xFFFFFFFF, "鉄ヒット"), // 37  0x25
+            new CEventHitType(0xFFFFFFFF, "鉄ヒット"), // 37  0x25 same as 鉄ヒットＳＥ no diff
             new CEventHitType(0xFFFFFFFF, "ダメージ色時間"), // 38  0x26
             new CEventHitType(0xFFFFFFFF, "キャンセルフラグ"), // 39  0x27
-            new CEventHitType(0x29, "ステータス増減値") // 40  0x8
+            new CEventHitType(0x29, "ステータス増減値") // 40  0x8 same as メカステータス増減値 no diff
     };
 
     @Data
@@ -72,40 +72,42 @@ public class CEventHit extends SkillInfoObject {
         private SkillInfoObject data;
     }
 
-    private Short short1;
-    private Short short2;
+    // bhe -> bsdx 注释对应bsdx中的实际属性
+    // 未标注代表bsdx无此属性，skip
+    private Short short1; // attackTargetType
+    private Short short2; // short2
 
-    private Integer int1;
-    private Integer int2;
-    private Integer int3;
-    private Integer int4;
-    private Integer int5;
-    private Integer int6;
-    private Integer int7;
-    private Integer int8;
-    private Integer int9;
-    private Integer int10;
-    private Integer int11;
-    private Integer int12;
-    private Integer int13;
-    private Integer int14;
-    private Integer int15;
-    private Integer int16;
-    private Integer int17;
-    private Integer int18;
-    private Integer int19;
-    private Integer int20;
-    private Integer int21;
-    private Integer int22;
-    private Integer int23;
-    private Integer int24;
-    private Integer int25;
-    private Integer int26;
-    private Integer int27;
-    private Integer int28;
-    private Integer int29;
-    private Integer int30;
-    private Integer int31;
+    private Integer int1; // int1
+    private Integer int2; // int2
+    private Integer int3; // int3
+    private Integer int4; // hitCount
+    private Integer int5; // hitInterval
+    private Integer int6; // internalCorrection
+    private Integer int7; // midComboCorrection
+    private Integer int8; // endCorrection
+    private Integer int9; // minDamage
+    private Integer int10; //
+    private Integer int11; //
+    private Integer int12; //
+    private Integer int13; //
+    private Integer int14; //
+    private Integer int15; //
+    private Integer int16; // startComboCorrection
+    private Integer int17; // int11
+    private Integer int18; // chargeDamageRate
+    private Integer int19; //
+    private Integer int20; // int13
+    private Integer int21; // int14
+    private Integer int22; //
+    private Integer int23; // int15
+    private Integer int24; // int16
+    private Integer int25; // int17
+    private Integer int26; // int18
+    private Integer int27; // screenShakeFrame
+    private Integer int28; // int20
+    private Integer int29; // int21
+    private Integer int30; // int22
+    private Integer int31; // selfStunFrame
 
     private List<CEventHitUnit> unitList = new ArrayList<>();
 
@@ -154,29 +156,21 @@ public class CEventHit extends SkillInfoObject {
 
         this.unitList.clear();
         for (int i = 0; i < 41; i++) {
-            try {
-                int buffer = reader.readInt();
-                if (buffer != 0 && buffer != 1) {
-                    throw new RuntimeException("buffer == "+buffer);
-                }
+            int buffer = reader.readInt();
 
-                CEventHitUnit unit = new CEventHitUnit();
-                unit.setUnitSlotNum(i);
-                unit.setBuffer(buffer);
-                unit.setDescription(CEVENT_HIT_ENTRIES[i].getDescription());
+            CEventHitUnit unit = new CEventHitUnit();
+            unit.setUnitSlotNum(i);
+            unit.setBuffer(buffer);
+            unit.setDescription(CEVENT_HIT_ENTRIES[i].getDescription());
 
-                if (buffer != 0) {
-                    int typeId = CEVENT_HIT_ENTRIES[i].getType();
-                    SkillInfoObject obj = SkillInfoFactory.createCEventObjectByTypeBhe(typeId);
-                    if (obj != null) {
-                        obj.readInfo(reader);
-                        unit.setData(obj);
-                        this.unitList.add(unit);
-                    }
+            if (buffer != 0) {
+                int typeId = CEVENT_HIT_ENTRIES[i].getType();
+                SkillInfoObject obj = SkillInfoFactory.createCEventObjectByTypeBhe(typeId);
+                if (obj != null) {
+                    obj.readInfo(reader);
+                    unit.setData(obj);
+                    this.unitList.add(unit);
                 }
-            } catch (Exception e) {
-                // todo bug
-                throw new RuntimeException(e);
             }
         }
     }

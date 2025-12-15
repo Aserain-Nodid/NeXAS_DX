@@ -7,11 +7,6 @@ import lombok.Data;
 
 import java.io.IOException;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/10
- * @Description CCpuEventMove
- */
 @Data
 public class CCpuEventMove extends CCpuEvent {
 

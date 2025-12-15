@@ -25,9 +25,9 @@ public class GrpGenerator implements BsdxGenerator<Grp> {
     public GrpGenerator() {
         // 注册解析器
         registerGenerator(new BatVoiceGrpGenerator());
-//        registerGenerator(new MapGroupGrpGenerator());
+        registerGenerator(new MapGroupGrpGenerator());
         registerGenerator(new MekaGroupGrpGenerator());
-//        registerGenerator(new ProgramMaterialGrpGenerator());
+        registerGenerator(new ProgramMaterialGrpGenerator());
         registerGenerator(new SeGroupGrpGenerator());
         registerGenerator(new SpriteGroupGrpGenerator());
         registerGenerator(new TermGrpGenerator());

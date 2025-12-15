@@ -17,87 +17,51 @@ import java.util.Map;
 public class Mek extends Bhe {
 
     private String fileName;
-
-    // 存储各个数据块的字节大小
     private MekBlocks mekBlocks;
-
-    // 区块大小块
     private MekHead mekHead;
-
-    // 机甲信息块
     private MekBasicInfo mekBasicInfo;
-
-    // 未知信息块1
-    private MekUnknownBlock1 mekUnknownBlock1;
-
-    // 武装信息块
+    private MekPairBlock mekPairBlock;
     private Map<Integer, MekWeaponInfo> mekWeaponInfoMap;
-
-    // ai信息块
     private List<MekAiInfo> mekAiInfoList;
-
-    // 声音信息块
     private MekVoiceInfo mekVoiceInfo;
-
-    // 未知信息块2
-    private MekPluginBlock mekPluginBlock;
+    private MekMaterialBlock mekMaterialBlock;
 
     public Mek() {
         this.mekHead = new MekHead();
         this.mekBlocks = new MekBlocks();
         this.mekBasicInfo = new MekBasicInfo();
-        this.mekUnknownBlock1 = new MekUnknownBlock1();
+        this.mekPairBlock = new MekPairBlock();
         this.mekWeaponInfoMap = new LinkedHashMap<>();
         this.mekAiInfoList = new ArrayList<>();
         this.mekVoiceInfo = new MekVoiceInfo();
-        this.mekPluginBlock = new MekPluginBlock();
+        this.mekMaterialBlock = new MekMaterialBlock();
     }
 
     @Data
     public static class MekHead {
-
-        // 序列1：区块大小块总字节
         private Integer sequence1;
-
-        // 序列2：区块大小块 + 机体信息总字节
         private Integer sequence2;
-
-        // 序列3：区块大小块 + 机体信息 + 未知信息1总字节
         private Integer sequence3;
-
-        // 序列4：区块大小块 + 机体信息 + 未知信息1 + 武装信息总字节
         private Integer sequence4;
-
-        // 序列5：区块大小块 + 机体信息 + 未知信息1 + 武装信息 + AI信息总字节
         private Integer sequence5;
-
-        // 序列6：区块大小块 + 机体信息 + 未知信息1 + 武装信息 + AI信息 + 声音信息总字节
         private Integer sequence6;
 
     }
 
     @Data
     public static class MekBlocks {
-
         // 机体信息块大小
         private Integer bodyInfoBlockSize;
-
         // 未知信息块1的大小
         private Integer unknownInfo1BlockSize;
-
         // 武装信息块大小
         private Integer weaponInfoBlockSize;
-
         // AI信息块的大小
         private Integer aiInfoBlockSize;
-
         // 声音信息块的大小
         private Integer voiceInfoBlockSize;
 
-        // 用于计算每个区块的字节数
         public void calculateBlockSizes(MekHead mekHead) {
-
-            // 计算每个块的字节数
             this.bodyInfoBlockSize = mekHead.getSequence2() - mekHead.getSequence1();
             this.unknownInfo1BlockSize = mekHead.getSequence3() - mekHead.getSequence2();
             this.weaponInfoBlockSize = mekHead.getSequence4() - mekHead.getSequence3();
@@ -107,47 +71,28 @@ public class Mek extends Bhe {
 
     }
 
-    /**
-     *
-     * 该大块数据信息由
-     * @；）
-     * （b站主页：https://space.bilibili.com/3546627702786420）
-     *
-     * 总结与发现
-     *
-     * 逆向完善by：我（Karaik）
-     *
-     */
     @Data
     public static class MekBasicInfo {
-
         // jpメカ名
         private String mekName;
-
         // jpメカのルビ
         private String mekNameEnglish;
-
         // jpパイロット名
         private String pilotNameKanji;
-
         // jpパイロットのルビ
         private String pilotNameRoma;
-
         // jpメカ解説
         private String mekDescription;
-
         /**
          * jpデフォルト技グルー
          * 1.对应哪个.waz
          */
         private Integer wazFileSequence;
-
         /**
          * jpデフォルトスプライトグループ
          * 2.对应哪个.spm
          */
         private Integer spmFileSequence;
-
         /**
          * jpフラグ
          * 3.机体图鉴中的机体类型（分类和擅长）
@@ -161,19 +106,16 @@ public class Mek extends Bhe {
          *
          */
         private Integer mekType;
-
         /**
          * jp強さＬｖ
          * 4.作为敌机，在自机不使用FC/初始器下被击破时，自机回复的血量/3
          */
         private Integer healthRecovery;
-
         /**
          * jpフォース数
          * 5.0级击破所得Force数
          */
         private Integer forceOnKill;
-
         /**
          * jp耐久力
          * 6.基础血量/10
@@ -181,13 +123,11 @@ public class Mek extends Bhe {
          * 基础血量等于机体图鉴中的4级血量
          */
         private Integer baseHealth;
-
         /**
          * jpＦＣゲージLv1
          * 7.≥几级时，能量槽+1
          */
         private Integer energyIncreaseLevel1;
-
         /**
          * jpＦＣゲージLv2
          * 8.≥几级时，能量槽+1
@@ -201,13 +141,11 @@ public class Mek extends Bhe {
          * 0级零个能量槽，1-7级一个能量槽，8级以上两个能量槽
          */
         private Integer energyIncreaseLevel2;
-
         /**
          * jpブースターが１になるLv
          * 9.从几级开始有一个助推器
          */
         private Integer boosterLevel;
-
         /**
          * jpブースター増分
          * 10.每增长几级多一个助推器
@@ -221,13 +159,11 @@ public class Mek extends Bhe {
          * 【注意：虽然目前游戏中使用的等级为0-10，但存在尚未仔细研究的11-15自机的等级为16，等级为16的敌机数值不稳定】
          */
         private Integer boosterIncreaseLevel;
-
         /**
          * jp常時装甲
          * 11.常驻甲/100 设置为3就是300常驻甲
          */
         private Integer permanentArmor;
-
         /**
          * jpコンボ感想反映率
          * 12.疑似技能影响因子
@@ -239,7 +175,6 @@ public class Mek extends Bhe {
          * 通过逆向出的字符串，推测该系数大概率为技能物理动作效果的调节因子
          */
         private Integer comboImpactFactor;
-
         /**
          * jp性能：格闘
          * 13.机体图鉴四维图的格斗
@@ -252,25 +187,21 @@ public class Mek extends Bhe {
          * 5    - A
          */
         private Integer fightingAbility;
-
         /**
          * jp性能：射撃
          * 14.机体图鉴四维图的射击
          */
         private Integer shootingAbility;
-
         /**
          * jp性能：耐久力
          * 15.机体图鉴四维图的耐久力
          */
         private Integer durability;
-
         /**
          * jp性能：機動
          * 16.机体图鉴四维图的机动力
          */
         private Integer mobility;
-
         /**
          * jp重量
          * 17.重量
@@ -280,7 +211,6 @@ public class Mek extends Bhe {
          * 在bhe中有一关会增加角色受到的重力，虽然bhe里好像没用
          */
         private Integer physicsWeight;
-
         /**
          * jp速度：歩行
          * 18.“走路”速度
@@ -290,25 +220,21 @@ public class Mek extends Bhe {
          * 速度单位未知
          */
         private Integer walkingSpeed;
-
         /**
          * jp速度：ダッシュ
          * 19.ND速度（normal dash）
          */
         private Integer normalDashSpeed;
-
         /**
          * jp速度：サーチダッシュ
          * 20.SD速度（search dash）
          */
         private Integer searchDashSpeed;
-
         /**
          * jp速度：ブーストダッシュ
          * 21.BD速度（boost dash）
          */
         private Integer boostDashSpeed;
-
         /**
          * jp浮遊高度
          * 22.无热量、不使用武装时，自动升空停止的高度
@@ -320,27 +246,22 @@ public class Mek extends Bhe {
     }
 
     @Data
-    public static class MekUnknownBlock1 {
+    public static class MekPairBlock {
 
-        private byte[] info;
+        private List<Pair> unkPair = new ArrayList<>();
+
+        @Data
+        public static class Pair {
+            private Integer int1;
+            private Integer int2;
+        }
 
     }
 
-    /**
-     * 该大块数据信息感谢以下
-     * @柚木式子
-     * （b站主页：https://space.bilibili.com/1420258295）
-     * @；）
-     * （b站主页：https://space.bilibili.com/3546627702786420）
-     * 群友的部分总结与发现
-     *
-     */
     @Data
     public static class MekWeaponInfo {
-
         // 仅用作记录
         public int offset;
-
         /**
          * jpヘッダ名
          * header名，武器名字
@@ -356,30 +277,25 @@ public class Mek extends Bhe {
          * 为什么逆向后，这个会在数组的最后一项呢？
          */
         private String weaponDescription;
-
         /**
          * 1.使用该武装时，会切换为对应编号的mek
          */
         private Integer switchToMekNo;
-
         /**
          * jp技番号
          * 2.对应.waz中的哪一个武装
          */
         private Integer wazSequence;
-
         /**
          * 3.使用时获得的FC
          * 这个倒是没有逆向出字符串，为什么呢？
          */
         private Integer forceCrashAmount;
-
         /**
          * jp蓄積熱量：初期値
          * 4.消耗的最大热量（一管热量是80）
          */
         private Integer heatMaxConsumption;
-
         /**
          * jp蓄積熱量：最小値
          * 5.武装master后的热量
@@ -387,27 +303,23 @@ public class Mek extends Bhe {
          * 关于4和5，除主角机外这俩值都一样
          */
         private Integer heatMinConsumption;
-
         /**
          * jp炎熱：発動カウント
          *
          * 6.
          */
         private Integer bheInt1;
-
         /**
          * jp排熱：発動カウント
          *
          * 7.
          */
         private Integer bheInt2;
-
         /**
          * jp必要経験値
          * 8.升级所需经验
          */
         private Integer upgradeExp;
-
         /**
          * jpデモ時の距離(LV1:必須)
          * 9.武装演示时机体的起始坐标
@@ -415,21 +327,18 @@ public class Mek extends Bhe {
          * 负数则在右边
          */
         private Integer startPointWhenDemonstrate;
-
         /**
          * jpデモ時の距離(LV2)
          *
          * 10.
          */
         private Integer bheInt3;
-
         /**
          * jpデモ時の距離(LV3)
          *
          * 11.
          */
         private Integer bheInt4;
-
         /**
          * jpカテゴリ
          * 12.武装种类
@@ -444,7 +353,6 @@ public class Mek extends Bhe {
          * ps：为什么逆向后，字符串不是按照实际排列顺序来的呢？
          */
         private Integer weaponCategory;
-
         /**
          * jp攻撃タイプ
          * 13.武装类型
@@ -456,14 +364,12 @@ public class Mek extends Bhe {
          * 03   - 未知2
          */
         private Integer weaponType;
-
         /**
          * jpのけぞり補正開始(ふきとび・ダウン)
          *
          * 14.
          */
         private Integer bheInt5;
-
         /**
          * jpのけぞり補正開始(その他)
          *
@@ -477,49 +383,41 @@ public class Mek extends Bhe {
          * 16.格斗技
          */
         private Integer meleeSkillFlag;
-
         /**
          * jpタイプ：武器
          * 17.兵器
          */
         private Integer coldWeaponSkillFlag;
-
         /**
          * jpタイプ：ミサイル
          * 18.导弹
          */
         private Integer missileSkillFlag;
-
         /**
          * jpタイプ：実弾
          * 19.实弹
          */
         private Integer bulletCategorySkillFlag;
-
         /**
          * jpタイプ：光学兵器
          * 20.光学兵器
          */
         private Integer opticalWeaponSkillFlag;
-
         /**
          * jpタイプ：ビット
          * 21.无人机
          */
         private Integer droneSkillFlag;
-
         /**
          * jpタイプ：爆発物
          * 22.爆炸物
          */
         private Integer explosiveSkillFlag;
-
         /**
          * jpタイプ：防御兵器
          * 23.防御兵器
          */
         private Integer defensiveWeaponSkillFlag;
-
         /**
          * jpフラグ
          * 24.武装标识符
@@ -532,18 +430,15 @@ public class Mek extends Bhe {
          * 设置为02时，该武装会被隐藏，不显示在武装列表中
          */
         private Integer weaponIdentifier;
-
         /**
          * 25.
          */
         private Integer bheInt7;
-
         /**
          * 26.
          * ps:攻撃Ｌｖ是你吗？
          */
-        private Integer weaponUnknownProperty26;
-
+        private Integer weaponUnknownProperty19;
         /**
          * jpフラグ：武器娘
          *
@@ -563,10 +458,6 @@ public class Mek extends Bhe {
             private Integer feiInt6;
             private Integer feiInt7;
         }
-        /**
-         * 该武装对应的插槽信息
-         */
-        private byte[] weaponPluginInfo;
 
     }
 
@@ -582,30 +473,51 @@ public class Mek extends Bhe {
 
     @Data
     public static class MekVoiceInfo {
+        private Integer version;
+        private List<Emotion> emotions = new ArrayList<>();
+        private List<VoiceSlot> voiceSlots = new ArrayList<>();
+        private List<List<List<Entry>>> table = new ArrayList<>();
 
-        private byte[] info;
+        public Integer builtinEmotionCount = 0;
 
-    }
-
-    /**
-     * 极大可能为武装选择列表（插槽块）
-     * 其中，开头的几个为常规块，如走路、站立、ND、BD等，因机体的不同有包括数量在内的差异
-     * 另，内容物作用尚未查明，故直接以byte数组存储
-     */
-    @Data
-    public static class MekPluginBlock {
-
-        private byte[] info;
-
-        private List<byte[]> regularPluginInfoList;
-
-        private List<byte[]> weaponPluginInfoList;
-
-        public MekPluginBlock() {
-            this.regularPluginInfoList = new ArrayList<>();
-            this.weaponPluginInfoList = new ArrayList<>();
+        @Data
+        public static class Emotion {
+            private String name;
+            private String token;
         }
 
+        @Data
+        public static class VoiceSlot {
+            private String name;
+            private String token;
+        }
+
+        @Data
+        public static class Entry {
+            private Integer voiceType;
+            private Integer groupId;
+            private Integer weight;
+        }
+    }
+
+    @Data
+    public static class MekMaterialBlock {
+        private Integer extraRegularCount;
+        public Integer regularCount;
+        private List<PluginEntry> entries = new ArrayList<>();
+        public List<PluginEntry> regularEntries = new ArrayList<>();
+        public List<PluginEntry> trailingEntries = new ArrayList<>();
+
+        @Data
+        public static class PluginEntry {
+            public Integer offset;
+            public Integer length;
+
+            // diff
+            private List<int[]> spriteGroups = new ArrayList<>();
+            private List<int[]> seGroups     = new ArrayList<>();
+            private List<int[]> voiceGroups  = new ArrayList<>();
+        }
     }
 
 }

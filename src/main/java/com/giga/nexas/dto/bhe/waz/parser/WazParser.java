@@ -11,12 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/1/19
- * @Description WazParser
- * 逆向所得
- */
 @Slf4j
 public class WazParser implements BheParser<Waz> {
 

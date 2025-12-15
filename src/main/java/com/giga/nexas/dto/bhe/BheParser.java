@@ -1,8 +1,10 @@
 package com.giga.nexas.dto.bhe;
 
+import java.io.IOException;
+
 public interface BheParser<T extends Bhe> {
 
     String supportExtension();
 
-    T parse(byte[] data, String filename, String charset);
+    T parse(byte[] data, String filename, String charset) throws IOException;
 }

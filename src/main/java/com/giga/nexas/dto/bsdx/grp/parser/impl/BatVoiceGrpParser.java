@@ -14,7 +14,7 @@ public class BatVoiceGrpParser implements GrpFileParser<Grp> {
 
     @Override
     public String getParserKey() {
-        return "BatVoice";
+        return "batvoice";
     }
 
     @Override

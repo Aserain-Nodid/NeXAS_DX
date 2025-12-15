@@ -16,7 +16,7 @@ public class WazaGroupGrpGenerator implements GrpFileGenerator<Grp> {
 
     @Override
     public String getGeneratorKey() {
-        return "WazaGroup";
+        return "wazagroup";
     }
 
     @Override

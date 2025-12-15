@@ -12,11 +12,6 @@ import java.util.List;
 
 import static com.giga.nexas.dto.bhe.waz.wazfactory.SkillInfoFactory.createCEventObjectByTypeBhe;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * CEventNokezori__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventNokezori extends SkillInfoObject {
@@ -47,7 +42,6 @@ public class CEventNokezori extends SkillInfoObject {
             new CEventNokezoriType(0xFFFFFFFF, "バウンドLv"),
             new CEventNokezoriType(0xFFFFFFFF, "バウンド速度"),
 
-            // todo???
             new CEventNokezoriType(0xFFFFFFFF, "指定："),
             new CEventNokezoriType(0xFFFFFFFF, "同じ：地上→地上"),
             new CEventNokezoriType(0xFFFFFFFF, "同じ：空中"),

@@ -5,11 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * CEventBlink__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventBlink extends SkillInfoObject {
@@ -55,7 +50,7 @@ public class CEventBlink extends SkillInfoObject {
     private Byte byte5;
     private Byte byte6;
     private Integer int8;
-    private Integer int9;
+    private Integer int9; // short for bsdx?
 
     public CEventBlink(Integer typeId) {
         super(typeId);

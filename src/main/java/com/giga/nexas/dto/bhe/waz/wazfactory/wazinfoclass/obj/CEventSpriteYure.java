@@ -11,12 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * @Description
- * CEventSpriteYure__Read
- */
 @Data
 @NoArgsConstructor
 public class CEventSpriteYure extends SkillInfoObject {
@@ -48,10 +42,10 @@ public class CEventSpriteYure extends SkillInfoObject {
 
     private List<BheInfoCollection> bheInfoCollectionList = new ArrayList<>();
 
-    private Integer int1;
-    private Integer int2;
-    private Integer int3;
-    private Integer int4;
+    private Integer vibrationAreaType;
+    private Integer vibrationAmplitudeOutToIn;
+    private Integer vibrationAmplitudeInToOut;
+    private Integer vibrationDampingFactor;
 
     public CEventSpriteYure(Integer typeId) {
         super(typeId);
@@ -66,10 +60,10 @@ public class CEventSpriteYure extends SkillInfoObject {
         bheInfoCollection.readCollection(reader);
         this.bheInfoCollectionList.add(bheInfoCollection);
 
-        this.int1 = reader.readInt();
-        this.int2 = reader.readInt();
-        this.int3 = reader.readInt();
-        this.int4 = reader.readInt();
+        this.vibrationAreaType = reader.readInt();
+        this.vibrationAmplitudeOutToIn = reader.readInt();
+        this.vibrationAmplitudeInToOut = reader.readInt();
+        this.vibrationDampingFactor = reader.readInt();
     }
 
     @Override
@@ -78,10 +72,10 @@ public class CEventSpriteYure extends SkillInfoObject {
         for (BheInfoCollection collection : bheInfoCollectionList) {
             collection.writeCollection(writer);
         }
-        writer.writeInt(this.int1);
-        writer.writeInt(this.int2);
-        writer.writeInt(this.int3);
-        writer.writeInt(this.int4);
+        writer.writeInt(this.vibrationAreaType);
+        writer.writeInt(this.vibrationAmplitudeOutToIn);
+        writer.writeInt(this.vibrationAmplitudeInToOut);
+        writer.writeInt(this.vibrationDampingFactor);
     }
 
 }

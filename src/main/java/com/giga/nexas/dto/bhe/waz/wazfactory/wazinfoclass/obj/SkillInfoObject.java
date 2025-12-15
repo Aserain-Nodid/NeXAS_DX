@@ -9,12 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/18
- * @Description WazInfoObject
- */
-
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "typeId", visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = CEventVal.class, name = "0"),

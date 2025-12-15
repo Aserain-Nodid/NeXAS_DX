@@ -1,0 +1,60 @@
+.data:00949BA4 off_949BA4      dd offset aBatvoiceGrp  ; DATA XREF: sub_7042C0+1E↑r
+.data:00949BA4                                         ; sub_7047F0+2E↑r
+.data:00949BA4                                         ; "BatVoice.grp"
+.data:00949BA8                 dd offset aBatvoiceH    ; "BatVoice.h"
+.data:00949BAC                 dd offset off_8A8F0C
+.data:00949BB0 ; void *off_949BB0
+.data:00949BB0 off_949BB0      dd offset aProgrammateria
+.data:00949BB0                                         ; DATA XREF: sub_705970+1E↑r
+.data:00949BB0                                         ; sub_705AE0+31↑r
+.data:00949BB0                                         ; "ProgramMaterial.grp"
+.data:00949BB4                 align 8
+.data:00949BB8                 dd offset asc_8A8F54    ; "死亡時ヒット音"
+.data:00949BBC                 dd offset asc_8A8F64    ; "急降下音"
+.data:00949BC0                 dd offset asc_8A8F70    ; "着地(通常)"
+.data:00949BC4                 dd offset asc_8A8F7C    ; "着地(大型)"
+.data:00949BC8                 dd offset aUn_4         ; "ダウン時(通常)"
+.data:00949BCC                 dd offset aUn_5         ; "ダウン時(大型)"
+.data:00949BD0                 dd offset asc_8A8FA8    ; "緊急復帰"
+.data:00949BD4                 dd offset aSe_4         ; "ダッシュSE(開始)"
+.data:00949BD8                 dd offset aSe_5         ; "ダッシュSE(ループ)"
+.data:00949BDC                 dd offset aSe_6         ; "ダッシュSE(終了)"
+.data:00949BE0                 dd offset aN_116        ; "キャンセル不可時"
+.data:00949BE4                 dd offset asc_8A9004    ; "熱量減少中攻撃不可時"
+.data:00949BE8                 dd offset aN_188        ; "ダッシュキャンセル時"
+.data:00949BEC                 dd offset aExN_0        ; "EXキャンセル時"
+.data:00949BF0                 dd offset aO_36         ; "オーバーヒートチャージ時"
+.data:00949BF4                 dd offset aEiaN         ; "フェイアクション時"
+.data:00949BF8                 dd offset aSe_8         ; "鋼鉄ヒットSE"
+.data:00949BFC                 dd offset asc_8A9084    ; "装甲弾き"
+.data:00949C00                 dd offset aFcI_3        ; "FCフィニッシュ"
+.data:00949C04                 dd offset asc_8A90A0    ; "ロック固定開始時"
+.data:00949C08                 dd offset asc_8A90B4    ; "ロック固定解除時"
+.data:00949C0C                 dd offset aC4           ; "C4起爆時"
+.data:00949C10                 dd offset aIn_7         ; "ログイン"
+.data:00949C14                 dd offset aIn_8         ; "ログイン終了時"
+.data:00949C18                 dd offset aAu           ; "ログアウト"
+.data:00949C1C                 dd offset aAu_0         ; "ログアウト終了時"
+.data:00949C20                 dd offset aN_189        ; "ジャミング時"
+.data:00949C24                 dd offset aN_190        ; "コンボ失敗時"
+
+
+.data:00949DB0 off_949DB0      dd offset aMekagroupGrp ; DATA XREF: sub_7092D0+1E↑r
+.data:00949DB0                                         ; sub_7093F0+31↑r
+.data:00949DB0                                         ; "MekaGroup.grp"
+.data:00949DB4                 dd offset aMekagroupH   ; "MekaGroup.h"
+.data:00949DB8                 dd offset aMeka_0       ; "MEKA_"
+.data:00949DBC                 dd offset asc_8A9318    ; "立ち"
+.data:00949DC0                 dd offset a01           ; "歩行01"
+.data:00949DC4                 dd offset a02           ; "歩行02"
+.data:00949DC8                 dd offset asc_8A9330    ; "ダッシュ（開始）"
+.data:00949DCC                 dd offset asc_8A9344    ; "ダッシュ（持続）"
+.data:00949DD0                 dd offset asc_8A9358    ; "ダッシュ（硬直）"
+.data:00949DD4                 dd offset asc_8A936C    ; "サーチダッシュ（開始）"
+.data:00949DD8                 dd offset asc_8A9384    ; "サーチダッシュ（持続）"
+.data:00949DDC                 dd offset asc_8A939C    ; "サーチダッシュ（硬直）"
+.data:00949DE0                 dd offset asc_8A93B4    ; "ブーストダッシュ（開始）"
+.data:00949DE4                 dd offset asc_8A93D0    ; "ブーストダッシュ（持続）"
+.data:00949DE8                 dd offset asc_8A93EC    ; "ブーストダッシュ（硬直）"
+.data:00949DEC                 dd offset asc_8A9408    ; "起き上がり（仰向け）"
+.data:00949DF0                 dd offset aU            ; "起き上がり（うつ伏せ）"

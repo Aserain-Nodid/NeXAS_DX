@@ -40,9 +40,9 @@ public class Spm extends Bsdx {
         private Integer chipHeight;
         private SPMRect srcRect;
         private Long drawOption;
+        private byte unk5; // SPM2.02
         private Long drawOptionValue;
         private Integer option;
-        private byte unk5; // for SPM 2.02
     }
 
     @Data
@@ -55,14 +55,15 @@ public class Spm extends Bsdx {
         private Integer rotateCenterX;
         private Integer rotateCenterY;
         private Long hitFlag;
+        private byte unk3; // SPM2.02
         private List<SPMHitArea> hitRects;
         private List<SPMChipData> chipData;
     }
 
     @Data
     public static class SPMHitArea {
-        private SPMRect hitRect;
         private Integer unk0;
+        private SPMRect hitRect;
         private Integer unk1;
         private Integer unk2;
     }

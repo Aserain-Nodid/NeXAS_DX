@@ -16,7 +16,7 @@ public class BatVoiceGrpGenerator implements GrpFileGenerator<Grp> {
 
     @Override
     public String getGeneratorKey() {
-        return "BatVoice";
+        return "batvoice";
     }
 
     @Override

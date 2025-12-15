@@ -19,11 +19,6 @@ import java.util.List;
         @JsonSubTypes.Type(value = CCpuEventMove.class, name = "1"),
         @JsonSubTypes.Type(value = CCpuEventAttack.class, name = "2")
 })
-/**
- * @Author 这位同学(Karaik)
- * @Date 2025/5/10
- * @Description CCpuEvent
- */
 @Data
 public class CCpuEvent {
 
@@ -141,7 +136,7 @@ public class CCpuEvent {
     private Integer int23;
     private Integer int24;
     private Integer int25;
-//    private Integer int26; // diff
+    private Integer int26 = -999; // diff　bhe中实际上不存在
 
     private Short short2;
 
